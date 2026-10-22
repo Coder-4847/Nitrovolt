@@ -1,4 +1,5 @@
 import { storage } from '../core/Storage';
+import { SURFACES, SurfaceId } from '../physics/Surface';
 
 interface AudioSettings {
   master: number;
@@ -20,6 +21,28 @@ function makeNoiseBuffer(ctx: AudioContext, seconds = 2): AudioBuffer {
   return buf;
 }
 
+/** How a car's engine sounds: all synthesised from two oscillators through a low-pass. */
+export interface EngineVoice {
+  /** Fundamental (Hz) at idle and the extra Hz added by full revs. */
+  base: number;
+  range: number;
+  osc1: OscillatorType;
+  osc2: OscillatorType;
+  /** Second oscillator ratio to the fundamental (0.5 = sub-octave, 1.01 = detuned unison). */
+  osc2Ratio: number;
+  /** Low-pass cutoff at idle / full throttle-and-revs (Hz). */
+  cutoffLo: number;
+  cutoffHi: number;
+  gain: number;
+  gears: number;
+  /** Wobble depth (fraction of frequency) for a buzzy small engine. */
+  vibrato: number;
+}
+
+export const DEFAULT_VOICE: EngineVoice = {
+  base: 38, range: 190, osc1: 'sawtooth', osc2: 'square', osc2Ratio: 0.5, cutoffLo: 380, cutoffHi: 2600, gain: 0.16, gears: 6, vibrato: 0,
+};
+
 export interface EngineState {
   speed: number; // m/s
   throttle: number; // 0..1
@@ -27,6 +50,8 @@ export interface EngineState {
   slip: number;
   grounded: boolean;
   topSpeed: number;
+  /** Surface under the heaviest wheel (null in the air). */
+  surface?: SurfaceId | null;
 }
 
 /**
@@ -48,6 +73,10 @@ export class AudioEngine {
   private noise!: AudioBuffer;
   private gear = 0;
   private rpm = 0;
+  private roadGain!: GainNode;
+  private roadFilter!: BiquadFilterNode;
+  private voice: EngineVoice = DEFAULT_VOICE;
+  private vibPhase = 0;
   settings: AudioSettings = storage.get<AudioSettings>(KEY, { master: 0.7, engine: 0.8, sfx: 0.9 });
 
   constructor() {
@@ -77,9 +106,9 @@ export class AudioEngine {
 
     // engine: two detuned saws + square sub through a low-pass
     this.osc1 = ctx.createOscillator();
-    this.osc1.type = 'sawtooth';
+    this.osc1.type = this.voice.osc1;
     this.osc2 = ctx.createOscillator();
-    this.osc2.type = 'square';
+    this.osc2.type = this.voice.osc2;
     this.engineFilter = ctx.createBiquadFilter();
     this.engineFilter.type = 'lowpass';
     this.engineFilter.Q.value = 2.5;
@@ -113,6 +142,19 @@ export class AudioEngine {
     sq.connect(this.squealFilter).connect(this.squealGain).connect(this.sfxGain);
     sq.start();
 
+    // road noise: crunch on loose ground, hiss on snow, hum on tarmac
+    const rd = ctx.createBufferSource();
+    rd.buffer = this.noise;
+    rd.loop = true;
+    this.roadFilter = ctx.createBiquadFilter();
+    this.roadFilter.type = 'bandpass';
+    this.roadFilter.frequency.value = 800;
+    this.roadFilter.Q.value = 0.8;
+    this.roadGain = ctx.createGain();
+    this.roadGain.gain.value = 0;
+    rd.connect(this.roadFilter).connect(this.roadGain).connect(this.sfxGain);
+    rd.start();
+
     // wind: low-passed noise
     const wd = ctx.createBufferSource();
     wd.buffer = this.noise;
@@ -126,6 +168,16 @@ export class AudioEngine {
     wd.start();
 
     this.applySettings();
+  }
+
+  /** Switch to a car's engine sound. */
+  setVoice(v: EngineVoice): void {
+    this.voice = v;
+    this.gear = 0;
+    if (this.ctx) {
+      this.osc1.type = v.osc1;
+      this.osc2.type = v.osc2;
+    }
   }
 
   applySettings(): void {
@@ -142,9 +194,10 @@ export class AudioEngine {
     if (!ctx) return;
     const t = ctx.currentTime;
 
-    // virtual gearbox: 6 gears over the speed range
+    const voice = this.voice;
+    // virtual gearbox over the speed range
     const frac = Math.min(1, s.speed / s.topSpeed);
-    const gears = 6;
+    const gears = voice.gears;
     const g = Math.min(gears - 1, Math.floor(Math.pow(frac, 0.8) * gears));
     const lo = Math.pow(g / gears, 1 / 0.8), hi = Math.pow((g + 1) / gears, 1 / 0.8);
     const inGear = (frac - lo) / Math.max(hi - lo, 1e-3);
@@ -155,15 +208,37 @@ export class AudioEngine {
     }
     this.rpm += (targetRpm - this.rpm) * Math.min(1, dt * 12);
 
-    const f = 38 + 190 * this.rpm;
+    this.vibPhase += dt * 38;
+    const f = (voice.base + voice.range * this.rpm) * (1 + Math.sin(this.vibPhase) * voice.vibrato);
     this.osc1.frequency.setTargetAtTime(f, t, 0.03);
-    this.osc2.frequency.setTargetAtTime(f * 0.5, t, 0.03);
-    this.engineFilter.frequency.setTargetAtTime(380 + 2600 * (0.25 + 0.75 * s.throttle) * (0.4 + this.rpm), t, 0.05);
-    this.engineLevel.gain.setTargetAtTime(0.06 + 0.16 * (0.35 + 0.65 * s.throttle), t, 0.05);
+    this.osc2.frequency.setTargetAtTime(f * voice.osc2Ratio, t, 0.03);
+    this.engineFilter.frequency.setTargetAtTime(voice.cutoffLo + (voice.cutoffHi - voice.cutoffLo) * (0.25 + 0.75 * s.throttle) * (0.4 + this.rpm), t, 0.05);
+    this.engineLevel.gain.setTargetAtTime((0.06 + voice.gain * (0.35 + 0.65 * s.throttle)) * (0.16 / 0.22), t, 0.05);
 
-    const squeal = Math.max(0, s.slip - 0.85) * 2.2 * (s.grounded ? 1 : 0) * Math.min(1, s.speed / 12);
+    const surf = s.surface ? SURFACES[s.surface] : null;
+    const hard = !surf || !surf.loose;
+    // tyre squeal only on hard ground; loose ground crunches instead
+    const squeal = hard && s.surface !== 'ice' ? Math.max(0, s.slip - 0.85) * 2.2 * (s.grounded ? 1 : 0) * Math.min(1, s.speed / 12) : 0;
     this.squealGain.gain.setTargetAtTime(Math.min(0.35, squeal), t, 0.04);
     this.squealFilter.frequency.setTargetAtTime(1300 + 900 * Math.min(1, s.speed / 60), t, 0.1);
+    let road = 0;
+    let roadHz = 700;
+    if (s.grounded && surf) {
+      const sp = Math.min(1, s.speed / 40);
+      if (surf.loose) {
+        const snow = s.surface === 'snow';
+        road = (snow ? 0.12 : 0.22) * sp * (0.6 + 0.6 * Math.min(1.2, s.slip));
+        roadHz = snow ? 3200 : s.surface === 'sand' ? 1400 : 900;
+      } else if (s.surface === 'ice') {
+        road = 0.1 * sp * (0.4 + Math.min(1.2, s.slip));
+        roadHz = 4200;
+      } else {
+        road = 0.06 * sp;
+        roadHz = 260;
+      }
+    }
+    this.roadGain.gain.setTargetAtTime(road, t, 0.06);
+    this.roadFilter.frequency.setTargetAtTime(roadHz, t, 0.1);
     const w = Math.pow(Math.min(1, s.speed / s.topSpeed), 2);
     this.windGain.gain.setTargetAtTime(0.02 + 0.55 * w, t, 0.1);
   }

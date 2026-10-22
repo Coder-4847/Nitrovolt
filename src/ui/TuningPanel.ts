@@ -1,15 +1,17 @@
 import { PARAM_DESCRIPTORS, VehicleParams, cloneParams, getParam, setParam } from '../physics/VehicleParams';
 import { storage } from '../core/Storage';
 
-const KEY = 'nitrovolt.tuning.volt';
 
 /** Dev-only live tuning sliders for every car parameter (`?debug=1`). Mutates the shared params object. */
 export class TuningPanel {
   private readonly el: HTMLElement;
 
-  constructor(parent: HTMLElement, private readonly params: VehicleParams, onChange: () => void) {
+  private readonly key: string;
+
+  constructor(parent: HTMLElement, private readonly params: VehicleParams, onChange: () => void, carId: string) {
+    this.key = `nitrovolt.tuning.${carId}`;
     const defaults = cloneParams(params);
-    const saved = storage.get<Record<string, number> | null>(KEY, null);
+    const saved = storage.get<Record<string, number> | null>(this.key, null);
     if (saved) for (const [k, v] of Object.entries(saved)) if (typeof v === 'number') setParam(params, k, v);
     onChange();
 
@@ -101,7 +103,7 @@ export class TuningPanel {
   private persist(): void {
     const out: Record<string, number> = {};
     for (const d of PARAM_DESCRIPTORS) out[d.path] = getParam(this.params, d.path);
-    storage.set(KEY, out);
+    storage.set(this.key, out);
   }
 
   toggle(): void {

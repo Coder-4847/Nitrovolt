@@ -40,6 +40,15 @@ export interface TrackJson {
   medalTimes: MedalTimes;
   /** Optional data-URL thumbnail. */
   thumbnail?: string;
+  /** How the validation bot should drive this level (it tunes itself per car and surface). */
+  bot?: BotHints;
+}
+
+export interface BotHints {
+  maxSpeed?: number;
+  lookTime?: number;
+  steerSlew?: number;
+  lateralBudget?: number;
 }
 
 const WALLS: WallSide[] = ['none', 'left', 'right', 'both'];

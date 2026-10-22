@@ -1,15 +1,19 @@
 // Authoring tool: chains blocks into level JSON, validates with the path bot, derives provisional medal times.
 // Usage: npx tsx scripts/make-levels.ts
 import { writeFileSync } from 'node:fs';
+import { CarId, carParams, getCar } from '../src/data/cars';
 import { Simulation } from '../src/physics/Simulation';
-import { VOLT, cloneParams } from '../src/physics/VehicleParams';
 import { BLOCK_TYPE_SET } from '../src/tracks/BlockLibrary';
 import { ChainItem, layoutChain } from '../src/tracks/ChainLayout';
-import { PathBot } from '../src/tracks/PathBot';
+import { PathBot, applyBotHints } from '../src/tracks/PathBot';
 import { TrackJson, validateTrackJson } from '../src/tracks/TrackSchema';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 
 const S = (type: string, extra: Partial<ChainItem> = {}): ChainItem => ({ type, ...extra });
+const on = (surface: string) => (type: string, extra: Partial<ChainItem> = {}): ChainItem => ({ type, surface: surface as ChainItem['surface'], ...extra });
+const d = on('dirt'), g = on('grass'), sd = on('sand'), ic = (type: string, extra: Partial<ChainItem> = {}): ChainItem => ({ type, surface: 'ice', walls: 'both', ...extra }), sa = on('sand');
+/** snow with rails on both sides: slippery tracks get barriers */
+const sn = (type: string, extra: Partial<ChainItem> = {}): ChainItem => ({ type, surface: 'snow', walls: 'both', ...extra });
 const eff = (type: string, surface: string): ChainItem => ({ type, surface: surface as ChainItem['surface'] });
 
 /** Expand a straight of `n` cells into blocks, dropping a checkpoint into it when asked. */
@@ -40,7 +44,7 @@ function circuit(): ChainItem[] {
   return items;
 }
 
-const levels: Array<{ id: string; name: string; theme: string; laps?: number; items: ChainItem[]; closed?: boolean }> = [
+const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxSpeed?: number; look?: number; slew?: number; lat?: number; laps?: number; items: ChainItem[]; closed?: boolean }> = [
   {
     id: 'sprint01',
     name: 'Sprint 01',
@@ -81,6 +85,53 @@ const levels: Array<{ id: string; name: string; theme: string; laps?: number; it
     items: circuit(),
   },
   {
+    id: 'gravel01',
+    look: 0.7, slew: 0.05, lat: 12,
+    name: 'Dirt Road',
+    theme: 'rally',
+    car: 'gravel',
+    maxSpeed: 55,
+    items: [
+      d('start'), d('straight2'), d('curve2L'), d('straight2'), d('chicaneR'), d('straight2'),
+      d('checkpoint'), d('curve3R', { walls: 'both' }), d('straight2'),
+      g('straight2'), g('curve2L'), g('straight1'),
+      d('straight2'), d('checkpoint'), d('kicker'), d('landingLong', { gap: 1, dy: -1 }), d('straight2'),
+      sd('straight2'), sd('curve2R'), sd('straight2'),
+      d('straight1'), d('checkpoint'), d('chicaneL'), d('straight2'), d('curve2R'), d('straight2'), S('finish', { surface: 'dirt' }), d('straight2'),
+    ],
+  },
+  {
+    id: 'frost01',
+    look: 0.7, slew: 0.05, lat: 12,
+    name: 'Ice Pass',
+    theme: 'alpine',
+    car: 'frost',
+    maxSpeed: 50,
+    items: [
+      sn('start'), sn('straight2'), sn('straight2'), sn('curve3L'), sn('straight2'), sn('checkpoint'),
+      ic('straight2'), ic('straight2'), sn('straight2'), sn('straight2'), sn('chicaneL'), sn('straight2'),
+      sn('slopeUp2'), sn('straight2'), sn('bank3R', { walls: 'both' }), sn('straight2'), sn('checkpoint'),
+      sn('slopeDown2'), sn('straight2'), sn('kicker'), sn('landingLong', { gap: 1, dy: -1 }), sn('straight2'),
+      ic('straight2'), ic('curve3L'), ic('straight1'), sn('straight2'), sn('checkpoint'), sn('curve2R'), sn('straight2'), S('finish', { surface: 'snow' }), sn('straight2'),
+    ],
+  },
+  {
+    id: 'dune01',
+    look: 0.7, slew: 0.05, lat: 12,
+    name: 'Dune Run',
+    theme: 'desert',
+    car: 'dune',
+    maxSpeed: 62,
+    items: [
+      sa('start'), sa('straight2'), sa('straight2'), sa('curve3L'), sa('straight1'), sa('checkpoint'),
+      sa('slopeUp1'), sa('straight1'), sa('slopeDown1'), sa('straight2'),
+      sa('jumpRamp'), sa('landingLong', { gap: 2, dy: -1 }), sa('straight2'), sa('checkpoint'),
+      sa('curve2R'), sa('straight2'), sa('bank3L', { walls: 'both' }), sa('straight2'),
+      sa('kicker'), sa('landing1', { gap: 1, dy: -1 }), sa('straight2'), sa('checkpoint'),
+      sa('chicaneWideL'), sa('straight2'), sa('curve2R'), sa('straight2'), S('finish', { surface: 'sand' }), sa('straight2'),
+    ],
+  },
+  {
     id: 'stunt01',
     name: 'Stunt Park',
     theme: 'grey',
@@ -98,15 +149,17 @@ async function main(): Promise<void> {
   for (const lv of levels) {
     const { blocks } = layoutChain(lv.items);
     const json: TrackJson = {
-      id: lv.id, name: lv.name, car: 'volt', theme: lv.theme, seed: 1, laps: lv.laps ?? 1, blocks,
+      id: lv.id, name: lv.name, car: lv.car ?? 'volt', theme: lv.theme, seed: 1, laps: lv.laps ?? 1, blocks,
       medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 },
     };
     const errs = validateTrackJson(json, BLOCK_TYPE_SET);
     if (errs.length) throw new Error(`${lv.id}: ${errs.join('; ')}`);
     const track = buildTrack(json);
-    const sim = await Simulation.create(track, cloneParams(VOLT), 0);
-    const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1);
-    bot.maxSpeed = 75;
+    const def = getCar(lv.car ?? 'volt');
+    const sim = await Simulation.create(track, carParams(def.id), 0, undefined, def.behavior);
+    const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, sim.vehicle.params);
+    json.bot = { maxSpeed: lv.maxSpeed ?? 75, ...(lv.look ? { lookTime: lv.look } : {}), ...(lv.slew ? { steerSlew: lv.slew } : {}), ...(lv.lat ? { lateralBudget: lv.lat } : {}) };
+    applyBotHints(bot, json.bot);
     if (process.env.LOOKT) bot.lookTime = Number(process.env.LOOKT);
     if (process.env.SLEW) bot.steerSlew = Number(process.env.SLEW);
     if (process.env.LAT) bot.lateralBudget = Number(process.env.LAT);

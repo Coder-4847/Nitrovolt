@@ -3,6 +3,7 @@ import {
   Bindings, DEFAULT_BINDINGS, KEY_ACTION_LABELS, KeyAction, PAD_ACTION_LABELS, PadAction, prettyKey, saveBindings,
 } from '../core/input/Bindings';
 import { InputManager } from '../core/input/InputManager';
+import { ACCENT_PRESETS, Livery, PRIMARY_PRESETS, fromCss, saveLivery, toCss } from '../core/Livery';
 import { storage } from '../core/Storage';
 import { QUALITY, QualityLevel, saveQuality } from '../render/Quality';
 import { GameRenderer } from '../render/GameRenderer';
@@ -16,6 +17,10 @@ export interface SettingsHooks {
   levels: Array<{ id: string; name: string }>;
   currentLevel: string;
   onCountdown(mode: CountdownMode): void;
+  carId: string;
+  carLabel: string;
+  livery: Livery;
+  onLivery(l: Livery): void;
 }
 
 /** Pause menu: graphics, audio, input toggles and the keyboard / gamepad remapping UI. */
@@ -76,6 +81,9 @@ export class SettingsMenu {
         <option value="instant" ${cd === 'instant' ? 'selected' : ''}>Instant (GO immediately)</option>
         <option value="quick" ${cd === 'quick' ? 'selected' : ''}>Quick 3-2-1 (1.2 s)</option>
         <option value="classic" ${cd === 'classic' ? 'selected' : ''}>Classic 3-2-1 (3 s)</option></select></div>
+      <h4>Car · ${this.hooks.carLabel}</h4>
+      <div class="line"><span>Paint</span><span class="swatches" data-sw="primary">${PRIMARY_PRESETS.map((c) => `<button class="sw ${c === this.hooks.livery.primary ? 'on' : ''}" style="background:${toCss(c)}" data-c="${c}"></button>`).join('')}<input type="color" value="${toCss(this.hooks.livery.primary)}" data-cp></span></div>
+      <div class="line"><span>Accent</span><span class="swatches" data-sw="accent">${ACCENT_PRESETS.map((c) => `<button class="sw ${c === this.hooks.livery.accent ? 'on' : ''}" style="background:${toCss(c)}" data-c="${c}"></button>`).join('')}<input type="color" value="${toCss(this.hooks.livery.accent)}" data-ca></span></div>
       <h4>Graphics</h4>
       <div class="line"><span>Quality</span><select data-q>${(Object.keys(QUALITY) as QualityLevel[]).map((k) => `<option value="${k}" ${k === q ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
       <div class="line"><span>Speed lines</span><input type="checkbox" data-fx ${fx ? 'checked' : ''}></div>
@@ -94,6 +102,20 @@ export class SettingsMenu {
       <div class="foot"><button class="btn" data-reset>Reset bindings</button><button class="btn primary" data-close>Resume</button></div>`;
 
     const $ = <T extends Element>(s: string): T => this.el.querySelector<T>(s)!;
+    const setLivery = (l: Livery): void => {
+      this.hooks.livery = l;
+      saveLivery(this.hooks.carId, l);
+      this.hooks.onLivery(l);
+      this.render();
+    };
+    this.el.querySelectorAll<HTMLButtonElement>('[data-sw] .sw').forEach((b) => {
+      b.onclick = () => {
+        const kind = (b.parentElement as HTMLElement).dataset.sw as 'primary' | 'accent';
+        setLivery({ ...this.hooks.livery, [kind]: Number(b.dataset.c) });
+      };
+    });
+    $<HTMLInputElement>('[data-cp]').onchange = (e) => setLivery({ ...this.hooks.livery, primary: fromCss((e.target as HTMLInputElement).value) });
+    $<HTMLInputElement>('[data-ca]').onchange = (e) => setLivery({ ...this.hooks.livery, accent: fromCss((e.target as HTMLInputElement).value) });
     $<HTMLSelectElement>('[data-lv]').onchange = (e) => {
       const params = new URLSearchParams(location.search);
       params.delete('track');

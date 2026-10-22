@@ -4,7 +4,8 @@ import { makeFrame } from '../src/core/InputFrame';
 import { medalFor } from '../src/core/Medals';
 import { Simulation } from '../src/physics/Simulation';
 import { VOLT, cloneParams } from '../src/physics/VehicleParams';
-import { PathBot } from '../src/tracks/PathBot';
+import { carParams, getCar } from '../src/data/cars';
+import { PathBot, applyBotHints } from '../src/tracks/PathBot';
 import { layoutChain } from '../src/tracks/ChainLayout';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 import { TrackJson } from '../src/tracks/TrackSchema';
@@ -136,11 +137,12 @@ describe('run logic', () => {
 
 describe('built-in levels', () => {
   for (const lv of LEVELS) {
-    it(`${lv.id} is finishable by the path bot with no respawns`, async () => {
+    it(`${lv.id} (${lv.car}) is finishable by the path bot with no respawns`, async () => {
       const track = buildTrack(lv);
-      const s = await Simulation.create(track, cloneParams(VOLT), 0);
-      const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1);
-      bot.maxSpeed = 75;
+      const def = getCar(lv.car);
+      const s = await Simulation.create(track, carParams(def.id), 0, undefined, def.behavior);
+      const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, s.vehicle.params);
+      applyBotHints(bot, lv.bot);
       for (let i = 0; i < 20000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
       expect(s.run.state).toBe('finished');
       expect(s.respawnCount).toBe(0);

@@ -3,6 +3,8 @@ import {
   PerspectiveCamera, PlaneGeometry, Scene, ShaderMaterial, Vector3, WebGLRenderer,
 } from 'three';
 import { RenderPose } from '../physics/Vehicle';
+import { CarDef } from '../data/cars';
+import { Vehicle } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { TrackData } from '../tracks/TrackTypes';
 import { CameraRig } from './CameraRig';
@@ -11,6 +13,7 @@ import { QUALITY, QualityLevel } from './Quality';
 import { Sky } from './Sky';
 import { SpeedFx } from './SpeedFx';
 import { TrackView } from './TrackView';
+import { WheelFx } from './WheelFx';
 
 const FOG_COLOR = 0xe6c9ae;
 
@@ -31,7 +34,15 @@ export class GameRenderer {
   /** Dev only: render from an arbitrary camera instead of the rig (overview screenshots). */
   debugCam: PerspectiveCamera | null = null;
 
-  constructor(private readonly container: HTMLElement, params: VehicleParams, quality: QualityLevel) {
+  readonly wheelFx = new WheelFx();
+
+  constructor(
+    private readonly container: HTMLElement,
+    readonly def: CarDef,
+    params: VehicleParams,
+    quality: QualityLevel,
+    livery: { primary: number; accent: number },
+  ) {
     this.quality = quality;
     const q = QUALITY[quality];
     this.renderer = new WebGLRenderer({ antialias: q.antialias, powerPreference: 'high-performance', preserveDrawingBuffer: false });
@@ -70,7 +81,9 @@ export class GameRenderer {
     );
     this.scene.add(this.ground);
 
-    this.car = new CarView(params);
+    this.car = new CarView(def.id, params, livery.primary, livery.accent);
+    this.rig.style = def.camera;
+    this.scene.add(this.wheelFx.particles.points);
     this.scene.add(this.car.root);
 
     this.speedFx = new SpeedFx(q.speedLines);
@@ -121,6 +134,19 @@ export class GameRenderer {
     c.position.set(...pos);
     c.lookAt(...target);
     this.debugCam = c;
+  }
+
+  /** Spawn / update wheel particles for the current physics state. */
+  updateFx(dt: number, v: Vehicle): void {
+    const h = this.renderer.domElement.height || 720;
+    const fov = (this.rig.camera.fov * Math.PI) / 360;
+    this.wheelFx.setScale(h / (2 * Math.tan(fov)));
+    this.wheelFx.update(dt, v, this.def.particles);
+  }
+
+  /** Touch-down puff. */
+  landingBurst(v: Vehicle, intensity: number): void {
+    this.wheelFx.burst(v, intensity, this.def.particles);
   }
 
   setTrack(track: TrackData): void {

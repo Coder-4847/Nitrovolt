@@ -1,6 +1,7 @@
 import { Quaternion, Vector3 } from 'three';
 import { InputFrame } from '../core/InputFrame';
 import { RAPIER, RapierWorld } from './RapierWorld';
+import { BehaviorCtx, CarBehavior } from './CarBehavior';
 import { EffectState } from './Effects';
 import { EffectId, SURFACES, SurfaceId } from './Surface';
 import { VehicleParams } from './VehicleParams';
@@ -122,6 +123,8 @@ export class Vehicle {
   private readonly touching: EffectId[] = [];
   private readonly effInput: InputFrame = { steer: 0, accel: 0, brake: 0, respawn: false };
   private engineOff = false;
+  private stepDt = 0.01;
+  private readonly bctx: BehaviorCtx;
   private boostCap = 0;
   /** Last air-control output (debug). */
   dbgAir = { ax: 0, pitchErr: 0, wx: 0, pitchIn: 0 };
@@ -140,8 +143,33 @@ export class Vehicle {
     private readonly physics: RapierWorld,
     public params: VehicleParams,
     public gravity = DEFAULT_GRAVITY,
+    public behavior?: CarBehavior,
   ) {
     this.rebuildMounts();
+    this.bctx = { v: this, dt: 0.01, input: this.effInput, surface: null, impact: 0 };
+  }
+
+  /** Add a world-space force at the centre of mass this tick (car behaviours). */
+  addForce(f: Vector3): void {
+    this.force.add(f);
+  }
+
+  /** Add a world-space torque this tick (car behaviours). */
+  addTorque(t: Vector3): void {
+    this.torque.add(t);
+  }
+
+  /** Change velocity by `dv` (m/s) this tick (car behaviours: launch kicks, bounce). */
+  kick(dv: Vector3): void {
+    this.force.addScaledVector(dv, this.params.mass / this.stepDt);
+  }
+
+  /** Surface under the most heavily loaded wheel, or null in the air. */
+  dominantSurface(): SurfaceId | null {
+    let best = -1;
+    let s: SurfaceId | null = null;
+    for (const w of this.wheels) if (w.contact && w.load > best) { best = w.load; s = w.surface; }
+    return s;
   }
 
   /** Principal inertia in the local frame (pitch X, yaw Y, roll Z). */
@@ -289,9 +317,11 @@ export class Vehicle {
     this.updateBodySlip();
     const mods = this.effects.update(this.touching, realDt, this.forwardSpeed, p.topSpeed);
     const dt = realDt * mods.timeScale; // slow-motion blocks scale the physics step itself
+    this.stepDt = dt;
     this.boostCap = mods.boostCap;
     this.engineOff = mods.engineOff;
-    this.force.set(0, -p.mass * this.gravity * (mods.gravityScale - mods.lift), 0);
+    const gScale = this.wheelsOnGround === 0 ? p.airGravityScale : 1;
+    this.force.set(0, -p.mass * this.gravity * gScale * (mods.gravityScale - mods.lift), 0);
     if (mods.boostAccel > 0) {
       const cap = clamp((mods.boostCap - Math.max(this.forwardSpeed, 0)) / (mods.boostCap * 0.08), 0, 1);
       this.force.addScaledVector(this.fwd, p.mass * mods.boostAccel * cap);
@@ -329,6 +359,10 @@ export class Vehicle {
     // ---------- aero ----------
     this.applyAero();
     this.applyGroundAlign(inertia);
+    const bctx = this.bctx;
+    bctx.dt = dt;
+    bctx.surface = this.dominantSurface();
+    this.behavior?.update?.(bctx);
 
     // ---------- air control ----------
     let landingImpact = 0;
@@ -336,10 +370,13 @@ export class Vehicle {
     if (this.wheelsOnGround === 0) {
       this.airTicks++;
       this.airTime = this.airTicks * realDt;
+      if (this.airTicks === 1) this.behavior?.onLeaveGround?.(bctx);
       this.applyAirControl(eff, inertia);
     } else {
       if (this.airTicks >= 3) {
         landingImpact = -this.linvel.dot(this.up);
+        bctx.impact = landingImpact;
+        this.behavior?.onLand?.(bctx, landingImpact);
         fragile = this.wheels.filter((w) => w.contact && w.effect === 'fragile').map((w) => w.colliderHandle);
       }
       this.airTicks = 0;
@@ -516,6 +553,9 @@ export class Vehicle {
 
       // friction budget
       const mu0 = (front ? p.gripFront : p.gripRear) * surfProps.grip * p.surfaceGrip[w.surface];
+      // per-surface tyre model: loose ground peaks later and gently, ice falls off a cliff
+      const peakSlip = p.peakSlipAngle * surfProps.peakSlip;
+      const slideKeep = Math.min(1, p.slideRatio * surfProps.slideKeep);
       const loadRatio = Math.max(w.load, 1) / p.nominalLoad;
       let fmax = mu0 * p.nominalLoad * Math.pow(loadRatio, 1 - p.loadSensitivity);
       let fmaxLat = fmax;
@@ -529,7 +569,7 @@ export class Vehicle {
       // braking opposes motion, never reverses it within a tick
       const brakeShare = front ? p.brakeFrontBias : 1 - p.brakeFrontBias;
       const brakeAbs = Math.min((brakeTotal * brakeShare) / 2 + (engineBrake * driveShare) / 2, (absSpeed < 0.01 ? 0 : Math.abs(vf)) * meffLong * share / dt);
-      const rolling = Math.min(surfProps.rolling * w.load, Math.abs(vf) * meffLong * share / dt);
+      const rolling = Math.min(surfProps.rolling * p.surfaceRolling[w.surface] * w.load, Math.abs(vf) * meffLong * share / dt);
       fx -= sign(vf) * (brakeAbs + rolling);
       // hold the car on slopes when completely idle
       if (accel === 0 && brake === 0 && absSpeed < 1.0) {
@@ -541,12 +581,12 @@ export class Vehicle {
 
       // lateral: slip-angle curve scaled by what's left of the friction ellipse
       const alpha = Math.atan2(vl, Math.max(Math.abs(vf), SLIP_MIN_SPEED));
-      const s = Math.abs(alpha) / p.peakSlipAngle;
+      const s = Math.abs(alpha) / peakSlip;
       let curve: number;
       if (s <= 1) curve = Math.sin(s * Math.PI * 0.5);
       else {
         const t = clamp((s - 1) / p.slideRange, 0, 1);
-        curve = 1 + (p.slideRatio - 1) * (t * t * (3 - 2 * t));
+        curve = 1 + (slideKeep - 1) * (t * t * (3 - 2 * t));
       }
       const ratio = Math.min(1, Math.abs(fx) / Math.max(fmaxLong, 1));
       const latBudget = fmaxLat * Math.pow(Math.max(0, 1 - Math.pow(ratio, p.ellipseExp)), 1 / p.ellipseExp);

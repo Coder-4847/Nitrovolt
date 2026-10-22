@@ -3,9 +3,12 @@ import sprint01 from './levels/sprint01.json';
 import boostlab from './levels/boostlab.json';
 import circuit01 from './levels/circuit01.json';
 import stunt01 from './levels/stunt01.json';
+import gravel01 from './levels/gravel01.json';
+import frost01 from './levels/frost01.json';
+import dune01 from './levels/dune01.json';
 
 /** Built-in levels (all driven through the same JSON loader the editor will use). */
-export const LEVELS: TrackJson[] = [sprint01, circuit01, boostlab, stunt01] as unknown as TrackJson[];
+export const LEVELS: TrackJson[] = [sprint01, gravel01, frost01, dune01, circuit01, boostlab, stunt01] as unknown as TrackJson[];
 
 export const DEFAULT_LEVEL_ID = 'sprint01';
 

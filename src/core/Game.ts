@@ -1,13 +1,14 @@
 import { AudioEngine } from '../audio/AudioEngine';
+import { CARS, carParams, getCar } from '../data/cars';
 import { LEVELS, DEFAULT_LEVEL_ID, getLevel } from '../data';
 import { Simulation, SimulationEvent } from '../physics/Simulation';
 import { RenderPose } from '../physics/Vehicle';
-import { VOLT, cloneParams } from '../physics/VehicleParams';
 import { CameraMode } from '../render/CameraRig';
 import { GameRenderer } from '../render/GameRenderer';
 import { detectQuality } from '../render/Quality';
 import { buildGreyboxTrack } from '../tracks/GreyboxTrack';
-import { PathBot } from '../tracks/PathBot';
+import { PathBot, applyBotHints } from '../tracks/PathBot';
+import { BotHints } from '../tracks/TrackSchema';
 import { buildTrack } from '../tracks/TrackGenerator';
 import { buildFlatPad } from '../tracks/TestTracks';
 import { TrackData } from '../tracks/TrackTypes';
@@ -22,6 +23,7 @@ import { InputRecorder } from './InputRecorder';
 import { InputManager } from './input/InputManager';
 import { medalFor } from './Medals';
 import { PersonalBest, Records } from './Records';
+import { loadLivery } from './Livery';
 import { storage } from './Storage';
 
 const CAMERA_LABEL: { [K in CameraMode]: string } = { chase: 'Chase cam', far: 'Far cam', hood: 'Hood cam' };
@@ -51,11 +53,13 @@ export class Game {
     private readonly menu: SettingsMenu,
     private readonly track: TrackData,
     autodrive: boolean,
+    hints?: BotHints,
   ) {
     this.pose = sim.vehicle.curr;
-    this.bot = autodrive ? new PathBot(track.centerline, track.centerSurface, track.laps > 1) : null;
+    this.bot = autodrive ? new PathBot(track.centerline, track.centerSurface, track.laps > 1, sim.vehicle.params) : null;
+    if (this.bot) applyBotHints(this.bot, hints);
     this.pb = Records.get(track.id);
-    this.hud.setTitle(track.name);
+    this.hud.setTitle(`${track.name} · ${gfx.def.label}`);
     this.loop = new FixedLoop(
       () => this.step(),
       (alpha, dt) => this.render(alpha, dt),
@@ -69,17 +73,21 @@ export class Game {
     const levelId = q.get('level') ?? DEFAULT_LEVEL_ID;
     const track: TrackData =
       dev === 'flat' ? buildFlatPad() : dev === 'greybox' ? buildGreyboxTrack() : buildTrack(getLevel(levelId) ?? getLevel(DEFAULT_LEVEL_ID)!);
-    const params = cloneParams(VOLT);
+    // each track declares its car; ?car= overrides (dev)
+    const def = getCar(q.get('car') ?? track.car);
+    const params = carParams(def.id);
+    const livery = loadLivery(def);
     const cdMode = storage.get<CountdownMode>('nitrovolt.countdown', 'quick');
 
-    const sim = await Simulation.create(track, params, dev ? 0 : COUNTDOWN_SECONDS[cdMode]);
-    const gfx = new GameRenderer(canvasHost, params, detectQuality());
+    const sim = await Simulation.create(track, params, dev ? 0 : COUNTDOWN_SECONDS[cdMode], undefined, def.behavior);
+    const gfx = new GameRenderer(canvasHost, def, params, detectQuality(), livery);
     gfx.setTrack(track);
     gfx.speedFxEnabled = storage.get<boolean>('nitrovolt.speedFx', true);
     gfx.rig.reducedMotion = storage.get<boolean>('nitrovolt.reducedMotion', false);
 
     const input = new InputManager();
     const audio = new AudioEngine();
+    audio.setVoice(def.voice);
     const hud = new Hud(appRoot, input);
     const dbg = new DebugOverlay(appRoot, debug);
     new TouchControls(appRoot, input.touch);
@@ -88,16 +96,20 @@ export class Game {
     const menu = new SettingsMenu(appRoot, input, audio, gfx, {
       onToggle: (open) => game?.setPaused(open),
       toast: (m) => hud.toast(m),
-      levels: LEVELS.map((l) => ({ id: l.id, name: l.name })),
+      levels: LEVELS.map((l) => ({ id: l.id, name: `${l.name} · ${CARS[getCar(l.car).id].label}` })),
+      carId: def.id,
+      carLabel: def.label,
+      livery,
+      onLivery: (l) => gfx.car.setLivery(l.primary, l.accent),
       currentLevel: dev ? '' : track.id,
       onCountdown: (mode) => {
         sim.countdownSeconds = COUNTDOWN_SECONDS[mode];
         hud.toast(`Countdown: ${mode}`);
       },
     });
-    const tuning = debug ? new TuningPanel(appRoot, params, () => sim.vehicle.refreshParams()) : null;
+    const tuning = debug ? new TuningPanel(appRoot, params, () => sim.vehicle.refreshParams(), def.id) : null;
 
-    game = new Game(sim, gfx, input, audio, hud, dbg, tuning, menu, track, q.get('autodrive') === '1');
+    game = new Game(sim, gfx, input, audio, hud, dbg, tuning, menu, track, q.get('autodrive') === '1', dev ? undefined : getLevel(levelId)?.bot);
     if (debug) (window as unknown as { __nv: Game }).__nv = game;
     game.afterRestart();
     game.loop.start();
@@ -142,6 +154,7 @@ export class Game {
   private afterRestart(): void {
     this.gfx.rig.snap();
     this.gfx.trackView?.setBroken(new Set());
+    this.gfx.wheelFx.clear();
     this.hud.clearSplits();
     this.hud.hideFinish();
     this.hud.setProgress(0, this.sim.run.checkpointCount, 0, this.track.laps);
@@ -209,6 +222,7 @@ export class Game {
           break;
         case 'landing':
           this.gfx.rig.addShake(Math.min(1, e.intensity / 22));
+          this.gfx.landingBurst(this.sim.vehicle, e.intensity);
           this.audio.thud(e.intensity);
           this.input.rumble(Math.min(1, e.intensity / 18), Math.min(1, e.intensity / 10), 120 + e.intensity * 6);
           break;
@@ -256,12 +270,13 @@ export class Game {
     }
     this.prevBoost = boosting;
 
+    if (!this.paused) this.gfx.updateFx(dt, v);
     this.gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
 
     let slip = 0;
     for (const w of v.wheels) if (w.contact) slip = Math.max(slip, w.gripUse);
     this.audio.update(
-      { speed: v.speed, throttle: this.lastFrame.accel, slip, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed },
+      { speed: v.speed, throttle: this.lastFrame.accel, slip, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface() },
       dt,
     );
 

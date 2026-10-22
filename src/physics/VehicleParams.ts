@@ -60,6 +60,8 @@ export interface VehicleParams {
   ellipseExp: number;
   /** Per-surface multiplier on top of Surface base grip. */
   surfaceGrip: Record<SurfaceId, number>;
+  /** Per-surface multiplier on rolling resistance (a buggy floats over sand, a truck ploughs). */
+  surfaceRolling: Record<SurfaceId, number>;
 
   // --- steering ---
   steerMax: number; // rad at standstill
@@ -98,6 +100,8 @@ export interface VehicleParams {
   airRollOffset: number;
   /** Max angular acceleration (rad/s^2) the "thrusters" can apply. */
   airControlAccel: number;
+  /** Gravity multiplier while all wheels are off the ground (<1 = floaty arcs). */
+  airGravityScale: number;
   /** Stick-to-surface torque (rad/s^2 per rad) that levels the chassis to the contact normal while 1-3 wheels touch. */
   groundAlign: number;
   /** Passive angular-velocity damping per second when airborne and not steering. */
@@ -106,7 +110,7 @@ export interface VehicleParams {
   airLevelAssist: number;
 }
 
-const allSurfaces = (v: number, overrides: Partial<Record<SurfaceId, number>> = {}): Record<SurfaceId, number> => {
+export const allSurfaces = (v: number, overrides: Partial<Record<SurfaceId, number>> = {}): Record<SurfaceId, number> => {
   const o = {} as Record<SurfaceId, number>;
   for (const id of SURFACE_IDS) o[id] = overrides[id] ?? v;
   return o;
@@ -149,7 +153,9 @@ export const VOLT: VehicleParams = {
   brakeRearSlide: 0.3,
   longGripScale: 1.0,
   ellipseExp: 3.0,
-  surfaceGrip: allSurfaces(1.0, { dirt: 1.0, grass: 1.0, ice: 1.0, snow: 1.0, sand: 1.0 }),
+  // a stadium car: laser on tarmac, noticeably out of its depth on loose ground
+  surfaceGrip: allSurfaces(1.0, { dirt: 0.7, grass: 0.7, sand: 0.72, snow: 0.8 }),
+  surfaceRolling: allSurfaces(1.0),
 
   steerMax: 0.5,
   steerMin: 0.075,
@@ -178,10 +184,12 @@ export const VOLT: VehicleParams = {
   airRollOffset: 0.5,
   airControlAccel: 14,
   airDamping: 0.6,
+  airGravityScale: 1,
   groundAlign: 45,
   airLevelAssist: 1.4,
 };
 
+/** Dev panel: every car's own numbers. */
 export function cloneParams(p: VehicleParams): VehicleParams {
   return JSON.parse(JSON.stringify(p)) as VehicleParams;
 }
@@ -248,6 +256,8 @@ export const PARAM_DESCRIPTORS: ParamDescriptor[] = [
   d('Air', 'airControlAccel', 'ctrl accel', 1, 60, 0.5),
   d('Air', 'airDamping', 'damping', 0, 5, 0.05),
   d('Air', 'groundAlign', 'ground align', 0, 150, 1),
+  d('Air', 'airGravityScale', 'air gravity', 0.3, 1.2, 0.01),
+  ...(['tarmac', 'dirt', 'grass', 'ice', 'snow', 'sand'] as const).map((s) => d('Surface grip x', `surfaceGrip.${s}`, s, 0.2, 3, 0.02)),
   d('Air', 'airLevelAssist', 'level assist', 0, 5, 0.05),
 ];
 

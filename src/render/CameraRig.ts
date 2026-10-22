@@ -1,4 +1,5 @@
 import { MathUtils, PerspectiveCamera, Quaternion, Vector3 } from 'three';
+import { CameraStyle } from '../data/cars';
 import { RenderPose } from '../physics/Vehicle';
 
 export type CameraMode = 'chase' | 'far' | 'hood';
@@ -20,6 +21,8 @@ const _q = new Quaternion();
 export class CameraRig {
   readonly camera = new PerspectiveCamera(70, 1, 0.1, 4000);
   mode: CameraMode = 'chase';
+  /** Per-car camera character (distance, lag, FOV, shake). */
+  style: CameraStyle = { distance: 6.4, height: 2.0, speedPull: 1.6, lookAhead: 9, fovBase: 70, fovKick: 30, headingRate: 7, positionRate: 22, shake: 1 };
   /** Reduced-motion: no shake, smaller FOV kick. */
   reducedMotion = false;
 
@@ -45,7 +48,7 @@ export class CameraRig {
 
   addShake(amount: number): void {
     if (this.reducedMotion) return;
-    this.shake = Math.min(1.2, this.shake + amount);
+    this.shake = Math.min(1.2, this.shake + amount * this.style.shake);
   }
 
   resize(w: number, h: number): void {
@@ -59,8 +62,9 @@ export class CameraRig {
     const carFwd = _t.set(0, 0, -1).applyQuaternion(pose.quaternion);
 
     const kick = this.reducedMotion ? 0.4 : 1;
-    const fovBase = this.mode === 'hood' ? 76 : this.mode === 'far' ? 66 : 70;
-    const fovTarget = fovBase + 30 * kick * smoothstep(12, 88, speed) + 10 * kick * boost;
+    const st = this.style;
+    const fovBase = this.mode === 'hood' ? st.fovBase + 6 : this.mode === 'far' ? st.fovBase - 4 : st.fovBase;
+    const fovTarget = fovBase + st.fovKick * kick * smoothstep(12, 88, speed) + 10 * kick * boost;
     if (!this.ready) this.fov = fovTarget;
     this.fov += (fovTarget - this.fov) * damp(5, dt);
 
@@ -91,19 +95,19 @@ export class CameraRig {
       this.dir.copy(target);
       this.up.copy(upTarget);
     } else {
-      this.dir.lerp(target, damp(7, dt)).normalize();
+      this.dir.lerp(target, damp(st.headingRate, dt)).normalize();
       this.up.lerp(upTarget, damp(6, dt)).normalize();
     }
     const dirP = this.dir.clone().addScaledVector(this.up, -this.dir.dot(this.up)).normalize();
 
     const far = this.mode === 'far';
-    const dist = (far ? 10.5 : 6.4) + 1.6 * smoothstep(20, 85, speed) + 1.2 * boost;
-    const height = far ? 3.8 : 2.0;
+    const dist = (far ? st.distance * 1.65 : st.distance) + st.speedPull * smoothstep(20, 85, speed) + 1.2 * boost;
+    const height = far ? st.height * 1.9 : st.height;
     const desired = car.clone().addScaledVector(dirP, -dist).addScaledVector(this.up, height);
 
     if (!this.ready) this.pos.copy(desired);
-    else this.pos.lerp(desired, damp(22, dt));
-    this.look.copy(car).addScaledVector(dirP, 9).addScaledVector(this.up, 0.7);
+    else this.pos.lerp(desired, damp(st.positionRate, dt));
+    this.look.copy(car).addScaledVector(dirP, st.lookAhead).addScaledVector(this.up, 0.7);
 
     this.camera.position.copy(this.pos);
     this.camera.up.copy(this.up);

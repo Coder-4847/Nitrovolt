@@ -3,6 +3,7 @@ import { InputFrame, NEUTRAL_FRAME } from '../core/InputFrame';
 import { PHYSICS_DT } from '../core/FixedLoop';
 import { RunEvent, RunLogic } from '../core/Run';
 import { Pose, TrackData, TrackTrigger } from '../tracks/TrackTypes';
+import { CarBehavior } from './CarBehavior';
 import { RapierWorld, initRapier } from './RapierWorld';
 import { DEFAULT_GRAVITY, SimEvent, Vehicle } from './Vehicle';
 import { VehicleParams } from './VehicleParams';
@@ -41,6 +42,7 @@ export class Simulation {
     params: VehicleParams,
     gravity: number,
     countdownSeconds: number,
+    behavior?: CarBehavior,
   ) {
     this.countdownSeconds = countdownSeconds;
     this.world = new RapierWorld();
@@ -48,15 +50,15 @@ export class Simulation {
       if (m.collide) this.world.addStaticMesh({ surface: m.surface, effect: m.effect, blockId: m.blockId, positions: m.positions, indices: m.indices });
     }
     this.world.finalize();
-    this.vehicle = new Vehicle(this.world, params, gravity);
+    this.vehicle = new Vehicle(this.world, params, gravity, behavior);
     this.run = new RunLogic(track.triggers, track.laps);
     this.respawnPose = track.start;
     this.restart();
   }
 
-  static async create(track: TrackData, params: VehicleParams, countdownSeconds = 0, gravity = DEFAULT_GRAVITY): Promise<Simulation> {
+  static async create(track: TrackData, params: VehicleParams, countdownSeconds = 0, gravity = DEFAULT_GRAVITY, behavior?: CarBehavior): Promise<Simulation> {
     await initRapier();
-    return new Simulation(track, params, gravity, countdownSeconds);
+    return new Simulation(track, params, gravity, countdownSeconds, behavior);
   }
 
   /** Simulation clock in seconds (includes the countdown). */

@@ -2,6 +2,18 @@ import { Vector3 } from 'three';
 import { InputFrame, makeFrame } from '../core/InputFrame';
 import { SURFACES, SurfaceId } from '../physics/Surface';
 import { Vehicle } from '../physics/Vehicle';
+import { VehicleParams } from '../physics/VehicleParams';
+
+import type { BotHints } from './TrackSchema';
+
+/** Apply a level's recorded driving style to a bot. */
+export function applyBotHints(bot: PathBot, hints: BotHints | undefined): void {
+  if (!hints) return;
+  if (hints.maxSpeed) bot.maxSpeed = hints.maxSpeed;
+  if (hints.lookTime) bot.lookTime = hints.lookTime;
+  if (hints.steerSlew) bot.steerSlew = hints.steerSlew;
+  if (hints.lateralBudget) bot.lateralBudget = hints.lateralBudget;
+}
 
 /**
  * Minimal pure-pursuit driver that follows a track centerline, slows for corners and low-grip
@@ -28,6 +40,8 @@ export class PathBot {
     private readonly surfaces: SurfaceId[] = [],
     /** Closed circuit: wrap around to the start instead of finishing (multi-lap tracks). */
     private readonly closed = false,
+    /** The car being driven: grip per surface sets corner speeds and braking. */
+    private readonly carParams?: VehicleParams,
   ) {}
 
   get progress(): number {
@@ -49,10 +63,18 @@ export class PathBot {
    * Speed (m/s) the bot may carry right now: for every upcoming point take its corner / surface limit and
    * add what braking at `brakeDecel` over the distance to it allows; the minimum wins.
    */
+  /** Effective tyre friction coefficient of the car on a surface (1.0 when the car is unknown). */
+  private mu(surface: SurfaceId | undefined): number {
+    const p = this.carParams;
+    if (!p || !surface) return 2;
+    return p.gripFront * SURFACES[surface].grip * p.surfaceGrip[surface];
+  }
+
   private targetSpeed(from: number): number {
-    const brakeDecel = 16;
     let dist = 0;
     let best = this.maxSpeed;
+    // braking must work across every surface on the way to the point, so use the slipperiest so far
+    let minMu = this.mu(this.surfaces[from % this.path.length]);
     const n = this.path.length;
     const last = this.closed ? from + 140 : n - 2;
     for (let i = from; i < last && dist < 220; i++) {
@@ -61,10 +83,14 @@ export class PathBot {
       dist += l1;
       let limit = this.maxSpeed;
       const s = this.surfaces[i % n];
-      if (s) {
-        const grip = SURFACES[s].grip;
-        if (grip < 0.9) limit = Math.min(limit, 12 + 45 * grip);
-      }
+      const mu = this.mu(s);
+      if (this.carParams) {
+        // slippery ground: no fast straights either, steering barely works
+        if (mu < 0.7) limit = Math.min(limit, 8 + 25 * mu);
+      } else if (s && SURFACES[s].grip < 0.9) limit = Math.min(limit, 12 + 45 * SURFACES[s].grip);
+      minMu = Math.min(minMu, mu);
+      const brakeDecel = Math.min(16, 0.55 * minMu * 19.6);
+      const budget = Math.min(this.lateralBudget, 0.5 * mu * 19.6);
       if (!(l1 > 12 || l2 > 12 || l1 < 0.05 || l2 < 0.05)) {
         const v1 = b.clone().sub(a).normalize();
         const v2 = c.clone().sub(b).normalize();
@@ -73,7 +99,7 @@ export class PathBot {
           v1.y = 0; v2.y = 0;
           if (v1.lengthSq() > 1e-6 && v2.lengthSq() > 1e-6) {
             const ang = Math.acos(Math.min(1, Math.max(-1, v1.normalize().dot(v2.normalize()))));
-            if (ang > 1e-4) limit = Math.min(limit, Math.sqrt(this.lateralBudget * (((l1 + l2) * 0.5) / ang)));
+            if (ang > 1e-4) limit = Math.min(limit, Math.sqrt(budget * (((l1 + l2) * 0.5) / ang)));
           }
         }
       }
@@ -125,10 +151,12 @@ export class PathBot {
     const err = vTarget - v.speed;
     const accel = Math.max(0, Math.min(1, err * 0.5 + 0.3));
     // trail-brake gently: hard braking while steering or sliding just spins the car
-    let brake = err < -1.5 ? Math.min(1, (-err - 1.5) * 0.25) : 0;
+    let brake = err < -1.5 ? Math.min(1, (-err - 1.5) * 0.4) : 0;
     brake *= 1 - Math.min(0.85, Math.abs(steer) * 1.1);
     if (Math.abs(v.bodySlip) > 0.2) brake = 0;
-    const lift = Math.abs(v.bodySlip) > 0.35 ? 0.15 : 1; // sliding: stop feeding the rear tyres
+    let lift = Math.abs(v.bodySlip) > 0.35 ? 0.15 : 1; // sliding: stop feeding the rear tyres
+    // low-grip ground: feather the throttle while the wheel is turned, or the drive eats the lateral grip
+    if (this.carParams && this.mu(this.surfaces[this.idx % n]) < 1.2) lift *= 1 - 0.75 * Math.min(1, Math.abs(steer) * 1.6);
     // no pedals in the air: they command pitch there
     if (v.wheelsOnGround === 0) return makeFrame(steer, 0, 0);
     // stuck against a wall? back out for a moment with the wheel turned the other way
