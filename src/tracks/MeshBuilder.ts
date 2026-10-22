@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { SurfaceId } from '../physics/Surface';
+import { EffectId, SurfaceId } from '../physics/Surface';
 import { MeshKind, TrackMesh } from './TrackTypes';
 
 /** A station along a swept path. `up` is the (possibly banked) surface normal. */
@@ -24,6 +24,9 @@ export class MeshBuilder {
     readonly kind: MeshKind,
     readonly surface: SurfaceId,
     readonly collide: boolean,
+    readonly effect?: EffectId,
+    readonly blockId = -1,
+    readonly tint?: number,
   ) {}
 
   get vertexCount(): number {
@@ -51,7 +54,23 @@ export class MeshBuilder {
     const e1 = new Vector3().subVectors(b, a);
     const e2 = new Vector3().subVectors(c, a);
     const faceN = e1.cross(e2);
-    if (faceN.dot(outward) >= 0) this.idx.push(ia, ib, ic, ia, ic, id);
+    const forward = faceN.dot(outward) >= 0;
+    // A twisted quad split along one diagonal grows a ridge (up to 0.4 m on a fast bank change).
+    // Splitting around the bilinear centre instead keeps the surface faithful and the ridge ~4x smaller.
+    const warp = Math.abs(new Vector3().subVectors(d, a).dot(faceN.clone().normalize()));
+    if (warp > 0.01) {
+      const m = new Vector3().add(a).add(b).add(c).add(d).multiplyScalar(0.25);
+      const nm = new Vector3().add(na).add(nb).add(nc).add(nd).normalize();
+      const im = this.vert(m, nm, (uvs[0]![0] + uvs[1]![0] + uvs[2]![0] + uvs[3]![0]) / 4, (uvs[0]![1] + uvs[1]![1] + uvs[2]![1] + uvs[3]![1]) / 4);
+      const ring = [ia, ib, ic, id];
+      for (let k = 0; k < 4; k++) {
+        const p0 = ring[k]!, p1 = ring[(k + 1) % 4]!;
+        if (forward) this.idx.push(p0, p1, im);
+        else this.idx.push(p1, p0, im);
+      }
+      return;
+    }
+    if (forward) this.idx.push(ia, ib, ic, ia, ic, id);
     else this.idx.push(ia, ic, ib, ia, id, ic);
   }
 
@@ -128,6 +147,9 @@ export class MeshBuilder {
     return {
       kind: this.kind,
       surface: this.surface,
+      effect: this.effect,
+      blockId: this.blockId,
+      tint: this.tint,
       collide: this.collide,
       positions: new Float32Array(this.pos),
       normals: new Float32Array(this.nor),

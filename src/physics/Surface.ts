@@ -32,3 +32,54 @@ export const SURFACES: Record<SurfaceId, SurfaceProps> = {
 };
 
 export const SURFACE_IDS = Object.keys(SURFACES) as SurfaceId[];
+
+/** Special block behaviours attached to a road surface. */
+export type EffectId =
+  | 'turbo'
+  | 'turbo2'
+  | 'reactor'
+  | 'noSteer'
+  | 'noBrake'
+  | 'cruise'
+  | 'fragile'
+  | 'slowMo'
+  | 'engineOff'
+  | 'gravity';
+
+export interface EffectProps {
+  /** Grip/friction comes from this base surface. */
+  base: SurfaceId;
+  /** Render colour and glow (sRGB hex). */
+  color: number;
+  glow: number;
+}
+
+export const EFFECTS: Record<EffectId, EffectProps> = {
+  turbo: { base: 'tech', color: 0xff8a1f, glow: 0xff6a00 },
+  turbo2: { base: 'tech', color: 0xff2a3a, glow: 0xff1030 },
+  reactor: { base: 'tech', color: 0xb34dff, glow: 0x9a2bff },
+  noSteer: { base: 'tech', color: 0x2f6bff, glow: 0x1a50ff },
+  noBrake: { base: 'tech', color: 0xffd21f, glow: 0xffc400 },
+  cruise: { base: 'tech', color: 0x2fe38f, glow: 0x14d977 },
+  fragile: { base: 'tarmac', color: 0xd8c9a8, glow: 0x000000 },
+  slowMo: { base: 'tech', color: 0x8fe8ff, glow: 0x4fd8ff },
+  engineOff: { base: 'tech', color: 0x7a7f8a, glow: 0x30343c },
+  gravity: { base: 'tech', color: 0xff5fd2, glow: 0xff2fbf },
+};
+
+export const EFFECT_IDS = Object.keys(EFFECTS) as EffectId[];
+
+/** A block's `surface` field is either a plain surface or a special effect. */
+export type SurfaceSpec = SurfaceId | EffectId;
+
+export function isEffect(s: string): s is EffectId {
+  return s in EFFECTS;
+}
+
+export function isSurface(s: string): s is SurfaceId {
+  return s in SURFACES;
+}
+
+export function parseSurface(spec: SurfaceSpec): { surface: SurfaceId; effect?: EffectId } {
+  return isEffect(spec) ? { surface: EFFECTS[spec].base, effect: spec } : { surface: spec };
+}

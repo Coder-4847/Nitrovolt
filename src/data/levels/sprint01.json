@@ -1,0 +1,225 @@
+{
+ "id": "sprint01",
+ "name": "Sprint 01",
+ "car": "volt",
+ "theme": "grey",
+ "seed": 1,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    2,
+    0,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    4,
+    0,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    5,
+    0,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "landing1",
+   "gridPos": [
+    8,
+    0,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    9,
+    -1,
+    -6
+   ],
+   "rot": 3,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    10,
+    -1,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    12,
+    -1,
+    -6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    15,
+    -1,
+    -7
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    17,
+    -1,
+    -7
+   ],
+   "rot": 3
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    18,
+    -1,
+    -7
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    20,
+    -1,
+    -10
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    20,
+    -1,
+    -12
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    20,
+    0,
+    -13
+   ],
+   "rot": 0
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    20,
+    0,
+    -17
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    22,
+    0,
+    -18
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    24,
+    0,
+    -18
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    25,
+    0,
+    -18
+   ],
+   "rot": 3,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    26,
+    0,
+    -18
+   ],
+   "rot": 3
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    28,
+    0,
+    -18
+   ],
+   "rot": 3
+  }
+ ],
+ "medalTimes": {
+  "author": 22120,
+  "gold": 23890,
+  "silver": 26544,
+  "bronze": 32074
+ }
+}

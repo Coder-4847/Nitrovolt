@@ -36,8 +36,8 @@ export class SpeedFx {
     this.offs[i * 3 + 2] = anywhere ? this.rng.range(-4, 70) : this.rng.range(55, 75);
   }
 
-  update(dt: number, camPos: Vector3, camRight: Vector3, camUp: Vector3, camFwd: Vector3, velocity: Vector3, speed: number, enabled: boolean): void {
-    const strength = enabled ? smoothstep(32, 85, speed) : 0;
+  update(dt: number, camPos: Vector3, camRight: Vector3, camUp: Vector3, camFwd: Vector3, velocity: Vector3, speed: number, enabled: boolean, boost = 0): void {
+    const strength = enabled ? Math.max(smoothstep(32, 85, speed), boost * 0.95) : 0;
     this.mat.opacity = strength * 0.5;
     this.mesh.visible = strength > 0.01;
     if (!this.mesh.visible) return;

@@ -98,6 +98,8 @@ export interface VehicleParams {
   airRollOffset: number;
   /** Max angular acceleration (rad/s^2) the "thrusters" can apply. */
   airControlAccel: number;
+  /** Stick-to-surface torque (rad/s^2 per rad) that levels the chassis to the contact normal while 1-3 wheels touch. */
+  groundAlign: number;
   /** Passive angular-velocity damping per second when airborne and not steering. */
   airDamping: number;
   /** Nose tracks the flight path when pitch is untouched (crisp landings). */
@@ -176,6 +178,7 @@ export const VOLT: VehicleParams = {
   airRollOffset: 0.5,
   airControlAccel: 14,
   airDamping: 0.6,
+  groundAlign: 45,
   airLevelAssist: 1.4,
 };
 
@@ -244,6 +247,7 @@ export const PARAM_DESCRIPTORS: ParamDescriptor[] = [
   d('Air', 'airRollOffset', 'roll offset', 0, 1.2, 0.02),
   d('Air', 'airControlAccel', 'ctrl accel', 1, 60, 0.5),
   d('Air', 'airDamping', 'damping', 0, 5, 0.05),
+  d('Air', 'groundAlign', 'ground align', 0, 150, 1),
   d('Air', 'airLevelAssist', 'level assist', 0, 5, 0.05),
 ];
 

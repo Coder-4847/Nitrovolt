@@ -1,14 +1,15 @@
 import { Quaternion, Vector3 } from 'three';
 import { InputFrame } from '../core/InputFrame';
 import { RAPIER, RapierWorld } from './RapierWorld';
-import { SURFACES, SurfaceId } from './Surface';
+import { EffectState } from './Effects';
+import { EffectId, SURFACES, SurfaceId } from './Surface';
 import { VehicleParams } from './VehicleParams';
 
 /** Heavier-than-earth gravity keeps jumps punchy and nothing floaty. */
 export const DEFAULT_GRAVITY = 19.6;
 
 export type SimEvent =
-  | { type: 'landing'; intensity: number }
+  | { type: 'landing'; intensity: number; /** collider handles of fragile blocks landed on */ fragile: number[] }
   | { type: 'impact'; intensity: number }
   | { type: 'bottomOut'; intensity: number };
 
@@ -27,6 +28,9 @@ export interface WheelState {
   spin: number;
   load: number;
   surface: SurfaceId;
+  /** Special-block effect under this wheel, if any. */
+  effect: EffectId | undefined;
+  colliderHandle: number;
   /** Tyre slip angle (rad). */
   slipAngle: number;
   /** |tyre force| / available grip, 1 = on the limit. */
@@ -55,6 +59,8 @@ const newWheel = (): WheelState => ({
   spin: 0,
   load: 0,
   surface: 'tarmac',
+  effect: undefined,
+  colliderHandle: -1,
   slipAngle: 0,
   gripUse: 0,
   forceLat: 0,
@@ -111,7 +117,12 @@ export class Vehicle {
   airTime = 0;
   /** Body slip angle (rad): angle between heading and velocity, + = velocity to the right of the nose. */
   bodySlip = 0;
-  boostTimer = 0;
+  /** Special-block effects (boost, locks, slow-mo...). */
+  readonly effects = new EffectState();
+  private readonly touching: EffectId[] = [];
+  private readonly effInput: InputFrame = { steer: 0, accel: 0, brake: 0, respawn: false };
+  private engineOff = false;
+  private boostCap = 0;
   /** Last air-control output (debug). */
   dbgAir = { ax: 0, pitchErr: 0, wx: 0, pitchIn: 0 };
   events: SimEvent[] = [];
@@ -207,7 +218,8 @@ export class Vehicle {
     this.steerAngle = 0;
     this.airTicks = 0;
     this.airTime = 0;
-    this.boostTimer = 0;
+    this.effects.reset();
+    this.engineOff = false;
     this.events = [];
     this.readBody();
     this.snapshot(this.curr);
@@ -260,24 +272,46 @@ export class Vehicle {
     this.torque.add(_t.copy(_r).cross(f));
   }
 
-  step(input: InputFrame, dt: number): void {
+  step(input: InputFrame, realDt: number): void {
     // Previous state becomes the interpolation start.
     const tmp = this.prev;
     this.prev = this.curr;
     this.curr = tmp;
 
     const p = this.params;
-    this.force.set(0, -p.mass * this.gravity, 0);
-    this.torque.set(0, 0, 0);
     this.events.length = 0;
+    this.torque.set(0, 0, 0);
     const inertia = this.inertia().clone();
     const preVel = _v.copy(this.linvel).clone();
+
+    // ---------- contacts + special-block effects ----------
+    this.castWheels();
+    this.updateBodySlip();
+    const mods = this.effects.update(this.touching, realDt, this.forwardSpeed, p.topSpeed);
+    const dt = realDt * mods.timeScale; // slow-motion blocks scale the physics step itself
+    this.boostCap = mods.boostCap;
+    this.engineOff = mods.engineOff;
+    this.force.set(0, -p.mass * this.gravity * (mods.gravityScale - mods.lift), 0);
+    if (mods.boostAccel > 0) {
+      const cap = clamp((mods.boostCap - Math.max(this.forwardSpeed, 0)) / (mods.boostCap * 0.08), 0, 1);
+      this.force.addScaledVector(this.fwd, p.mass * mods.boostAccel * cap);
+    }
+
+    // effective driver input after locks / cruise control
+    const eff = this.effInput;
+    eff.steer = mods.noSteer ? 0 : input.steer;
+    eff.accel = input.accel;
+    eff.brake = mods.noBrake ? 0 : input.brake;
+    if (mods.cruiseSpeed !== null) {
+      const err = mods.cruiseSpeed - this.forwardSpeed;
+      eff.accel = clamp(err * 0.7, 0, 1);
+      eff.brake = clamp(-err * 0.5, 0, 1);
+    }
 
     // ---------- steering ----------
     const speed = this.speed;
     const limit = p.steerMin + (p.steerMax - p.steerMin) / (1 + (speed / p.steerRefSpeed) ** 2);
-    let target = input.steer * limit;
-    this.updateBodySlip();
+    let target = eff.steer * limit;
     if (p.counterSteerAssist > 0 && this.forwardSpeed > 6) {
       const thresh = p.peakSlipAngle * 1.1;
       const over = Math.max(0, Math.abs(this.bodySlip) - thresh);
@@ -287,23 +321,27 @@ export class Vehicle {
     this.steerAngle += clamp(target - this.steerAngle, -p.steerRate * dt, p.steerRate * dt);
 
     // ---------- suspension ----------
-    this.castWheels();
-    this.applySuspension();
+    this.applySuspension(dt);
 
     // ---------- tyres ----------
-    this.applyTyres(input, dt, inertia);
+    this.applyTyres(eff, dt, inertia);
 
     // ---------- aero ----------
     this.applyAero();
+    this.applyGroundAlign(inertia);
 
     // ---------- air control ----------
     let landingImpact = 0;
+    let fragile: number[] = [];
     if (this.wheelsOnGround === 0) {
       this.airTicks++;
-      this.airTime = this.airTicks * dt;
-      this.applyAirControl(input, inertia);
+      this.airTime = this.airTicks * realDt;
+      this.applyAirControl(eff, inertia);
     } else {
-      if (this.airTicks >= 3) landingImpact = -this.linvel.dot(this.up);
+      if (this.airTicks >= 3) {
+        landingImpact = -this.linvel.dot(this.up);
+        fragile = this.wheels.filter((w) => w.contact && w.effect === 'fragile').map((w) => w.colliderHandle);
+      }
       this.airTicks = 0;
       this.airTime = 0;
     }
@@ -311,23 +349,19 @@ export class Vehicle {
     // ---------- integrate ----------
     this.body.applyImpulse({ x: this.force.x * dt, y: this.force.y * dt, z: this.force.z * dt }, true);
     this.body.applyTorqueImpulse({ x: this.torque.x * dt, y: this.torque.y * dt, z: this.torque.z * dt }, true);
-    this.physics.step();
+    this.physics.step(dt);
     this.readBody();
 
     // ---------- events ----------
-    if (landingImpact > 3) this.events.push({ type: 'landing', intensity: landingImpact });
+    if (landingImpact > 3) this.events.push({ type: 'landing', intensity: landingImpact, fragile });
     // Wall / barrier hits show up as a sudden velocity change that is not along the car's up axis.
     const dv = _t.copy(this.linvel).sub(preVel);
-    dv.y += this.gravity * dt; // remove gravity's contribution
+    dv.y += this.gravity * mods.gravityScale * dt; // remove gravity's contribution
     dv.addScaledVector(this.up, -dv.dot(this.up));
     const dvMag = dv.length();
     if (dvMag > 3) this.events.push({ type: 'impact', intensity: dvMag });
 
-    // wheel visual spin integrates here so interpolation sees it
-    for (let k = 0; k < 4; k++) {
-      const w = this.wheels[k]!;
-      w.steer = k < 2 ? this.steerAngle : 0;
-    }
+    for (let k = 0; k < 4; k++) this.wheels[k]!.steer = k < 2 ? this.steerAngle : 0;
     this.snapshot(this.curr);
   }
 
@@ -342,6 +376,7 @@ export class Vehicle {
     const p = this.params;
     const rayLen = p.springLenMax + p.wheelRadius;
     this.wheelsOnGround = 0;
+    this.touching.length = 0;
     for (let k = 0; k < 4; k++) {
       const w = this.wheels[k]!;
       _p.copy(this.mountLocal[k]!).applyQuaternion(this.quaternion).add(this.position);
@@ -361,11 +396,16 @@ export class Vehicle {
           w.springLen = hit.timeOfImpact - p.wheelRadius;
           w.normal.copy(_f);
           w.contactPoint.set(_p.x - this.up.x * hit.timeOfImpact, _p.y - this.up.y * hit.timeOfImpact, _p.z - this.up.z * hit.timeOfImpact);
-          w.surface = this.physics.surfaceOf(hit.collider.handle);
+          const info = this.physics.infoOf(hit.collider.handle);
+          w.surface = info.surface;
+          w.effect = info.effect;
+          w.colliderHandle = hit.collider.handle;
+          if (info.effect) this.touching.push(info.effect);
           this.wheelsOnGround++;
         }
       }
       if (!w.contact) {
+        w.effect = undefined;
         w.springLen = p.springLenMax;
         w.load = 0;
         w.slipAngle = 0;
@@ -377,9 +417,8 @@ export class Vehicle {
     }
   }
 
-  private applySuspension(): void {
+  private applySuspension(dt: number): void {
     const p = this.params;
-    const dt = 1 / 100;
     const comp: number[] = [0, 0, 0, 0];
     const fs: number[] = [0, 0, 0, 0];
     for (let k = 0; k < 4; k++) {
@@ -439,14 +478,16 @@ export class Vehicle {
     const braking = brake > 0 && !reversing && fwdSpeed > 0.8;
     let drive = 0;
     if (accel > 0) {
-      const topLimiter = clamp((p.topSpeed - Math.max(fwdSpeed, 0)) / (p.topSpeed * 0.08), 0, 1);
+      const cap = Math.max(p.topSpeed, this.boostCap);
+      const topLimiter = clamp((cap - Math.max(fwdSpeed, 0)) / (cap * 0.08), 0, 1);
       drive = Math.min(p.maxDriveForce, p.maxPower / Math.max(fwdSpeed, 3)) * accel * topLimiter;
     } else if (reversing) {
       const lim = clamp((p.maxReverseSpeed + Math.min(fwdSpeed, 0)) / p.maxReverseSpeed, 0, 1);
       drive = -p.maxDriveForce * p.reverseForceScale * brake * lim;
     }
+    if (this.engineOff) drive = 0;
     const brakeTotal = braking ? p.brakeForce * brake : 0;
-    const engineBrake = accel === 0 && !reversing ? p.engineBrake : 0;
+    const engineBrake = accel === 0 && !reversing && !this.engineOff ? p.engineBrake : 0;
 
     for (let k = 0; k < 4; k++) {
       const w = this.wheels[k]!;
@@ -530,6 +571,29 @@ export class Vehicle {
       const extra = w.slipping ? sign(fxCmd) * Math.min(25, (Math.abs(fxCmd) / fmaxLong - 1) * 40 + 4) : 0;
       w.spin += ((vf + extra) / p.wheelRadius) * dt;
     }
+  }
+
+  /**
+   * With only 1-3 wheels touching (a banked entry, a landing on one corner, a loop transition) pull the
+   * chassis up-axis toward the average contact normal so the free wheels find the surface again.
+   */
+  private applyGroundAlign(inertia: Vector3): void {
+    const k = this.params.groundAlign;
+    const n = this.wheelsOnGround;
+    if (k <= 0 || n === 0 || n === 4) return;
+    _f.set(0, 0, 0);
+    for (const w of this.wheels) if (w.contact) _f.add(w.normal);
+    if (_f.lengthSq() < 1e-6) return;
+    _f.normalize();
+    const err = _p.copy(this.up).cross(_f); // world axis, magnitude = sin(angle between up and normal)
+    _qi.copy(this.quaternion).invert();
+    const el = err.applyQuaternion(_qi);
+    const wl = _w.copy(this.angvel).applyQuaternion(_qi);
+    const scale = (4 - n) / 3;
+    const kd = 2 * Math.sqrt(k) * 0.9;
+    const tx = (k * el.x - kd * wl.x) * scale * inertia.x;
+    const tz = (k * el.z - kd * wl.z) * scale * inertia.z;
+    this.torque.add(_t.set(tx, 0, tz).applyQuaternion(this.quaternion));
   }
 
   private applyAero(): void {

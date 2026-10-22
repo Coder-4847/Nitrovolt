@@ -214,6 +214,81 @@ export class AudioEngine {
     o.stop(t + ms / 1000 + 0.08);
   }
 
+  /** Countdown beep (beat 3, 2, 1) or the GO tone (beat 0). */
+  countdown(beat: number): void {
+    if (beat === 0) {
+      this.tone(880, 0.35, 'square', 0.2);
+      this.tone(1320, 0.35, 'triangle', 0.12);
+    } else {
+      this.tone(440, 0.14, 'square', 0.16);
+    }
+  }
+
+  /** Checkpoint / lap chime. */
+  chime(): void {
+    this.tone(784, 0.12, 'triangle', 0.2);
+    this.tone(1175, 0.22, 'triangle', 0.2, 0.09);
+  }
+
+  /** Finish fanfare. */
+  fanfare(): void {
+    [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.22, i * 0.1));
+  }
+
+  /** Boost pad whoosh: rising filtered noise. */
+  whoosh(strength = 1): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const n = ctx.createBufferSource();
+    n.buffer = this.noise;
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.Q.value = 1.2;
+    f.frequency.setValueAtTime(400, t);
+    f.frequency.exponentialRampToValueAtTime(3600, t + 0.5);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.001, t);
+    g.gain.linearRampToValueAtTime(0.5 * strength, t + 0.12);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+    n.connect(f).connect(g).connect(this.sfxGain);
+    n.start(t);
+    n.stop(t + 0.85);
+  }
+
+  /** Fragile block shattering. */
+  shatter(): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const n = ctx.createBufferSource();
+    n.buffer = this.noise;
+    const f = ctx.createBiquadFilter();
+    f.type = 'highpass';
+    f.frequency.value = 1800;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.5, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+    n.connect(f).connect(g).connect(this.sfxGain);
+    n.start(t);
+    n.stop(t + 0.4);
+  }
+
+  private tone(freq: number, dur: number, type: OscillatorType, vol: number, delay = 0): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime + delay;
+    const o = ctx.createOscillator();
+    o.type = type;
+    o.frequency.value = freq;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    o.connect(g).connect(this.sfxGain);
+    o.start(t);
+    o.stop(t + dur + 0.02);
+  }
+
   setPaused(paused: boolean): void {
     if (!this.ctx) return;
     if (paused) void this.ctx.suspend();

@@ -1,0 +1,187 @@
+{
+ "id": "stunt01",
+ "name": "Stunt Park",
+ "car": "volt",
+ "theme": "grey",
+ "seed": 1,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "loop",
+   "gridPos": [
+    0,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    1,
+    0,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    1,
+    0,
+    -13
+   ],
+   "rot": 0
+  },
+  {
+   "type": "halfpipe2",
+   "gridPos": [
+    1,
+    0,
+    -14
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    1,
+    0,
+    -16
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    1,
+    0,
+    -18
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -1,
+    0,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "spiralDownR",
+   "gridPos": [
+    -3,
+    0,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -6,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "wallRide4R",
+   "gridPos": [
+    -7,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -11,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -13,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -16,
+    -3,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -18,
+    -5,
+    -19
+   ],
+   "rot": 1
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -20,
+    -5,
+    -19
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 25713,
+  "gold": 27770,
+  "silver": 30856,
+  "bronze": 37284
+ }
+}

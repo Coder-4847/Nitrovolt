@@ -53,14 +53,14 @@ export class CameraRig {
     this.camera.updateProjectionMatrix();
   }
 
-  update(dt: number, pose: RenderPose, velocity: Vector3, speed: number): void {
+  update(dt: number, pose: RenderPose, velocity: Vector3, speed: number, boost = 0): void {
     this.clock += dt;
     const car = pose.position;
     const carFwd = _t.set(0, 0, -1).applyQuaternion(pose.quaternion);
 
     const kick = this.reducedMotion ? 0.4 : 1;
     const fovBase = this.mode === 'hood' ? 76 : this.mode === 'far' ? 66 : 70;
-    const fovTarget = fovBase + 30 * kick * smoothstep(12, 88, speed);
+    const fovTarget = fovBase + 30 * kick * smoothstep(12, 88, speed) + 10 * kick * boost;
     if (!this.ready) this.fov = fovTarget;
     this.fov += (fovTarget - this.fov) * damp(5, dt);
 
@@ -97,7 +97,7 @@ export class CameraRig {
     const dirP = this.dir.clone().addScaledVector(this.up, -this.dir.dot(this.up)).normalize();
 
     const far = this.mode === 'far';
-    const dist = (far ? 10.5 : 6.4) + 1.6 * smoothstep(20, 85, speed);
+    const dist = (far ? 10.5 : 6.4) + 1.6 * smoothstep(20, 85, speed) + 1.2 * boost;
     const height = far ? 3.8 : 2.0;
     const desired = car.clone().addScaledVector(dirP, -dist).addScaledVector(this.up, height);
 

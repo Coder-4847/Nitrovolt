@@ -23,12 +23,12 @@ export function buildGreyboxTrack(): TrackData {
   // --- course leaves the north edge of the pad ---
   t.setDefaults({ width: 16, walls: 'none' });
   t.straight(120);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // banked left 180
   t.arc(70, 180, 28, { walls: 'both' });
   t.straight(50);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // gap jump: ramp up, fly, land on a down-slope that flattens out
   t.pitch(16, 55);
@@ -36,26 +36,26 @@ export function buildGreyboxTrack(): TrackData {
   t.gap(30, 7, -16);
   t.pitch(16, 60);
   t.straight(40);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // surfaces: dirt then ice, then back to tarmac
   t.straight(55, { surface: 'dirt', walls: 'both' });
   t.straight(55, { surface: 'ice', walls: 'both' });
   t.straight(30);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // chicane (S-bends)
   t.arc(48, 40, 0);
   t.arc(48, -80, 0);
   t.arc(48, 40, 0);
   t.straight(30);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // run-up and loop
   t.straight(150);
   t.loop(30, 19, { width: 14, walls: 'both', wallHeight: 1.0 });
   t.straight(90);
-  t.checkpoint();
+  t.trigger('checkpoint', 16);
 
   // mega jump
   t.pitch(20, 60);
@@ -63,8 +63,8 @@ export function buildGreyboxTrack(): TrackData {
   t.gap(60, 12, -20);
   t.pitch(20, 70);
   t.straight(60);
-  t.deco(1.2, 9, 1.2, -9);
-  t.deco(1.2, 9, 1.2, 9);
+  t.trigger('finish', 16);
+  t.gantry(16, 0xff3a14);
 
   return t.finish('greybox', 'Grey-box Test Course', startPose, -45);
 }

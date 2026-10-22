@@ -23,7 +23,8 @@ export class GameRenderer {
   private readonly sky = new Sky();
   private readonly sun: DirectionalLight;
   private readonly ground: Mesh;
-  private trackView: TrackView | null = null;
+  trackView: TrackView | null = null;
+  private clock = 0;
   private speedFx: SpeedFx;
   private quality: QualityLevel;
   speedFxEnabled = true;
@@ -143,16 +144,18 @@ export class GameRenderer {
     this.rig.resize(w, h);
   };
 
-  render(dt: number, pose: RenderPose, velocity: Vector3, speed: number): void {
+  render(dt: number, pose: RenderPose, velocity: Vector3, speed: number, boost = 0): void {
+    this.clock += dt;
+    this.trackView?.update(this.clock);
     this.car.update(pose);
-    this.rig.update(dt, pose, velocity, speed);
+    this.rig.update(dt, pose, velocity, speed, boost);
     const cam = this.rig.camera;
     this.car.setCockpit(this.rig.mode === 'hood');
 
     const camRight = new Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
     const camUp = new Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
     const camFwd = new Vector3(0, 0, -1).applyQuaternion(cam.quaternion);
-    this.speedFx.update(dt, cam.position, camRight, camUp, camFwd, velocity, speed, this.speedFxEnabled);
+    this.speedFx.update(dt, cam.position, camRight, camUp, camFwd, velocity, speed, this.speedFxEnabled, boost);
 
     // sky + ground follow the camera, sun shadow follows the car
     this.sky.mesh.position.copy(cam.position);

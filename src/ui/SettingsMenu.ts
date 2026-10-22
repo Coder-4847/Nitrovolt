@@ -7,9 +7,15 @@ import { storage } from '../core/Storage';
 import { QUALITY, QualityLevel, saveQuality } from '../render/Quality';
 import { GameRenderer } from '../render/GameRenderer';
 
+export type CountdownMode = 'instant' | 'quick' | 'classic';
+export const COUNTDOWN_SECONDS: Record<CountdownMode, number> = { instant: 0, quick: 1.2, classic: 3 };
+
 export interface SettingsHooks {
   onToggle(open: boolean): void;
   toast(msg: string): void;
+  levels: Array<{ id: string; name: string }>;
+  currentLevel: string;
+  onCountdown(mode: CountdownMode): void;
 }
 
 /** Pause menu: graphics, audio, input toggles and the keyboard / gamepad remapping UI. */
@@ -50,6 +56,7 @@ export class SettingsMenu {
     const a = this.audio.settings;
     const reduced = storage.get<boolean>('nitrovolt.reducedMotion', false);
     const fx = storage.get<boolean>('nitrovolt.speedFx', true);
+    const cd = storage.get<CountdownMode>('nitrovolt.countdown', 'quick');
 
     const keyRows = (Object.keys(KEY_ACTION_LABELS) as KeyAction[])
       .map((act) => `<div class="line"><span>${KEY_ACTION_LABELS[act]}</span><span class="keys">${b.keyboard[act]
@@ -63,6 +70,12 @@ export class SettingsMenu {
     this.el.innerHTML = `
       <h2>Nitro<span>volt</span> · Menu</h2>
       <div class="note">Esc / P to resume. Changes save automatically.</div>
+      <h4>Gameplay</h4>
+      <div class="line"><span>Level</span><select data-lv>${this.hooks.levels.map((l) => `<option value="${l.id}" ${l.id === this.hooks.currentLevel ? 'selected' : ''}>${l.name}</option>`).join('')}</select></div>
+      <div class="line"><span>Start countdown</span><select data-cd>
+        <option value="instant" ${cd === 'instant' ? 'selected' : ''}>Instant (GO immediately)</option>
+        <option value="quick" ${cd === 'quick' ? 'selected' : ''}>Quick 3-2-1 (1.2 s)</option>
+        <option value="classic" ${cd === 'classic' ? 'selected' : ''}>Classic 3-2-1 (3 s)</option></select></div>
       <h4>Graphics</h4>
       <div class="line"><span>Quality</span><select data-q>${(Object.keys(QUALITY) as QualityLevel[]).map((k) => `<option value="${k}" ${k === q ? 'selected' : ''}>${k}</option>`).join('')}</select></div>
       <div class="line"><span>Speed lines</span><input type="checkbox" data-fx ${fx ? 'checked' : ''}></div>
@@ -81,6 +94,17 @@ export class SettingsMenu {
       <div class="foot"><button class="btn" data-reset>Reset bindings</button><button class="btn primary" data-close>Resume</button></div>`;
 
     const $ = <T extends Element>(s: string): T => this.el.querySelector<T>(s)!;
+    $<HTMLSelectElement>('[data-lv]').onchange = (e) => {
+      const params = new URLSearchParams(location.search);
+      params.delete('track');
+      params.set('level', (e.target as HTMLSelectElement).value);
+      location.search = params.toString();
+    };
+    $<HTMLSelectElement>('[data-cd]').onchange = (e) => {
+      const mode = (e.target as HTMLSelectElement).value as CountdownMode;
+      storage.set('nitrovolt.countdown', mode);
+      this.hooks.onCountdown(mode);
+    };
     $<HTMLSelectElement>('[data-q]').onchange = (e) => {
       const lvl = (e.target as HTMLSelectElement).value as QualityLevel;
       saveQuality(lvl);
