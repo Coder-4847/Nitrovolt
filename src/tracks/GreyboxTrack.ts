@@ -53,7 +53,7 @@ export function buildGreyboxTrack(): TrackData {
 
   // run-up and loop
   t.straight(150);
-  t.loop(22, 19, { width: 14, walls: 'both', wallHeight: 1.0 });
+  t.loop(30, 19, { width: 14, walls: 'both', wallHeight: 1.0 });
   t.straight(90);
   t.checkpoint();
 

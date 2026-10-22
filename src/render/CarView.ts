@@ -22,6 +22,7 @@ function sideExtrude(points: Array<[number, number]>, width: number, bevel = 0.0
 export class CarView {
   readonly root = new Group();
   readonly body = new Group();
+  private readonly cockpitHidden: Mesh[] = [];
   private readonly wheelRoots: Group[] = [];
   private readonly wheelSpin: Group[] = [];
   private readonly paint: MeshStandardMaterial;
@@ -69,6 +70,7 @@ export class CarView {
     const head = new Mesh(new BoxGeometry(1.2, 0.05, 0.04), new MeshBasicMaterial({ color: 0xf4fbff }));
     head.position.set(0, -0.06, -2.1);
 
+    this.cockpitHidden.push(canopy, spoilerPlane, postL, postR, plateL, plateR);
     this.body.add(hull, canopy, spoilerPlane, postL, postR, plateL, plateR, splitter, stripe, glow, tail, head);
     this.body.traverse((o) => {
       if (o instanceof Mesh) o.castShadow = true;
@@ -114,8 +116,9 @@ export class CarView {
     this.accent.emissive.setHex(accent);
   }
 
-  setVisible(bodyVisible: boolean): void {
-    this.body.visible = bodyVisible;
+  /** Hood cam: keep the hull (you see the bonnet) but hide parts that would block the view. */
+  setCockpit(on: boolean): void {
+    for (const m of this.cockpitHidden) m.visible = !on;
   }
 
   update(pose: RenderPose): void {

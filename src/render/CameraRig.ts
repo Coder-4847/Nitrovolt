@@ -59,13 +59,13 @@ export class CameraRig {
     const carFwd = _t.set(0, 0, -1).applyQuaternion(pose.quaternion);
 
     const kick = this.reducedMotion ? 0.4 : 1;
-    const fovBase = this.mode === 'hood' ? 82 : this.mode === 'far' ? 66 : 70;
+    const fovBase = this.mode === 'hood' ? 76 : this.mode === 'far' ? 66 : 70;
     const fovTarget = fovBase + 30 * kick * smoothstep(12, 88, speed);
     if (!this.ready) this.fov = fovTarget;
     this.fov += (fovTarget - this.fov) * damp(5, dt);
 
     if (this.mode === 'hood') {
-      this.camera.position.set(0, 0.5, -0.35).applyQuaternion(pose.quaternion).add(car);
+      this.camera.position.set(0, 0.5, -0.05).applyQuaternion(pose.quaternion).add(car);
       this.camera.quaternion.copy(pose.quaternion);
       this.applyShake(dt);
       this.camera.fov = this.fov;

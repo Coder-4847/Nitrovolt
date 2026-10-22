@@ -46,7 +46,11 @@ export class TouchControls {
   private bindButton(el: HTMLElement, down: () => void, up: () => void): void {
     const press = (e: PointerEvent): void => {
       e.preventDefault();
-      el.setPointerCapture(e.pointerId);
+      try {
+        el.setPointerCapture(e.pointerId);
+      } catch {
+        /* synthetic / already released pointer */
+      }
       el.classList.add('down');
       down();
     };

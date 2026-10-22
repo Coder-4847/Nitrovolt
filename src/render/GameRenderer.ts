@@ -147,7 +147,7 @@ export class GameRenderer {
     this.car.update(pose);
     this.rig.update(dt, pose, velocity, speed);
     const cam = this.rig.camera;
-    this.car.setVisible(this.rig.mode !== 'hood');
+    this.car.setCockpit(this.rig.mode === 'hood');
 
     const camRight = new Vector3(1, 0, 0).applyQuaternion(cam.quaternion);
     const camUp = new Vector3(0, 1, 0).applyQuaternion(cam.quaternion);
