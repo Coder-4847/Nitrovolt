@@ -373,6 +373,7 @@ export class RaceSession {
     }
     hud.showFinish({ time, delta, newBest, medal, medalEarned, respawns: this.finishRespawns, unlocked }, this.ctx.finishActions(this));
     audio.fanfare();
+    audio.musicSting(medalRank(medal));
     if (medalEarned) setTimeout(() => audio.medalJingle(medalRank(medal)), 500);
     input.rumble(0.6, 0.8, 300);
   }
@@ -419,7 +420,7 @@ export class RaceSession {
     let slip = 0;
     for (const w of v.wheels) if (w.contact) slip = Math.max(slip, w.gripUse);
     audio.update(
-      { speed: v.speed, throttle: this.lastFrame.accel, slip, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface() },
+      { speed: v.speed, throttle: this.lastFrame.accel, slip, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface(), boost: mods.boostLevel },
       dt,
     );
 

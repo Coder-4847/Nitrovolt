@@ -16,6 +16,8 @@ const { Records } = await import('../src/core/Records');
 const { exportSave, importSave, validateSave } = await import('../src/core/SaveFile');
 const { GhostStore } = await import('../src/core/GhostStore');
 const { Settings } = await import('../src/core/Settings');
+const { UserLevels } = await import('../src/editor/UserLevels');
+type UserLevel = import('../src/editor/UserLevels').UserLevel;
 
 const ghost = (id: string) => ({ v: 1 as const, trackId: id, carId: 'volt', time: 12345, ticks: 10, levelHash: 'a', physicsHash: 'b', input: 'AA==', snaps: 'AA==' });
 
@@ -63,9 +65,23 @@ describe('save file', () => {
     expect((await GhostStore.load('a'))!.time).toBe(12345);
   });
 
+  it('carries player tracks (version 2) and still reads version 1 files', async () => {
+    const track = { id: 'u-test', json: { id: 'u-test', name: 'Mine', car: 'volt', theme: 'neon', seed: 1, laps: 1, blocks: [{ type: 'start', gridPos: [0, 0, 0], rot: 0 }], medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 } }, updated: 1 } as UserLevel;
+    await UserLevels.save(track);
+    const file = await exportSave();
+    expect(file.version).toBe(2);
+    expect(file.userLevels!.map((l) => l.id)).toContain('u-test');
+    await UserLevels.remove('u-test');
+    await importSave(JSON.parse(JSON.stringify(file)));
+    expect((await UserLevels.get('u-test'))!.json.name).toBe('Mine');
+    const v1 = { ...JSON.parse(JSON.stringify(file)), version: 1 };
+    delete v1.userLevels;
+    expect(validateSave(v1)).toEqual([]);
+  });
+
   it('rejects malformed or foreign files without touching the save', async () => {
     Records.submit('keep', 1000, []);
-    for (const bad of [null, 'text', {}, { format: 'other', version: 1, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 2, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: { evil: '1' }, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: {}, ghosts: [{ nope: 1 }] }]) {
+    for (const bad of [null, 'text', {}, { format: 'other', version: 1, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 3, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 2, storage: {}, ghosts: [], userLevels: [{ id: 'sprint01', json: { blocks: [] } }] }, { format: 'nitrovolt-save', version: 1, storage: { evil: '1' }, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: {}, ghosts: [{ nope: 1 }] }]) {
       await expect(importSave(bad)).rejects.toThrow();
     }
     expect(Records.get('keep')!.best).toBe(1000);

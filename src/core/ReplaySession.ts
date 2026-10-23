@@ -277,7 +277,7 @@ export class ReplaySession {
     if (!this.paused) gfx.updateFx(dt * (this.playing ? this.speed : 0), v);
     gfx.setDrive(this.scrubbing ? 0 : v.appliedInput.brake, mods.boostLevel);
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
-    audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface() }, dt);
+    audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface(), boost: v.effects.mods.boostLevel }, dt);
     hud.update(v.speed, v.params.topSpeed, Math.min(ms, total), mods.boostLevel);
     hud.setEffects(mods.active);
     debug.update(dt, v, { steer: 0, accel: 0, brake: 0 }, 0, 0, p.currentTick);

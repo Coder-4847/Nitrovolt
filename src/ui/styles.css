@@ -314,3 +314,17 @@ body.mode-editor #touch, body.mode-editor .hud { display: none !important; }
 .ml-card { cursor: default; }
 .ml-acts { display: flex; flex-wrap: wrap; gap: 4px; }
 .share-box { max-width: min(560px, 92vw); }
+
+/* ---- Phase 8 ---- */
+.mm-small { display: flex; gap: 8px; justify-content: center; }
+.mm-small .btn { font-size: 13px; padding: 6px 14px; background: rgba(255,255,255,.06); }
+.help-body { overflow-y: auto; max-width: 860px; touch-action: pan-y; font-size: 14px; line-height: 1.5; }
+.help-body h4 { margin: 14px 0 6px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
+.help-body p, .help-body ul { margin: 4px 0; }
+.help-table { max-width: 760px; }
+.help-specials { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px 18px; }
+.help-sp { display: flex; gap: 8px; align-items: center; }
+.help-sp .swatch { width: 18px; height: 18px; border-radius: 4px; flex: none; box-shadow: 0 0 8px currentColor; }
+.about-logo { font-size: 44px; font-weight: 900; font-style: italic; letter-spacing: .12em; }
+.about-logo span { color: var(--accent); }
+.update-bar { position: absolute; left: 50%; top: calc(10px + var(--sat)); transform: translateX(-50%); z-index: 70; display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-radius: 999px; background: var(--panel); border: 1px solid var(--accent); font-weight: 700; }

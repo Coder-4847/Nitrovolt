@@ -18,6 +18,8 @@ export interface SettingsData {
   showFps: boolean;
   /** Lower the render resolution automatically to hold the frame rate. */
   dynamicResolution: boolean;
+  /** Gamepad rumble and phone vibration. */
+  haptics: boolean;
 }
 
 const KEY = 'nitrovolt.settings.v1';
@@ -32,6 +34,7 @@ const DEFAULTS: SettingsData = {
   speedFx: true,
   showFps: false,
   dynamicResolution: true,
+  haptics: true,
 };
 
 type Listener = (s: SettingsData) => void;

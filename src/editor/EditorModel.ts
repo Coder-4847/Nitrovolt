@@ -22,6 +22,14 @@ export const GRID_LIMIT = 120;
 export const LEVEL_LIMIT = 40;
 export const MAX_BLOCKS = 1500;
 
+/** Medal margins for player-made levels (the same as season 2 of the campaign). */
+export const USER_MEDAL_FACTORS: [number, number, number] = [1.08, 1.2, 1.42];
+
+export function medalTimesFor(author: number): TrackJson['medalTimes'] {
+  const [g, s, b] = USER_MEDAL_FACTORS;
+  return { author, gold: Math.round(author * g), silver: Math.round(author * s), bronze: Math.round(author * b) };
+}
+
 export const emptyLevel = (id: string, name = 'New track'): TrackJson => ({
   id,
   name,

@@ -1,10 +1,12 @@
 import { storage } from '../core/Storage';
 import { SURFACES, SurfaceId } from '../physics/Surface';
+import { Music, MusicMode } from './Music';
 
 interface AudioSettings {
   master: number;
   engine: number;
   sfx: number;
+  music: number;
 }
 
 const KEY = 'nitrovolt.audio.v1';
@@ -52,6 +54,8 @@ export interface EngineState {
   topSpeed: number;
   /** Surface under the heaviest wheel (null in the air). */
   surface?: SurfaceId | null;
+  /** Boost level 0..1 (turbo whistle). */
+  boost?: number;
 }
 
 /**
@@ -77,7 +81,13 @@ export class AudioEngine {
   private roadFilter!: BiquadFilterNode;
   private voice: EngineVoice = DEFAULT_VOICE;
   private vibPhase = 0;
-  settings: AudioSettings = storage.get<AudioSettings>(KEY, { master: 0.7, engine: 0.8, sfx: 0.9 });
+  settings: AudioSettings = { master: 0.7, engine: 0.8, sfx: 0.9, music: 0.55, ...storage.get<Partial<AudioSettings>>(KEY, {}) };
+  private musicGain!: GainNode;
+  private music: Music | null = null;
+  private musicTheme = 'neon';
+  private musicMode: MusicMode = 'menu';
+  private whistle!: OscillatorNode;
+  private whistleGain!: GainNode;
 
   constructor() {
     const unlock = (): void => {
@@ -103,6 +113,24 @@ export class AudioEngine {
     this.engineGain.connect(this.master);
     this.sfxGain = ctx.createGain();
     this.sfxGain.connect(this.master);
+    this.musicGain = ctx.createGain();
+    this.musicGain.connect(this.master);
+    this.music = new Music(ctx, this.musicGain, this.noise);
+    this.music.setTheme(this.musicTheme);
+    this.music.setMode(this.musicMode);
+
+    // turbo whistle: a sine through a resonant band-pass, louder and higher with the boost
+    this.whistle = ctx.createOscillator();
+    this.whistle.type = 'sine';
+    this.whistle.frequency.value = 1400;
+    const wbp = ctx.createBiquadFilter();
+    wbp.type = 'bandpass';
+    wbp.frequency.value = 2200;
+    wbp.Q.value = 3;
+    this.whistleGain = ctx.createGain();
+    this.whistleGain.gain.value = 0;
+    this.whistle.connect(wbp).connect(this.whistleGain).connect(this.sfxGain);
+    this.whistle.start();
 
     // engine: two detuned saws + square sub through a low-pass
     this.osc1 = ctx.createOscillator();
@@ -193,6 +221,7 @@ export class AudioEngine {
     this.master.gain.value = this.settings.master;
     this.engineGain.gain.value = this.engineOn ? this.settings.engine : 0;
     this.sfxGain.gain.value = this.settings.sfx;
+    this.musicGain.gain.value = this.settings.music;
     storage.set(KEY, this.settings);
   }
 
@@ -211,9 +240,14 @@ export class AudioEngine {
     const inGear = (frac - lo) / Math.max(hi - lo, 1e-3);
     const targetRpm = 0.18 + 0.82 * Math.min(1, Math.max(0, inGear)) * 0.85 + 0.15 * s.throttle * (s.grounded ? 1 : 1.4);
     if (g !== this.gear) {
+      // up-shift under load: a dip in revs and a short mechanical click
+      if (g > this.gear && s.throttle > 0.4 && s.grounded) this.shiftClick();
       this.gear = g;
       this.rpm -= 0.18; // shift dip
     }
+    const boost = s.boost ?? 0;
+    this.whistle.frequency.setTargetAtTime(1300 + 2200 * boost + 600 * (s.speed / s.topSpeed), t, 0.08);
+    this.whistleGain.gain.setTargetAtTime(Math.min(0.12, boost * 0.12), t, 0.08);
     this.rpm += (targetRpm - this.rpm) * Math.min(1, dt * 12);
 
     this.vibPhase += dt * 38;
@@ -316,6 +350,38 @@ export class AudioEngine {
   /** Finish fanfare. */
   fanfare(): void {
     [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.22, i * 0.1));
+  }
+
+  /** Gear change click. */
+  private shiftClick(): void {
+    const ctx = this.ctx;
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const n = ctx.createBufferSource();
+    n.buffer = this.noise;
+    const f = ctx.createBiquadFilter();
+    f.type = 'bandpass';
+    f.frequency.value = 2600;
+    f.Q.value = 2;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.12, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+    n.connect(f).connect(g).connect(this.sfxGain);
+    n.start(t, 0.3);
+    n.stop(t + 0.06);
+  }
+
+  /** Soundtrack for a theme and situation (applied once audio is unlocked). */
+  setMusic(theme: string, mode: MusicMode): void {
+    this.musicTheme = theme;
+    this.musicMode = mode;
+    this.music?.setTheme(theme);
+    this.music?.setMode(mode);
+  }
+
+  /** Finish / medal flourish on the music bus. */
+  musicSting(rank: number): void {
+    this.music?.sting(rank);
   }
 
   /** Menu focus tick. */

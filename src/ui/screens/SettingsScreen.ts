@@ -19,6 +19,18 @@ const TABS: Array<[Tab, string]> = [
 ];
 let lastTab: Tab = 'gameplay';
 
+/** Enter / leave fullscreen and, on phones, try to hold landscape. */
+export function toggleFullscreen(): void {
+  if (document.fullscreenElement) {
+    void document.exitFullscreen().catch(() => undefined);
+    return;
+  }
+  void document.documentElement.requestFullscreen?.({ navigationUI: 'hide' }).then(() => {
+    const o = screen.orientation as ScreenOrientation & { lock?: (o: string) => Promise<void> };
+    return o.lock?.('landscape').catch(() => undefined);
+  }).catch(() => undefined);
+}
+
 const row = (label: string, control: HTMLElement, hint?: string): HTMLElement =>
   h('label', { class: 'line' }, h('span', {}, label, hint ? h('small', { class: 'hint' }, hint) : null), control);
 
@@ -80,13 +92,14 @@ export class SettingsScreen implements Screen {
           row('Dynamic resolution', check(s.dynamicResolution, (v) => Settings.set('dynamicResolution', v)), 'Renders fewer pixels when the frame rate drops'),
           row('Speed lines', check(s.speedFx, (v) => Settings.set('speedFx', v))),
           row('Show FPS', check(s.showFps, (v) => Settings.set('showFps', v))),
+          row('Fullscreen', h('button', { class: 'btn', type: 'button', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'Leave' : 'Enter'), 'F11 on desktop; on phones this also hides the browser bars'),
         );
         break;
       case 'audio': {
         const a = audio.settings;
-        const slider = (label: string, key: 'master' | 'engine' | 'sfx'): HTMLElement =>
+        const slider = (label: string, key: 'master' | 'engine' | 'sfx' | 'music'): HTMLElement =>
           row(label, range(0, 1, 0.05, a[key], (v) => { a[key] = v; audio.applySettings(); }));
-        b.append(slider('Master', 'master'), slider('Engine', 'engine'), slider('Effects', 'sfx'));
+        b.append(slider('Master', 'master'), slider('Music', 'music'), slider('Engine', 'engine'), slider('Effects', 'sfx'));
         break;
       }
       case 'controls':
@@ -122,6 +135,7 @@ export class SettingsScreen implements Screen {
     };
     b.append(
       row('Mouse steering (LMB gas, RMB brake)', check(input.mouseSteer, (v) => (input.mouseSteer = v))),
+      row('Vibration / rumble', check(Settings.get().haptics, (v) => Settings.set('haptics', v)), 'Gamepad rumble and phone vibration on landings and hits'),
       row('Gamepad dead zone', range(0, 0.4, 0.01, bi.deadzone, (v) => edit((n) => (n.deadzone = v), false))),
       row('Gamepad steering curve', range(1, 2.5, 0.05, bi.steerCurve, (v) => edit((n) => (n.steerCurve = v), false))),
       h('div', { class: 'note' }, input.gamepad.id ? `Gamepad: ${input.gamepad.id}` : 'No gamepad detected. Press a button on it to connect.'),

@@ -20,13 +20,7 @@ import { EditorCamera } from './EditorCamera';
 import { Brush, EditorModel, Tool } from './EditorModel';
 import { EditorView } from './EditorView';
 
-/** Medal margins for player-made levels (the same as season 2 of the campaign). */
-export const USER_MEDAL_FACTORS: [number, number, number] = [1.08, 1.2, 1.42];
-
-export function medalTimesFor(author: number): TrackJson['medalTimes'] {
-  const [g, s, b] = USER_MEDAL_FACTORS;
-  return { author, gold: Math.round(author * g), silver: Math.round(author * s), bronze: Math.round(author * b) };
-}
+export { USER_MEDAL_FACTORS, medalTimesFor } from './EditorModel';
 
 /** What the editor needs from the app around it. */
 export interface EditorHost {
@@ -72,6 +66,7 @@ const _hit = new Vector3();
  * level settings, live checks, test drive and bot validation. Edits a TrackJson through `EditorModel`.
  */
 export class EditorSession {
+  readonly kind = 'editor' as const;
   paused = false;
   readonly model: EditorModel;
   readonly cam = new EditorCamera();

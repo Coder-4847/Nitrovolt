@@ -1,6 +1,6 @@
 {
   "name": "nitrovolt",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
   "description": "NITROVOLT \u2014 a browser time-attack racer",
@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "levels": "tsx scripts/make-levels.ts",
-    "campaign": "tsx scripts/make-campaign.ts"
+    "campaign": "tsx scripts/make-campaign.ts",
+    "icons": "tsx scripts/make-icons.ts"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

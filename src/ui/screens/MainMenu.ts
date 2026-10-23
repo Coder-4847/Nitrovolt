@@ -5,6 +5,8 @@ import { SettingsScreen } from './SettingsScreen';
 import { LevelSelectScreen } from './LevelSelectScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
 import { MyLevelsScreen } from './MyLevelsScreen';
+import { HelpScreen } from './HelpScreen';
+import { AboutScreen } from './AboutScreen';
 import { medalBadge } from '../medals';
 import { MEDAL_POINTS } from '../../data/campaign';
 
@@ -25,6 +27,10 @@ export class MainMenu implements Screen {
       btn('Track editor', () => this.app.screens.push(new MyLevelsScreen(this.app)), 'big'),
       btn('Leaderboard', () => this.app.screens.push(new LeaderboardScreen(this.app)), 'big'),
       btn('Settings', () => this.app.screens.push(new SettingsScreen(this.app)), 'big'),
+      h('div', { class: 'mm-small' },
+        btn('How to play', () => this.app.screens.push(new HelpScreen(this.app))),
+        btn('About', () => this.app.screens.push(new AboutScreen(this.app))),
+      ),
     );
     const medals = h('div', { class: 'mm-medals', html: (['author', 'gold', 'silver', 'bronze'] as const).map((m) => `<span>${medalBadge(m)} ${counts[m]}</span>`).join('') });
     const pts = h('div', { class: 'mm-points' }, `${c.totalPoints} / ${c.maxPoints || MEDAL_POINTS.author} medal points`);

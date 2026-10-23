@@ -1,14 +1,27 @@
-import RAPIER from '@dimforge/rapier3d-compat';
+import type * as RT from '@dimforge/rapier3d-compat';
 import { PHYSICS_DT } from '../core/FixedLoop';
 import { EffectId, SurfaceId } from './Surface';
 
-export { RAPIER };
+type RapierModule = typeof RT;
+/**
+ * The Rapier module, loaded on demand: its WASM is ~2 MB, so it lives in its own chunk and the menus can
+ * appear before it arrives. Valid after `initRapier()` resolves (every Simulation awaits it).
+ */
+export let RAPIER: RapierModule = null as unknown as RapierModule;
+export type { RT };
 
 let initPromise: Promise<void> | null = null;
 
-/** Initialise the WASM module once. */
+/** True once the physics engine is loaded. */
+export const rapierReady = (): boolean => RAPIER !== null;
+
+/** Load and initialise the WASM module once. */
 export function initRapier(): Promise<void> {
-  initPromise ??= RAPIER.init();
+  initPromise ??= import('@dimforge/rapier3d-compat').then(async (m) => {
+    const mod = ((m as unknown as { default?: RapierModule }).default ?? m) as RapierModule;
+    await mod.init();
+    RAPIER = mod;
+  });
   return initPromise;
 }
 
@@ -36,7 +49,7 @@ const DEFAULT_INFO: ColliderInfo = { surface: 'tarmac', blockId: -1 };
  * All vehicle dynamics are our own code.
  */
 export class RapierWorld {
-  readonly world: RAPIER.World;
+  readonly world: RT.World;
   private readonly info = new Map<number, ColliderInfo>();
   private readonly meshes: ColliderMesh[] = [];
   /** collider handle currently representing each mesh (undefined while broken). */

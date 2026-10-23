@@ -24,15 +24,17 @@ import { ScreenManager } from '../ui/screens/ScreenManager';
 import { TouchControls } from '../ui/TouchControls';
 import { TuningPanel } from '../ui/TuningPanel';
 import { FixedLoop } from './FixedLoop';
+import { initRapier, rapierReady } from '../physics/RapierWorld';
 import { GhostData } from './Ghost';
 import { GhostStore, authorGhost } from './GhostStore';
 import { InputManager, MetaActions } from './input/InputManager';
 import { loadLivery } from './Livery';
 import { medalRank } from './Medals';
 import { RaceSession, SessionCtx } from './RaceSession';
-import { EditorModel, emptyLevel } from '../editor/EditorModel';
-import { EditorCamera } from '../editor/EditorCamera';
-import { EditorHost, EditorSession, medalTimesFor } from '../editor/EditorSession';
+import { EditorModel, emptyLevel, medalTimesFor } from '../editor/EditorModel';
+import type { EditorCamera } from '../editor/EditorCamera';
+// the editor UI is loaded on demand (its own chunk)
+import type { EditorHost, EditorSession } from '../editor/EditorSession';
 import { checkLevel } from '../editor/Checks';
 import { assertSafeLevel, decodeLevel, encodeLevel } from '../editor/ShareCode';
 import { UserLevel, UserLevels, newLevelId } from '../editor/UserLevels';
@@ -52,6 +54,8 @@ interface Bundle {
   params: VehicleParams;
   recordId?: string;
 }
+
+const isEditor = (s: unknown): s is EditorSession => !!s && (s as { kind?: string }).kind === 'editor';
 
 const ZERO_MEDALS = { author: 0, gold: 0, silver: 0, bronze: 0 };
 const hashOf = (j: TrackJson): string => levelFingerprint(j.blocks, j.car, j.laps ?? 1);
@@ -143,6 +147,7 @@ export class App implements AppApi {
       (alpha, dt) => this.frame(alpha, dt),
     );
     window.addEventListener('keydown', this.onKey);
+    document.addEventListener('visibilitychange', this.onVisibility);
     this.hud.setVisible(false);
     if (loadQualityChoice() === 'auto') this.bench = { ms: [], t: 0, rounds: 0 };
   }
@@ -176,7 +181,7 @@ export class App implements AppApi {
     }
   }
 
-  static async start(appRoot: HTMLElement, canvasHost: HTMLElement): Promise<App> {
+  static async start(appRoot: HTMLElement, canvasHost: HTMLElement, status: (t: string) => void = () => undefined): Promise<App> {
     const q = new URLSearchParams(location.search);
     const dev = q.get('track');
     const wanted = q.get('level') ?? storage.get<string>(LAST_LEVEL, DEFAULT_LEVEL_ID);
@@ -185,6 +190,7 @@ export class App implements AppApi {
     if (q.get('debug') === '1') (window as unknown as { __nv: App }).__nv = app;
 
     const direct = dev === 'flat' || dev === 'greybox' || q.has('level') || q.get('autodrive') === '1';
+    if (direct || location.hash.includes('track=')) status('loading physics…');
     const shared = location.hash.includes('track=') ? location.hash : null;
     if (shared && !direct) {
       history.replaceState(null, '', location.pathname + location.search);
@@ -207,6 +213,8 @@ export class App implements AppApi {
       app.screens.set(new MainMenu(app));
     }
     app.loop.start();
+    // the physics engine (WASM) streams in while the player looks at the menu
+    void initRapier();
     return app;
   }
 
@@ -218,7 +226,7 @@ export class App implements AppApi {
     return this.gfx;
   }
   get editor(): EditorSession | null {
-    return this.session instanceof EditorSession ? this.session : null;
+    return isEditor(this.session) ? this.session : null;
   }
   get race(): RaceSession | null {
     return this.session instanceof RaceSession ? this.session : null;
@@ -335,8 +343,33 @@ export class App implements AppApi {
     const paused = this.screens.depth > 0 && this.mode !== 'menu';
     this.loop.timeScale = paused ? 0 : 1;
     if (this.session) this.session.paused = paused;
-    this.audio.setDriving((this.mode === 'race' || this.mode === 'replay') && !paused);
+    const driving = this.mode === 'race' || this.mode === 'replay';
+    this.audio.setDriving(driving && !paused);
+    this.audio.setMusic(this.gfx.themeDef.id, driving ? (paused ? 'pause' : 'race') : 'menu');
+    this.updateWakeLock(driving && !paused);
   }
+
+  // ---- device niceties ----
+  private wakeLock: { release(): Promise<void> } | null = null;
+
+  /** Keep the screen on while racing (mobile). */
+  private updateWakeLock(on: boolean): void {
+    const nav = navigator as Navigator & { wakeLock?: { request(type: 'screen'): Promise<{ release(): Promise<void> }> } };
+    if (on && !this.wakeLock && nav.wakeLock && document.visibilityState === 'visible') {
+      nav.wakeLock.request('screen').then((l) => (this.wakeLock = l)).catch(() => undefined);
+    } else if (!on && this.wakeLock) {
+      void this.wakeLock.release().catch(() => undefined);
+      this.wakeLock = null;
+    }
+  }
+
+  /** Leaving the tab (or locking the phone) pauses a race instead of letting the clock run. */
+  private onVisibility = (): void => {
+    if (document.visibilityState === 'hidden') {
+      if (this.mode === 'race' && this.screens.depth === 0 && !(this.session instanceof RaceSession && this.session.phase === 'finished')) this.openPause();
+      this.wakeLock = null;
+    } else this.syncPause();
+  };
 
   private onScreens(depth: number): void {
     document.body.classList.toggle('in-screen', depth > 0);
@@ -368,6 +401,7 @@ export class App implements AppApi {
 
   private async startBundle(b: Bundle, opts: { instant?: boolean; autodrive?: boolean } = {}): Promise<void> {
     const token = ++this.startToken;
+    if (!rapierReady()) this.toast('Loading physics…');
     this.endSession();
     this.startToken = token;
     this.gfx.setTrack(b.track);
@@ -550,7 +584,7 @@ export class App implements AppApi {
   async newUserLevel(copyOf?: TrackJson): Promise<void> {
     const level = this.makeUserLevel(copyOf);
     await UserLevels.save(level);
-    this.openEditor(level);
+    await this.openEditor(level);
   }
 
   private makeUserLevel(copyOf?: TrackJson): UserLevel {
@@ -569,7 +603,7 @@ export class App implements AppApi {
 
   async editUserLevel(id: string): Promise<void> {
     const level = await UserLevels.get(id);
-    if (level) this.openEditor(level);
+    if (level) await this.openEditor(level);
   }
 
   async playUserLevel(id: string, instant = false): Promise<void> {
@@ -659,8 +693,12 @@ export class App implements AppApi {
     };
   }
 
-  private openEditor(level: UserLevel, cam?: ReturnType<EditorCamera['snapshot']>): void {
+  private async openEditor(level: UserLevel, cam?: ReturnType<EditorCamera['snapshot']>): Promise<void> {
+    const token = ++this.startToken;
+    const { EditorSession } = await import('../editor/EditorSession');
+    if (token !== this.startToken) return;
     this.endSession();
+    this.startToken = token;
     this.testDriving = false;
     const model = this.editing?.level.id === level.id ? this.editing.model : new EditorModel(level.json);
     this.editing = { level, model, cam };
@@ -697,7 +735,7 @@ export class App implements AppApi {
       this.toast(`Cannot drive yet: ${c.errors[0]}`);
       return;
     }
-    if (this.session instanceof EditorSession) e.cam = this.session.snapshot();
+    if (isEditor(this.session)) e.cam = this.session.snapshot();
     await this.saveDraft(json);
     const play = this.playable(e.level);
     await this.startBundle(this.userBundle(play), {});
@@ -706,11 +744,11 @@ export class App implements AppApi {
 
   backToEditor(): void {
     if (!this.editing) return this.toMainMenu();
-    this.openEditor(this.editing.level, this.editing.cam);
+    void this.openEditor(this.editing.level, this.editing.cam);
   }
 
   editorAction(a: 'test' | 'validate' | 'share' | 'export' | 'exit'): void {
-    const ed = this.session instanceof EditorSession ? this.session : null;
+    const ed = isEditor(this.session) ? this.session : null;
     const e = this.editing;
     if (!ed || !e) return;
     switch (a) {
@@ -745,6 +783,7 @@ export class App implements AppApi {
     document.documentElement.style.setProperty('--hud-scale', String(s.hudScale));
     this.fpsEl.style.display = s.showFps ? 'block' : 'none';
     this.gfx.dynamicResolution = s.dynamicResolution;
+    this.input.rumbleOn = s.haptics;
     if (s.ghosts !== this.lastGhostSetting) {
       this.lastGhostSetting = s.ghosts;
       const r = this.race ?? this.suspended;

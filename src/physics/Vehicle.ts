@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from 'three';
 import { InputFrame } from '../core/InputFrame';
-import { RAPIER, RapierWorld } from './RapierWorld';
+import { RAPIER, RT, RapierWorld } from './RapierWorld';
 import { BehaviorCtx, CarBehavior } from './CarBehavior';
 import { EffectState } from './Effects';
 import { EffectId, SURFACES, SurfaceId } from './Surface';
@@ -134,8 +134,8 @@ export class Vehicle {
   dbgAir = { ax: 0, pitchErr: 0, wx: 0, pitchIn: 0 };
   events: SimEvent[] = [];
 
-  private body!: RAPIER.RigidBody;
-  private collider!: RAPIER.Collider;
+  private body!: RT.RigidBody;
+  private collider!: RT.Collider;
   private readonly ray = new RAPIER.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
   private readonly force = new Vector3();
   private readonly torque = new Vector3();

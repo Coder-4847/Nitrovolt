@@ -124,7 +124,11 @@ export class InputManager {
     return m;
   }
 
+  /** Vibration / rumble enabled (Settings > Controls). */
+  rumbleOn = true;
+
   rumble(strong: number, weak: number, ms: number): void {
+    if (!this.rumbleOn) return;
     this.gamepad.rumble(strong, weak, ms);
     if (this.touch.active && 'vibrate' in navigator) navigator.vibrate(Math.min(ms, 120));
   }

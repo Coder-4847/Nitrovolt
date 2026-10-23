@@ -1,7 +1,7 @@
 import { h, btn } from '../dom';
 import { AppApi } from './AppApi';
 import { Screen } from './ScreenManager';
-import { SettingsScreen } from './SettingsScreen';
+import { SettingsScreen, toggleFullscreen } from './SettingsScreen';
 
 export class PauseScreen implements Screen {
   readonly el = h('div', { class: 'screen pause' });
@@ -26,6 +26,7 @@ export class PauseScreen implements Screen {
         btn('Resume', () => this.app.resume(), 'primary big'),
         btn('Restart', () => this.app.restartRace(), 'big'),
         btn('Settings', () => this.app.screens.push(new SettingsScreen(this.app)), 'big'),
+        document.body.classList.contains('touch') ? btn(document.fullscreenElement ? 'Leave fullscreen' : 'Fullscreen', () => toggleFullscreen(), 'big') : null,
         btn('Level select', () => this.app.openLevelSelect(), 'big'),
         btn('Main menu', () => this.app.toMainMenu(), 'big'),
       );
