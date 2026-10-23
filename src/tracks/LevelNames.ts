@@ -1,10 +1,10 @@
 import { Rng } from '../core/Rng';
 
 const FIRST: string[][] = [
-  ['Metro', 'Union', 'Market', 'Central', 'Riverside', 'Midtown', 'Kingsway', 'Station', 'Plaza', 'Skyline', 'Capital', 'Parkside', 'Canal', 'Uptown', 'Downtown', 'Gallery', 'Terrace', 'Viaduct', 'Exchange', 'Embassy'],
+  ['Apex', 'Grand', 'Victory', 'Podium', 'Pole', 'Velocity', 'Paddock', 'Pitlane', 'Chicane', 'Summit', 'Champion', 'Rapid', 'Slipstream', 'Turbo', 'Throttle', 'Gallery', 'Grandstand', 'Overdrive', 'Redline', 'Hairpin'],
   ['Frost', 'Glacier', 'Summit', 'Powder', 'Avalanche', 'Crystal', 'Pine', 'Snowcap', 'Ridge', 'Icefall', 'Blizzard', 'Tundra', 'Whiteout', 'North Face', 'Hoarfrost', 'Cornice', 'Spindrift', 'Moraine'],
   ['Mesa', 'Dune', 'Mirage', 'Sandstorm', 'Canyon', 'Scorch', 'Cactus', 'Sunburn', 'Dust Devil', 'Red Rock', 'Oasis', 'Sirocco', 'Badlands', 'Butte', 'Arroyo', 'Sidewinder', 'Heatwave', 'Saltpan'],
-  ['Harbor', 'Dockyard', 'Tidewater', 'Breakwater', 'Foundry', 'Gantry', 'Pier', 'Steelworks', 'Lighthouse', 'Saltwind', 'Container', 'Turbine', 'Refinery', 'Seawall', 'Drydock', 'Rivet', 'Smokestack', 'Quayside'],
+  ['Dusk', 'Ember', 'Amber', 'Twilight', 'Horizon', 'Golden', 'Solstice', 'Afterglow', 'Sunfire', 'Crimson', 'Copper', 'Evening', 'Nightfall', 'Marigold', 'Daybreak', 'Halo', 'Blaze', 'Saffron'],
 ];
 const SECOND: string[][] = [
   ['Boulevard', 'Rush', 'Drift', 'Line', 'Run', 'Sprint', 'Alley', 'Overpass', 'Heights', 'Express', 'Square', 'Junction', 'Avenue', 'Mile', 'Skyway'],

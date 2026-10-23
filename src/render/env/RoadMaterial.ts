@@ -1,4 +1,5 @@
-import { Color, MeshStandardMaterial } from 'three';
+import { Color, MeshStandardMaterial, Vector3, Vector4 } from 'three';
+import { edgeTextTexture, roadLogoTexture } from './Signage';
 import { SURFACES, SurfaceId } from '../../physics/Surface';
 import { ThemeDef } from './Theme';
 
@@ -6,7 +7,15 @@ const SURF: Record<SurfaceId, number> = { tarmac: 0, dirt: 1, grass: 2, ice: 3, 
 /** Surfaces that get painted edge lines and kerbs. */
 const PAINTED = new Set<SurfaceId>(['tarmac', 'tech', 'wood', 'plastic']);
 /** Render albedo where it differs from the physics table's identification colour (real asphalt is darker). */
-const ALBEDO: Partial<Record<SurfaceId, number>> = { tarmac: 0x4f5359, tech: 0x7a8088, plastic: 0xc05a86 };
+const ALBEDO: Partial<Record<SurfaceId, number>> = { tarmac: 0x6e747c, tech: 0x7e848c, plastic: 0xc05a86, dirt: 0xb8663e, snow: 0xe8eef4, ice: 0xa9d4ec };
+
+/** Painted markings tied to the track: the start box and logo, checkpoint lines and the chequered finish. */
+export interface RoadDecals {
+  start: { position: Vector3; forward: Vector3; right: Vector3 };
+  /** Up to 8 lines: xyz = position on the road, w = 1 for the finish (chequered), 0 for a checkpoint. */
+  lines: Array<{ position: Vector3; forward: Vector3; finish: boolean }>;
+}
+const MAX_LINES = 8;
 
 const NOISE = /* glsl */ `
   float rhash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
@@ -27,11 +36,11 @@ const NOISE = /* glsl */ `
  * position and the lateral coordinate the mesh builder writes (no textures, no seams). Every pattern is
  * filtered by its screen-space size so distant road stays calm instead of shimmering.
  */
-export function roadMaterial(surface: SurfaceId, theme: ThemeDef): MeshStandardMaterial {
+export function roadMaterial(surface: SurfaceId, theme: ThemeDef, decals?: RoadDecals): MeshStandardMaterial {
   const base = new Color(ALBEDO[surface] ?? SURFACES[surface].color).multiply(new Color(theme.road.tint));
   const mat = new MeshStandardMaterial({
     color: base,
-    roughness: surface === 'ice' ? 0.15 : surface === 'plastic' ? 0.35 : surface === 'tech' ? 0.55 : 0.9,
+    roughness: surface === 'ice' ? 0.15 : surface === 'plastic' ? 0.35 : surface === 'tech' ? 0.55 : surface === 'tarmac' ? 0.72 : 0.9,
     metalness: surface === 'tech' ? 0.15 : 0.0,
   });
   const painted = PAINTED.has(surface);
@@ -39,6 +48,15 @@ export function roadMaterial(surface: SurfaceId, theme: ThemeDef): MeshStandardM
     sh.uniforms.uLine = { value: new Color(theme.road.line) };
     sh.uniforms.uKerbA = { value: new Color(theme.road.kerbA) };
     sh.uniforms.uKerbB = { value: new Color(theme.road.kerbB) };
+    sh.uniforms.uEdgeText = { value: edgeTextTexture() };
+    sh.uniforms.uLogo = { value: roadLogoTexture(theme.accent) };
+    const st = decals?.start;
+    sh.uniforms.uStartP = { value: st ? st.position.clone() : new Vector3(0, -1e5, 0) };
+    sh.uniforms.uStartF = { value: st ? st.forward.clone() : new Vector3(0, 0, -1) };
+    sh.uniforms.uStartR = { value: st ? st.right.clone() : new Vector3(1, 0, 0) };
+    const lines = (decals?.lines ?? []).slice(0, MAX_LINES);
+    sh.uniforms.uLineP = { value: Array.from({ length: MAX_LINES }, (_, i) => lines[i] ? new Vector4(lines[i]!.position.x, lines[i]!.position.y, lines[i]!.position.z, lines[i]!.finish ? 1 : 0) : new Vector4(0, -1e5, 0, 0)) };
+    sh.uniforms.uLineF = { value: Array.from({ length: MAX_LINES }, (_, i) => lines[i]?.forward.clone() ?? new Vector3(0, 0, -1)) };
     sh.defines = { ...(sh.defines ?? {}), SURF: SURF[surface], PAINTED: painted ? 1 : 0 };
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nattribute vec2 lateral; varying vec2 vLat; varying vec3 vRW; varying float vS;')
@@ -47,6 +65,9 @@ export function roadMaterial(surface: SurfaceId, theme: ThemeDef): MeshStandardM
       .replace('#include <common>', `#include <common>
         varying vec2 vLat; varying vec3 vRW; varying float vS;
         uniform vec3 uLine, uKerbA, uKerbB;
+        uniform sampler2D uEdgeText, uLogo;
+        uniform vec3 uStartP, uStartF, uStartR;
+        uniform vec4 uLineP[${MAX_LINES}]; uniform vec3 uLineF[${MAX_LINES}];
         ${NOISE}`)
       .replace('#include <map_fragment>', `#include <map_fragment>
         vec2 wp = vRW.xz;
@@ -106,10 +127,45 @@ export function roadMaterial(surface: SurfaceId, theme: ThemeDef): MeshStandardM
             float line = raa(0.95, edge) * (1.0 - raa(1.15, edge));
             diffuseColor.rgb = mix(diffuseColor.rgb, uLine, line * 0.9);
             rough -= 0.3 * (line + kerb);
+            // sponsor text along both edges, inside the line (reads along the road)
+            if (wid > 10.0 && edge > 1.35 && edge < 2.55) {
+              // glyph tops face the road centre, so the text reads from the car on both sides
+              vec2 tuv = vec2(-vS / 30.0, (edge - 1.35) / 1.2);
+              if (lat > wid * 0.5) tuv = vec2(-vS / 30.0, 1.0 - tuv.y);
+              float paint = texture2D(uEdgeText, tuv).a * 0.4 * rdetail(vec2(vS / 30.0 * 16.0));
+              diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.95), paint);
+            }
           }
         #else
           if (onTop > 0.5) diffuseColor.rgb *= 0.82 + 0.18 * smoothstep(0.0, 1.4, edge);
         #endif
+        if (onTop > 0.5) {
+          // start: a painted grid box around the car and the logo across the road ahead of it
+          vec3 d = vRW - uStartP;
+          float along = dot(d, uStartF), across = dot(d, uStartR);
+          if (abs(dot(d, cross(uStartR, uStartF))) < 3.0) {
+            float e = max(abs(across) - 1.5, abs(along + 0.2) - 2.6);
+            float box = (1.0 - raa(0.1, abs(e))) * step(-2.3, along + 0.2);
+            diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.96), box * 0.9);
+            if (along > 9.0 && along < 23.0 && abs(across) < wid * 0.5 - 1.6) {
+              vec4 logo = texture2D(uLogo, vec2(0.5 + across / (wid - 3.2), (along - 9.0) / 14.0));
+              diffuseColor.rgb = mix(diffuseColor.rgb, logo.rgb, logo.a * 0.92);
+            }
+          }
+          // checkpoint lines and the chequered finish
+          for (int i = 0; i < ${MAX_LINES}; i++) {
+            vec3 q = vRW - uLineP[i].xyz;
+            float a = dot(q, uLineF[i]);
+            if (abs(a) < 0.8 && length(q) < wid) {
+              vec3 r = normalize(cross(uLineF[i], vec3(0.0, 1.0, 0.0)));
+              float x = dot(q, r);
+              float chk = mod(floor(x / 0.8) + floor((a + 0.8) / 0.8), 2.0);
+              vec3 c = uLineP[i].w > 0.5 ? mix(vec3(0.06), vec3(0.95), chk) : vec3(0.95);
+              float m = uLineP[i].w > 0.5 ? 1.0 : (1.0 - raa(0.3, abs(a)));
+              diffuseColor.rgb = mix(diffuseColor.rgb, c, m * 0.92);
+            }
+          }
+        }
       `)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = clamp(roughnessFactor + rough, 0.08, 1.0);');
   };

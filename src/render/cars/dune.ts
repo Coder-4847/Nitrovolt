@@ -1,79 +1,74 @@
-import { DoubleSide, Group, Mesh, MeshStandardMaterial, PlaneGeometry } from 'three';
+import { CylinderGeometry, Group, Mesh } from 'three';
 import { CarMaterials, CarModel, box, mirrored, shell, tube } from './parts';
 
 /**
- * Dune: open tube-frame buggy. A shaped nose and side pods over a skid floor, a roll cage, two bucket
- * seats, an exposed rear engine with a wing, long-travel arms and balloon tyres.
+ * Dune: desert trophy truck. A short hood and crew cab over big flared fenders, an open bed with a spare
+ * wheel, an exposed cage behind the cab, a roof light bar, long-travel arms and balloon tyres.
+ * Wheel centres sit at x = +-0.98 / 1.02, z = -1.3 / 1.2, y = -0.38 (the physics layout).
  */
 export function buildDune(m: CarMaterials): CarModel {
   const body = new Group();
-  const floor = shell([
-    { z: -1.75, w: 1.2, y0: -0.38, y1: -0.26 },
-    { z: -1.2, w: 1.4, y0: -0.4, y1: -0.22 },
-    { z: 1.2, w: 1.4, y0: -0.4, y1: -0.22 },
-    { z: 1.85, w: 1.2, y0: -0.36, y1: -0.2 },
-  ], m.dark, { square: 6 });
-  const nose = shell([
-    { z: -2.22, w: 0.9, y0: -0.3, y1: -0.18, top: 0.8 },
-    { z: -2.0, w: 1.22, y0: -0.34, y1: 0.0, top: 0.82 },
-    { z: -1.5, w: 1.34, y0: -0.34, y1: 0.16, top: 0.8 },
-    { z: -0.95, w: 1.3, y0: -0.3, y1: 0.18, top: 0.78 },
-    { z: -0.65, w: 1.18, y0: -0.26, y1: 0.08, top: 0.8 },
-  ], m.paint, { square: 4 });
-  const pod = shell([
-    { z: -0.7, w: 0.3, y0: -0.3, y1: -0.05 },
-    { z: -0.3, w: 0.34, y0: -0.32, y1: 0.08 },
-    { z: 0.5, w: 0.34, y0: -0.32, y1: 0.1 },
-    { z: 0.95, w: 0.3, y0: -0.3, y1: -0.02 },
-  ], m.paint, { square: 4 });
-  pod.position.x = 0.66;
+  const hull = shell([
+    { z: -2.2, w: 1.6, y0: -0.3, y1: 0.0, bot: 0.9, top: 0.84 },
+    { z: -2.05, w: 2.0, y0: -0.34, y1: 0.12, bot: 0.86, top: 0.9 },
+    { z: -1.65, w: 2.16, y0: -0.34, y1: 0.18, bot: 0.74, top: 0.92 },
+    { z: -1.3, w: 2.18, y0: -0.32, y1: 0.22, bot: 0.66, top: 0.92 },
+    { z: -0.9, w: 2.06, y0: -0.34, y1: 0.24, bot: 0.82, top: 0.92 },
+    { z: -0.2, w: 1.92, y0: -0.36, y1: 0.28, bot: 0.94, top: 0.92 },
+    { z: 0.6, w: 2.04, y0: -0.34, y1: 0.3, bot: 0.84, top: 0.94 },
+    { z: 1.2, w: 2.2, y0: -0.32, y1: 0.3, bot: 0.66, top: 0.94 },
+    { z: 1.75, w: 2.12, y0: -0.32, y1: 0.28, bot: 0.8, top: 0.94 },
+    { z: 2.1, w: 1.94, y0: -0.3, y1: 0.24, bot: 0.88, top: 0.92 },
+  ], m.livery, { square: 5 });
+  const cab = shell([
+    { z: -0.95, w: 1.7, y0: 0.2, y1: 0.3, top: 0.86 },
+    { z: -0.6, w: 1.66, y0: 0.24, y1: 0.86, top: 0.78 },
+    { z: 0.15, w: 1.62, y0: 0.26, y1: 0.92, top: 0.78 },
+    { z: 0.42, w: 1.6, y0: 0.28, y1: 0.6, top: 0.8 },
+  ], m.glass, { square: 5 });
+  const roof = shell([
+    { z: -0.55, w: 1.2, y0: 0.84, y1: 0.87 },
+    { z: 0.12, w: 1.26, y0: 0.9, y1: 0.935 },
+  ], m.livery, { square: 5 });
+  const bedFloor = box(1.6, 0.04, 1.4, m.dark, 0, 0.29, 1.35);
+  const spare = new Mesh(new CylinderGeometry(0.36, 0.36, 0.3, 20).rotateX(Math.PI / 2).rotateX(Math.PI / 2), m.dark);
+  spare.position.set(0, 0.48, 1.45);
+  spare.rotation.x = 0.0;
   const cage: Mesh[] = [];
-  const t = (a: [number, number, number], b: [number, number, number], r = 0.04): void => {
+  const t = (a: [number, number, number], b: [number, number, number], r = 0.035): void => {
     cage.push(tube(a, b, r, m.dark));
   };
-  // main hoop, A-pillars, rear hoop and bracing
-  for (const sx of [-0.68, 0.68]) {
-    t([sx, -0.12, 0.45], [sx * 0.95, 0.85, 0.18]);
-    t([sx * 0.95, 0.85, 0.18], [sx * 0.95, 0.88, -0.6]);
-    t([sx * 0.95, 0.88, -0.6], [sx, 0.02, -1.0]);
-    t([sx * 0.95, 0.85, 0.18], [sx, -0.05, 1.25]);
-    t([sx, -0.05, 1.25], [sx * 0.9, -0.12, 1.85]);
+  for (const sx of [-0.7, 0.7]) {
+    t([sx, 0.3, 0.6], [sx, 0.95, 0.5]);
+    t([sx, 0.95, 0.5], [sx * 0.9, 0.35, 2.0]);
   }
-  t([-0.65, 0.85, 0.18], [0.65, 0.85, 0.18]);
-  t([-0.65, 0.88, -0.6], [0.65, 0.88, -0.6]);
-  t([-0.68, 0.38, 0.32], [0.68, 0.38, 0.32]);
-  t([-0.65, 0.85, 0.18], [0.68, 0.38, 0.32], 0.028);
-  const seat = box(0.48, 0.5, 0.5, m.accent, -0.3, 0.06, 0.32);
-  const seats = [seat, mirrored(seat)];
-  const engine = box(0.9, 0.5, 0.72, m.dark, 0, 0.1, 1.4);
-  const heads = [-0.22, 0.22].map((x) => {
-    const c = box(0.3, 0.2, 0.6, m.metal, x, 0.42, 1.4);
-    return c;
-  });
-  const cover = shell([
-    { z: 0.95, w: 1.0, y0: -0.2, y1: 0.18 },
-    { z: 1.4, w: 1.02, y0: -0.22, y1: 0.3 },
-    { z: 1.85, w: 0.92, y0: -0.2, y1: 0.2 },
-  ], m.paint, { square: 5 });
-  cover.scale.set(1, 1, 1);
-  const exhaust = tube([-0.32, 0.3, 1.75], [-0.32, 0.5, 2.25], 0.07, m.metal);
-  // wing + whip antenna with flag
-  const wing = box(1.66, 0.05, 0.46, m.paint, 0, 0.95, 1.75);
-  const plates = [box(0.04, 0.26, 0.52, m.accent, 0.83, 0.88, 1.75)];
-  plates.push(mirrored(plates[0]!));
-  const wingPosts = [tube([-0.45, 0.3, 1.65], [-0.45, 0.94, 1.72], 0.035, m.dark), tube([0.45, 0.3, 1.65], [0.45, 0.94, 1.72], 0.035, m.dark)];
-  const whip = tube([0.72, 0.2, 1.5], [0.72, 2.4, 1.5], 0.012, m.dark);
-  const flag = new Mesh(new PlaneGeometry(0.6, 0.3), new MeshStandardMaterial({ color: m.accent.color, roughness: 0.7, side: DoubleSide }));
-  flag.rotation.y = Math.PI / 2;
-  flag.position.set(0.72, 2.24, 1.2);
-  // long-travel suspension arms
-  const arms = [-1, 1].flatMap((sx) => [
-    tube([sx * 0.55, -0.12, -1.3], [sx * 0.98, -0.16, -1.3], 0.032, m.dark),
-    tube([sx * 0.55, -0.12, 1.2], [sx * 1.0, -0.16, 1.2], 0.032, m.dark),
-  ]);
-  const head = box(0.86, 0.06, 0.04, m.head, 0, -0.12, -2.2);
-  const lampBar = box(1.1, 0.06, 0.06, m.head, 0, 0.92, -0.64);
-  const tail = box(0.7, 0.05, 0.04, m.tail, 0, 0.02, 1.88);
-  body.add(floor, nose, pod, mirrored(pod), ...cage, ...seats, engine, ...heads, cover, exhaust, wing, ...plates, ...wingPosts, whip, flag, ...arms, head, lampBar, tail);
-  return { body, cockpitHidden: [...cage, wing, ...plates, ...wingPosts, whip, flag, ...seats, lampBar], tyre: 'balloon', tyreWidth: 0.46, exhaust: [[-0.32, 0.5, 2.27]], flame: 'fire' };
+  t([-0.7, 0.95, 0.5], [0.7, 0.95, 0.5]);
+  t([-0.65, 0.66, 1.2], [0.65, 0.66, 1.2]);
+  const lightBar = box(1.3, 0.08, 0.1, m.dark, 0, 0.98, -0.4);
+  const lamps = [-0.45, -0.15, 0.15, 0.45].map((x) => box(0.2, 0.06, 0.02, m.head, x, 0.98, -0.46));
+  const bumper = box(1.7, 0.12, 0.14, m.metal, 0, -0.26, -2.22);
+  const grille = box(1.1, 0.16, 0.03, m.dark, 0, -0.06, -2.2);
+  const head = [-0.6, 0.6].map((x) => box(0.32, 0.06, 0.03, m.head, x, 0.04, -2.12));
+  const tail = [-0.8, 0.8].map((x) => box(0.08, 0.3, 0.03, m.tail, x, 0.06, 2.12));
+  const arms: Mesh[] = [];
+  for (const [z, hw] of [[-1.3, 0.82], [1.2, 0.86]] as const) {
+    for (const sx of [-1, 1]) {
+      arms.push(
+        tube([sx * 0.45, -0.2, z - 0.25], [sx * hw, -0.32, z], 0.035, m.dark),
+        tube([sx * 0.45, -0.2, z + 0.25], [sx * hw, -0.32, z], 0.035, m.dark),
+        tube([sx * 0.5, 0.15, z], [sx * (hw - 0.05), -0.3, z], 0.05, m.accent),
+      );
+    }
+  }
+  const mirror = box(0.14, 0.1, 0.06, m.dark, 0.9, 0.5, -0.6);
+  body.add(hull, cab, roof, bedFloor, spare, ...cage, lightBar, ...lamps, bumper, grille, ...head, ...tail, ...arms, mirror, mirrored(mirror));
+  return {
+    body,
+    cockpitHidden: [cab, roof, lightBar, ...lamps, ...cage, mirror],
+    tyre: 'balloon',
+    tyreWidth: 0.46,
+    exhaust: [[0.55, -0.2, 2.14]],
+    flame: 'fire',
+    plate: { x: 0, y: 0.06, z: 2.12, w: 0.4, h: 0.13 },
+  };
 }

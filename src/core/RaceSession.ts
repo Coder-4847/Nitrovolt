@@ -177,6 +177,7 @@ export class RaceSession {
     hud.setProgress(0, this.sim.run.checkpointCount, 0, this.track.laps);
     hud.setTitle(`${this.track.name} · ${this.def.label}`);
     this.pb = Records.get(this.recordId);
+    hud.setTargets(this.pb?.best ?? null, this.track.medals);
     this.prevBoost = false;
     this.sim.events.length = 0;
     if (this.phase === 'grid') this.beat(3);

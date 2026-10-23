@@ -1,16 +1,18 @@
 import {
-  BufferAttribute, BufferGeometry, CanvasTexture, Color, Group, Material, Mesh, MeshStandardMaterial, Texture,
+  BufferAttribute, BufferGeometry, CanvasTexture, Color, Group, Material, Mesh, MeshStandardMaterial, Texture, Vector3,
 } from 'three';
 import { EFFECTS, EffectId } from '../physics/Surface';
+import { GANTRY_TINTS } from '../tracks/BlockLibrary';
 import { TrackData, TrackMesh } from '../tracks/TrackTypes';
+import { Arches } from './env/Arches';
 import { Gates } from './env/Gates';
-import { roadMaterial } from './env/RoadMaterial';
+import { RoadDecals, roadMaterial } from './env/RoadMaterial';
 import { THEMES, ThemeDef } from './env/Theme';
 import { wallMaterial } from './env/WallMaterial';
 import { makeEffectTexture } from './Textures';
 
-/** Block-library deco tints (start / checkpoint / finish / lap gantries, scenery blocks) -> theme paint. */
-const DECO = { start: 0x28ff7a, checkpoint: 0x18e0ff, finish: 0xff3b2f, finishAlt: 0xff3a14, lap: 0xffd21f, tower: 0x2a3350, beacon: 0xff8a1f };
+/** Block-library scenery tints (pylon, arch, tower) -> theme paint. Gantry tints are drawn as arches instead. */
+const DECO = { pylon: 0x18e0fe, arch: 0xff3b2e, tower: 0x2a3350, beacon: 0xff8a1f };
 
 /** Effects whose pad texture scrolls along the driving direction. */
 const SCROLLING: Partial<Record<EffectId, number>> = { turbo: 1.6, turbo2: 2.6, reactor: 2.2, cruise: 0.8, gravity: 0.7 };
@@ -23,15 +25,27 @@ export class TrackView {
   private readonly effectTextures = new Map<EffectId, CanvasTexture>();
   private readonly fragile = new Map<number, Mesh>();
   readonly gates: Gates;
+  readonly arches: Arches;
+
+  private readonly decals: RoadDecals;
 
   constructor(track: TrackData, private readonly theme: ThemeDef = THEMES.stadium) {
+    const q = track.start.quaternion;
+    const up = new Vector3(0, 1, 0).applyQuaternion(q);
+    this.decals = {
+      start: { position: track.start.position.clone().addScaledVector(up, -0.75), forward: new Vector3(0, 0, -1).applyQuaternion(q), right: new Vector3(1, 0, 0).applyQuaternion(q) },
+      lines: track.triggers.map((t) => ({ position: t.position.clone(), forward: new Vector3(0, 0, -1).applyQuaternion(t.quaternion), finish: t.kind === 'finish' })),
+    };
     for (const m of track.meshes) {
+      // the block library's gantry boxes: the arches below replace them
+      if (m.kind === 'deco' && m.tint !== undefined && GANTRY_TINTS.includes(m.tint)) continue;
       const mesh = this.makeMesh(m);
       if (m.effect === 'fragile' && m.blockId >= 0) this.fragile.set(m.blockId, mesh);
       this.group.add(mesh);
     }
     this.gates = new Gates(track.triggers, theme);
-    this.group.add(this.gates.group);
+    this.arches = new Arches(track.triggers, track.start, theme);
+    this.group.add(this.gates.group, this.arches.group);
   }
 
   private effectMaterial(effect: EffectId): MeshStandardMaterial {
@@ -58,10 +72,8 @@ export class TrackView {
   private decoColor(raw: number): number {
     const t = this.theme;
     switch (raw) {
-      case DECO.checkpoint: return t.gate.checkpoint;
-      case DECO.finish: case DECO.finishAlt: return t.gate.finish;
-      case DECO.start: return 0xeceef1;
-      case DECO.lap: return 0xd9a933;
+      case DECO.pylon: return t.accent;
+      case DECO.arch: return t.gate.finish;
       case DECO.tower: return 0x8c9096;
       case DECO.beacon: return 0xe07a2a;
       default: return raw;
@@ -77,11 +89,11 @@ export class TrackView {
         mat = wallMaterial(t);
       } else if (m.kind === 'deco') {
         // gantries and scenery blocks: painted steel in the theme's gate colours
-        mat = new MeshStandardMaterial({ color: this.decoColor(m.tint ?? DECO.finish), roughness: 0.45, metalness: 0.35 });
+        mat = new MeshStandardMaterial({ color: this.decoColor(m.tint ?? DECO.arch), roughness: 0.45, metalness: 0.35 });
       } else if (m.effect) {
         mat = this.effectMaterial(m.effect);
       } else {
-        mat = roadMaterial(m.surface, t);
+        mat = roadMaterial(m.surface, t, this.decals);
       }
       this.materials.set(key, mat);
     }
@@ -124,6 +136,7 @@ export class TrackView {
     });
     for (const m of this.materials.values()) m.dispose();
     this.gates.dispose();
+    this.arches.dispose();
     for (const t of this.textures) t.dispose();
   }
 }

@@ -19,9 +19,9 @@ interface Puff {
 
 /** What each surface throws up. Hard surfaces only smoke when the tyre is sliding. */
 const PUFFS: Record<SurfaceId, Puff> = {
-  dirt: { r: 0.56, g: 0.42, b: 0.28, alpha: 0.5, size: 0.7, rate: 70, rise: 0.8, life: 1.1, slipOnly: false },
+  dirt: { r: 0.62, g: 0.42, b: 0.3, alpha: 0.38, size: 0.65, rate: 55, rise: 0.7, life: 1.0, slipOnly: false },
   grass: { r: 0.42, g: 0.5, b: 0.26, alpha: 0.4, size: 0.55, rate: 45, rise: 0.4, life: 0.9, slipOnly: false },
-  sand: { r: 0.88, g: 0.77, b: 0.52, alpha: 0.55, size: 0.9, rate: 85, rise: 1.0, life: 1.4, slipOnly: false },
+  sand: { r: 0.88, g: 0.77, b: 0.52, alpha: 0.38, size: 0.8, rate: 60, rise: 0.8, life: 1.1, slipOnly: false },
   snow: { r: 0.95, g: 0.97, b: 1.0, alpha: 0.42, size: 0.55, rate: 50, rise: 0.5, life: 0.9, slipOnly: false },
   ice: { r: 0.85, g: 0.94, b: 1.0, alpha: 0.4, size: 0.55, rate: 50, rise: 0.4, life: 0.8, slipOnly: true },
   tarmac: { r: 0.78, g: 0.78, b: 0.8, alpha: 0.4, size: 0.7, rate: 80, rise: 0.9, life: 1.2, slipOnly: true },

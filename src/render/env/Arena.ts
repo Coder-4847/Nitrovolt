@@ -21,8 +21,10 @@ export interface ArenaStyle {
 /** One ring sample: base point at the front of the stands, outward normal, curvature (1/R, 0 on straights), perimeter distance. */
 interface RingSample { x: number; z: number; nx: number; nz: number; curv: number; s: number }
 
-/** Segment width along the ring (m) and stand depth (m). */
+/** Segment width along the ring and stand depth, in the segment's local units (scaled by SCALE in the world). */
 const SEG = 16;
+/** World scale of the stands (a big bowl that reads from the raised road). */
+const SCALE = 1.6;
 const DEPTH = 18;
 const H0 = 4; // podium wall height
 const TIERS = 16;
@@ -62,7 +64,7 @@ function ringSamples(minX: number, maxX: number, minZ: number, maxZ: number, rad
   straight(cx - hx, cz - hz - radius, cx + hx, cz - hz - radius, 0, -1);
   arc(cx + hx, cz - hz, (3 * Math.PI) / 2);
   const total = pieces.reduce((a, p) => a + p.len, 0);
-  const n = Math.max(8, Math.round(total / SEG));
+  const n = Math.max(8, Math.round(total / (SEG * SCALE)));
   const step = total / n;
   const out: RingSample[] = [];
   for (let i = 0; i < n; i++) {
@@ -80,12 +82,12 @@ function ringSamples(minX: number, maxX: number, minZ: number, maxZ: number, rad
   return out;
 }
 
-/** Instance matrix: local x along the ring, z outward, y up. */
-function frameAt(r: RingSample, y: number, scaleX = 1): Matrix4 {
+/** Instance matrix: local x along the ring, z outward, y up, scaled to the world size of the stands. */
+function frameAt(r: RingSample, y: number): Matrix4 {
   const n = new Vector3(r.nx, 0, r.nz);
   const up = new Vector3(0, 1, 0);
   const t = new Vector3().crossVectors(up, n);
-  return new Matrix4().makeBasis(t.multiplyScalar(scaleX), up, n).setPosition(r.x, y, r.z);
+  return new Matrix4().makeBasis(t.multiplyScalar(SCALE), up.multiplyScalar(SCALE), n.multiplyScalar(SCALE)).setPosition(r.x, y, r.z);
 }
 
 const box = (w: number, h: number, d: number, x: number, y: number, z: number): BufferGeometry => new BoxGeometry(w, h, d).translate(x, y + h / 2, z);
@@ -242,7 +244,8 @@ export class Arena {
     };
 
     const frames = ring.map((r) => frameAt(r, groundY));
-    const curv = ring.map((r) => r.curv);
+    // taper per local unit of depth (the ring's curvature in local units)
+    const curv = ring.map((r) => r.curv * SCALE);
     // seating (section colours change every few segments)
     const seatCols = ring.map((_, i) => style.seats[Math.floor(i / 3) % style.seats.length]!);
     add(seatingGeometry(), standMaterial(style.structure, style.snow), frames, { aCurv: curv }, seatCols);
@@ -255,7 +258,7 @@ export class Arena {
     // LED board on the podium wall, facing the track
     this.led = ledMaterial(style.accent);
     const ledGeo = new PlaneGeometry(SEG, 1.4).rotateY(Math.PI).translate(0, 2.2, -0.02);
-    add(ledGeo, this.led, frames, { aU: ring.map((r) => r.s) });
+    add(ledGeo, this.led, frames, { aU: ring.map((r) => r.s / SCALE) });
     // flags on poles along the back of the roof
     const poleFrames: Matrix4[] = [];
     const flagFrames: Matrix4[] = [];

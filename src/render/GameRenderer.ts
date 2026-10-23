@@ -1,5 +1,5 @@
 import {
-  Color, DirectionalLight, Fog, HemisphereLight, Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator,
+  Color, DirectionalLight, Material, Fog, HemisphereLight, InstancedMesh, Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator,
   PerspectiveCamera, Scene, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
 import { CarDef } from '../data/cars';
@@ -8,7 +8,9 @@ import { VehicleParams } from '../physics/VehicleParams';
 import { TrackData } from '../tracks/TrackTypes';
 import { CameraRig } from './CameraRig';
 import { CarView } from './CarView';
+import { Arena } from './env/Arena';
 import { Ground } from './env/Ground';
+import { buildPillars } from './env/Pillars';
 import { Scenery } from './env/Scenery';
 import { planScenery } from './env/SceneryPlan';
 import { Sky } from './env/Sky';
@@ -60,6 +62,8 @@ export class GameRenderer {
   private readonly pmrem: PMREMGenerator;
   private envRT: WebGLRenderTarget | null = null;
   private scenery: Scenery | null = null;
+  private arena: Arena | null = null;
+  private pillars: InstancedMesh | null = null;
   private skid: SkidMarks;
   private readonly sparks = new Sparks();
   private quality: QualityLevel;
@@ -199,10 +203,26 @@ export class GameRenderer {
       this.scenery.dispose();
       this.scenery = null;
     }
+    if (this.arena) {
+      this.scene.remove(this.arena.group);
+      this.arena.dispose();
+      this.arena = null;
+    }
+    if (this.pillars) {
+      this.scene.remove(this.pillars);
+      this.pillars.geometry.dispose();
+      (this.pillars.material as Material).dispose();
+      this.pillars = null;
+    }
     if (!this.track || !this.sceneryOn) return;
-    const props = planScenery({ centerline: this.track.centerline, seed: (this.track.seed ^ idHash(this.track.id)) >>> 0, groundY: this.ground.mesh.position.y }, this.theme.scenery, QUALITY[this.quality].scenery);
+    const groundY = this.ground.mesh.position.y;
+    const seed = (this.track.seed ^ idHash(this.track.id)) >>> 0;
+    const props = planScenery({ centerline: this.track.centerline, seed, groundY }, this.theme.scenery, QUALITY[this.quality].scenery);
     this.scenery = new Scenery(props, this.theme);
-    this.scene.add(this.scenery.group);
+    this.arena = new Arena(this.track.centerline, groundY, this.theme.arena, seed);
+    this.pillars = buildPillars(this.track.centerline, groundY);
+    this.scene.add(this.scenery.group, this.arena.group);
+    if (this.pillars) this.scene.add(this.pillars);
   }
 
   // ------------------------------------------------------------------ quality
@@ -328,9 +348,11 @@ export class GameRenderer {
     if (this.dynamicResolution && this.governor.update(dt)) this.resize();
     this.trackView?.update(this.clock, dt);
     this.scenery?.update(this.clock);
+    this.arena?.update(this.clock);
     this.sky.update(this.clock);
     this.car.update(pose);
     this.car.setDrive(this.brake, Math.max(boost, this.boost), this.clock);
+    this.car.setSpeed(speed * 3.6);
     this.rig.update(dt, pose, velocity, speed, boost);
     if (this.rig.mode !== 'hood') this.keepCameraInView(pose.position);
     const cam = this.rig.camera;
@@ -399,6 +421,7 @@ export class GameRenderer {
     this.envRT?.dispose();
     this.pmrem.dispose();
     this.scenery?.dispose();
+    this.arena?.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();
   }

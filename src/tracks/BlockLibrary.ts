@@ -26,6 +26,9 @@ export interface BlockDef {
 
 const ro = (o: BlockOptions, extra: RoadOpts = {}): RoadOpts => ({ width: o.width, surface: o.surface, effect: o.effect, walls: o.walls, ...extra });
 
+// Gantry tints (start / checkpoint / finish / lap). The renderer draws its own arches there and hides the
+// gantry boxes by these exact values, so scenery blocks use nearby but different tints.
+export const GANTRY_TINTS = [0x28ff7a, 0x18e0ff, 0xff3b2f, 0xffd21f, 0xff3a14];
 const GREEN = 0x28ff7a;
 const CYAN = 0x18e0ff;
 const RED = 0xff3b2f;
@@ -145,13 +148,13 @@ add('spiralDownR', 'Spiral descent right', 'spiral', (t, o) => {
 
 // ---------------------------------------------------------------- scenery (not part of the driving line)
 add('pylon', 'Pylon', 'scenery', (t) => {
-  t.decoBox(CELL / 2, 0, 0, 1.6, 26, 1.6, 0x18e0ff);
+  t.decoBox(CELL / 2, 0, 0, 1.6, 26, 1.6, 0x18e0fe);
   t.decoBox(CELL / 2, 0, 26, 3.4, 1.0, 3.4, 0xffffff);
 });
 add('arch', 'Arch', 'scenery', (t) => {
-  t.decoBox(CELL / 2, -9, 0, 1.4, 12, 1.4, 0xff3b2f);
-  t.decoBox(CELL / 2, 9, 0, 1.4, 12, 1.4, 0xff3b2f);
-  t.decoBox(CELL / 2, 0, 11.4, 20, 1.4, 1.4, 0xff3b2f);
+  t.decoBox(CELL / 2, -9, 0, 1.4, 12, 1.4, 0xff3b2e);
+  t.decoBox(CELL / 2, 9, 0, 1.4, 12, 1.4, 0xff3b2e);
+  t.decoBox(CELL / 2, 0, 11.4, 20, 1.4, 1.4, 0xff3b2e);
 });
 add('tower', 'Tower', 'scenery', (t) => {
   t.decoBox(CELL / 2, 0, 0, 6, 40, 6, 0x2a3350);

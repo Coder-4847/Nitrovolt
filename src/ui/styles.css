@@ -332,3 +332,50 @@ body.mode-editor #touch, body.mode-editor .hud { display: none !important; }
 .about-logo { font-size: 40px; font-weight: 800; letter-spacing: .12em; }
 .about-logo span { color: var(--accent); }
 .update-bar { position: absolute; left: 50%; top: calc(10px + var(--sat)); transform: translateX(-50%); z-index: 70; display: flex; gap: 10px; align-items: center; padding: 8px 14px; border-radius: 999px; background: var(--panel); border: 1px solid var(--accent); font-weight: 700; }
+
+/* ---- 1.2: race HUD (broadcast layout, condensed race font) ---- */
+:root { --race: "Barlow Condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif; --ahead: #2f7dff; --behind: #e5484d; }
+.hud { font-family: var(--race); }
+.hud-time { top: auto; bottom: calc(18px + var(--sab)); font-size: clamp(34px, 5.4vw, 60px); font-weight: 600; letter-spacing: .02em; text-shadow: 0 2px 6px rgba(0,0,0,.55), 0 0 2px rgba(0,0,0,.6); }
+.hud-lap { position: absolute; top: calc(12px + var(--sat)); right: calc(16px + var(--sar)); text-align: right; text-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.hud-lap [data-lap] { font-size: clamp(30px, 4.4vw, 52px); font-weight: 600; line-height: 1; }
+.hud-lap [data-lap]:empty { display: none; }
+.hud-lap small { display: block; font-size: 15px; font-weight: 600; letter-spacing: .06em; color: rgba(255,255,255,.85); }
+.hud-lap small.cp { font-size: 18px; }
+.hud-board { position: absolute; top: calc(12px + var(--sat)); left: calc(14px + var(--sal)); display: flex; flex-direction: column; gap: 3px; font-size: 19px; }
+.hud-board > div { display: grid; grid-template-columns: 1fr auto; gap: 18px; min-width: 260px; padding: 3px 12px; background: rgba(12,14,18,.62); transform: skewX(-12deg); border-left: 3px solid rgba(255,255,255,.5); }
+.hud-board > div > * { transform: skewX(12deg); }
+.hud-board span { font-weight: 600; }
+.hud-board b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.hud-board .pb { border-left-color: #3ecf8e; }
+.hud-board .pb span { color: #7ee0b0; }
+.hud-board .next { border-left-color: var(--mc); }
+.hud-board .next .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--mc); margin-right: 8px; vertical-align: 1px; }
+.hud-board .m-author { --mc: var(--medal-author); } .hud-board .m-gold { --mc: var(--medal-gold); } .hud-board .m-silver { --mc: var(--medal-silver); } .hud-board .m-bronze { --mc: var(--medal-bronze); }
+.hud-cp { position: absolute; left: 50%; top: 30%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 2px; opacity: 0; transition: opacity .2s; }
+.hud-cp.show { opacity: 1; }
+.hud-cp .t { font-size: 26px; font-weight: 600; padding: 2px 14px; background: rgba(12,14,18,.72); font-variant-numeric: tabular-nums; }
+.hud-cp .d { font-size: 24px; font-weight: 600; padding: 1px 12px; font-variant-numeric: tabular-nums; }
+.hud-cp .d.ahead { background: var(--ahead); }
+.hud-cp .d.behind { background: var(--behind); }
+.hud-cp .d.none { display: none; }
+.hud-splits { display: none; }
+.hud-speed { left: auto; right: calc(18px + var(--sar)); bottom: calc(18px + var(--sab)); transform: none; text-align: right; }
+.hud-speed .num { font-size: clamp(30px, 3.6vw, 44px); font-weight: 600; letter-spacing: 0; }
+.hud-speed .unit { font-size: 13px; letter-spacing: .12em; font-family: var(--race); }
+.hud-speed .hud-bar { width: 120px; margin: 4px 0 0 auto; }
+.hud-effects { bottom: calc(96px + var(--sab)); }
+.hud-effects span { font-family: var(--race); font-size: 16px; letter-spacing: .06em; }
+.hud-count { font-family: var(--race); font-weight: 700; font-style: italic; }
+.hud-toast { font-family: var(--race); font-weight: 600; font-size: 22px; border-radius: 4px; }
+.hud-finish { font-family: var(--race); border-radius: 6px; }
+.hud-finish .t { font-weight: 600; }
+.hud-finish h3 { font-weight: 600; letter-spacing: .3em; }
+.hud-hints { font-family: Inter, system-ui, sans-serif; }
+body.has-replay .hud-time { bottom: calc(150px + var(--sab)); }
+@media (max-height: 480px) {
+  .hud-board { font-size: 15px; }
+  .hud-board > div { min-width: 200px; }
+  .hud-cp .t { font-size: 20px; }
+}
+body.touch .hud-speed { bottom: auto; top: calc(60px + var(--sat)); }

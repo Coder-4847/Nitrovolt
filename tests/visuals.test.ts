@@ -7,7 +7,7 @@ import { ResolutionGovernor, benchmarkStep } from '../src/render/Quality';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 import { SceneryKit } from '../src/render/env/Theme';
 
-const KITS: SceneryKit[] = ['city', 'alpine', 'desert', 'coast', 'stadium'];
+const KITS: SceneryKit[] = ['stadium', 'winter', 'canyon', 'sunset'];
 const tracks = SAMPLE.map((l) => buildTrack(l));
 
 function nearest(track: ReturnType<typeof buildTrack>, x: number, z: number): number {
@@ -19,11 +19,11 @@ function nearest(track: ReturnType<typeof buildTrack>, x: number, z: number): nu
 describe('scenery placement', () => {
   it('is deterministic for a track, kit and density', () => {
     const t = tracks[0]!;
-    const a = planScenery({ centerline: t.centerline, seed: 7, groundY: -12 }, 'city', 1);
-    const b = planScenery({ centerline: t.centerline, seed: 7, groundY: -12 }, 'city', 1);
+    const a = planScenery({ centerline: t.centerline, seed: 7, groundY: -12 }, 'stadium', 1);
+    const b = planScenery({ centerline: t.centerline, seed: 7, groundY: -12 }, 'stadium', 1);
     expect(a.length).toBeGreaterThan(50);
     expect(b).toEqual(a);
-    const c = planScenery({ centerline: t.centerline, seed: 8, groundY: -12 }, 'city', 1);
+    const c = planScenery({ centerline: t.centerline, seed: 8, groundY: -12 }, 'stadium', 1);
     expect(c).not.toEqual(a);
   });
 
@@ -33,7 +33,8 @@ describe('scenery placement', () => {
         const props = planScenery({ centerline: t.centerline, seed: 3, groundY: -12 }, kit, 1.35);
         for (const p of props) {
           const d = nearest(t, p.x, p.z);
-          const reach = p.kind === 'pad' ? Math.hypot(p.sx, p.sz) / 2 : 0;
+          // big terraced mounds keep their whole footprint out of the corridor
+          const reach = p.kind === 'terrace' ? Math.max(p.sx, p.sz) / 2 : 0;
           expect(d - reach, `${t.id}/${kit}/${p.kind}`).toBeGreaterThanOrEqual(CLEARANCE - 0.01);
         }
       }
@@ -42,14 +43,14 @@ describe('scenery placement', () => {
 
   it('scales with the quality density', () => {
     const t = tracks[1]!;
-    const lo = planScenery({ centerline: t.centerline, seed: 3, groundY: 0 }, 'alpine', 0.35).length;
-    const hi = planScenery({ centerline: t.centerline, seed: 3, groundY: 0 }, 'alpine', 1).length;
+    const lo = planScenery({ centerline: t.centerline, seed: 3, groundY: 0 }, 'winter', 0.35).length;
+    const hi = planScenery({ centerline: t.centerline, seed: 3, groundY: 0 }, 'winter', 1).length;
     expect(hi).toBeGreaterThan(lo * 1.8);
   });
 
   it('sits every prop on the ground plane or on top of another prop', () => {
     const t = tracks[0]!;
-    for (const p of planScenery({ centerline: t.centerline, seed: 3, groundY: -12 }, 'coast', 1)) expect(p.y).toBeGreaterThanOrEqual(-12);
+    for (const p of planScenery({ centerline: t.centerline, seed: 3, groundY: -12 }, 'sunset', 1)) expect(p.y).toBeGreaterThanOrEqual(-12);
   });
 });
 

@@ -1,11 +1,11 @@
 import { Color, Mesh, PlaneGeometry, ShaderMaterial, Vector3 } from 'three';
 import { GroundKind, ThemeDef } from './Theme';
 
-const KIND: Record<GroundKind, number> = { grass: 0, urban: 1, snow: 2, sand: 3, water: 4 };
+const KIND: Record<GroundKind, number> = { grass: 0, snow: 2, sand: 3 };
 
 /**
- * Endless ground plane under the track, shaded per theme: mown grass, city pavement with parks, snow
- * field, sand with wind ripples and dunes, or a lit sea. Fine detail fades out with distance (no shimmer).
+ * Endless ground plane under the track, shaded per theme: a mown stadium lawn, a snow field, or sand
+ * with wind ripples and dunes. Fine detail fades out with distance (no shimmer).
  * Follows the camera in 50 m steps; the patterns are in world space so the steps never show.
  */
 export class Ground {

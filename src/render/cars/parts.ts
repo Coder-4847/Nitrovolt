@@ -1,11 +1,15 @@
 import {
-  BoxGeometry, BufferAttribute, BufferGeometry, Color, CylinderGeometry, Group, InstancedMesh, LatheGeometry, Matrix4, Mesh,
-  MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Quaternion, Vector2, Vector3,
+  BoxGeometry, BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
+  Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Quaternion, RepeatWrapping, SRGBColorSpace, Vector2, Vector3,
 } from 'three';
 
 /** Shared look: livery-driven paint and accent, plus trim, glass, metal and lamp materials. */
 export interface CarMaterials {
   paint: MeshStandardMaterial;
+  /** Paint with the livery artwork (stripes, number, carbon lower sides) mapped onto lofted bodies. */
+  livery: MeshPhysicalMaterial;
+  /** Exposed carbon fibre (wings, floor, diffuser). */
+  carbon: MeshStandardMaterial;
   accent: MeshStandardMaterial;
   /** Satin black plastic: bumpers, diffusers, mirrors, arch liners. */
   dark: MeshStandardMaterial;
@@ -15,10 +19,13 @@ export interface CarMaterials {
   tail: MeshBasicMaterial;
 }
 
-export function makeMaterials(primary: number, accent: number): CarMaterials {
+export function makeMaterials(primary: number, accent: number, number = 1): CarMaterials {
+  const art = liveryTexture(primary, accent, number);
   return {
     // clear-coated paint: picks up the sky through the environment map
     paint: new MeshPhysicalMaterial({ color: primary, roughness: 0.42, metalness: 0.35, clearcoat: 1, clearcoatRoughness: 0.12 }),
+    livery: new MeshPhysicalMaterial({ map: art, roughness: 0.4, metalness: 0.3, clearcoat: 1, clearcoatRoughness: 0.1 }),
+    carbon: new MeshStandardMaterial({ map: carbonTexture(), color: 0x9aa0a8, roughness: 0.38, metalness: 0.3 }),
     accent: new MeshStandardMaterial({ color: accent, roughness: 0.45, metalness: 0.2 }),
     dark: new MeshStandardMaterial({ color: 0x1b1d21, roughness: 0.72, metalness: 0.1 }),
     glass: new MeshPhysicalMaterial({ color: 0x141a22, roughness: 0.1, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.1 }),
@@ -32,6 +39,8 @@ export type TyreKind = 'sport' | 'knobby' | 'studded' | 'balloon';
 
 export interface CarModel {
   body: Group;
+  /** Where the digital speed display sits (car-local, facing backwards) and its size. */
+  plate?: { x: number; y: number; z: number; w: number; h: number };
   /** Parts hidden in the hood camera so they do not block the view. */
   cockpitHidden: Object3D[];
   tyre: TyreKind;
@@ -61,6 +70,90 @@ const catmull = (p0: number, p1: number, p2: number, p3: number, t: number): num
   return 0.5 * (2 * p1 + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
 };
 
+const css = (c: number): string => '#' + c.toString(16).padStart(6, '0');
+const FONT = '"Barlow Condensed", "Roboto Condensed", "Arial Narrow", Impact, sans-serif';
+
+/**
+ * Livery artwork for lofted bodies. Texture x runs once around the section (0 = right side, 0.25 = top,
+ * 0.5 = left side, 0.75 = underside) and y along the body (0 = nose, 1 = tail): the paint colour, a
+ * twin stripe along the top, an accent sweep and the race number on both flanks, carbon underneath.
+ */
+export function paintLivery(g: CanvasRenderingContext2D, primary: number, accent: number, number: number): void {
+  const W = g.canvas.width, H = g.canvas.height;
+  g.fillStyle = css(primary);
+  g.fillRect(0, 0, W, H);
+  // carbon underside
+  g.fillStyle = '#1a1c20';
+  g.fillRect(W * 0.6, 0, W * 0.3, H);
+  // accent sweeps along both flanks
+  g.fillStyle = css(accent);
+  for (const x0 of [0, W * 0.5]) {
+    g.beginPath();
+    g.moveTo(x0 + W * 0.06, H * 0.18);
+    g.lineTo(x0 + W * 0.12, H * 0.18);
+    g.lineTo(x0 + W * 0.2, H * 0.95);
+    g.lineTo(x0 + W * 0.13, H * 0.95);
+    g.closePath();
+    g.fill();
+  }
+  // twin stripe over the top
+  g.fillStyle = '#f4f6f8';
+  g.fillRect(W * 0.235, 0, W * 0.008, H);
+  g.fillRect(W * 0.257, 0, W * 0.008, H);
+  g.fillStyle = css(accent);
+  g.fillRect(W * 0.243, 0, W * 0.014, H);
+  // race number on both flanks, reading along the car
+  const label = String(number).padStart(2, '0');
+  for (const [x, flip] of [[W * 0.03, 1], [W * 0.47, -1]] as const) {
+    g.save();
+    g.translate(x, H * 0.56);
+    g.rotate((flip * Math.PI) / 2);
+    g.fillStyle = '#f4f6f8';
+    g.beginPath();
+    g.arc(0, 0, H * 0.075, 0, Math.PI * 2);
+    g.fill();
+    g.fillStyle = '#111316';
+    g.font = `italic 800 ${Math.round(H * 0.1)}px ${FONT}`;
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillText(label, 0, 2);
+    g.restore();
+  }
+}
+
+export function liveryTexture(primary: number, accent: number, number: number): CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 512;
+  c.height = 512;
+  paintLivery(c.getContext('2d')!, primary, accent, number);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+let carbonCache: CanvasTexture | null = null;
+/** Woven carbon-fibre pattern (tiles). */
+export function carbonTexture(): CanvasTexture {
+  if (carbonCache) return carbonCache;
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#202328';
+  g.fillRect(0, 0, 64, 64);
+  for (let y = 0; y < 64; y += 8) for (let x = 0; x < 64; x += 8) {
+    g.fillStyle = (x + y) % 16 === 0 ? '#2c3037' : '#17191d';
+    g.fillRect(x, y, 8, 4);
+    g.fillStyle = (x + y) % 16 === 0 ? '#17191d' : '#2c3037';
+    g.fillRect(x, y + 4, 8, 4);
+  }
+  carbonCache = new CanvasTexture(c);
+  carbonCache.colorSpace = SRGBColorSpace;
+  carbonCache.wrapS = carbonCache.wrapT = RepeatWrapping;
+  carbonCache.repeat.set(4, 4);
+  return carbonCache;
+}
+
 /**
  * Smooth body shell through the stations: the section parameters are interpolated with Catmull-Rom
  * splines along the length, every section is a superellipse ring, and the ends are closed. Returns an
@@ -86,22 +179,27 @@ export function loft(stations: Station[], opts: { ring?: number; sub?: number; s
   secs.push({ z: last.z, w: last.w, y0: last.y0, y1: last.y1, bot: last.bot ?? 1, top: last.top ?? 1 });
 
   const pos: number[] = [];
+  const uv: number[] = [];
   const idx: number[] = [];
+  const zMin = secs[0]!.z, zMax = secs[secs.length - 1]!.z;
   for (const s of secs) {
     const a = s.w / 2, b = (s.y1 - s.y0) / 2, yc = (s.y0 + s.y1) / 2;
-    for (let j = 0; j < ring; j++) {
+    // ring + 1 vertices: the seam is duplicated so the livery's u can run 0..1 without wrapping
+    for (let j = 0; j <= ring; j++) {
       const th = (j / ring) * Math.PI * 2;
       const c = Math.cos(th), sn = Math.sin(th);
       const u = Math.sign(c) * Math.abs(c) ** ex;
       const v = Math.sign(sn) * Math.abs(sn) ** ex;
       const narrow = v < 0 ? 1 + (s.bot - 1) * Math.min(1, -v * 1.25) : 1 + (s.top - 1) * v * v;
       pos.push(u * a * narrow, yc + v * b, s.z);
+      uv.push(j / ring, (s.z - zMin) / Math.max(1e-6, zMax - zMin));
     }
   }
   const n = secs.length;
+  const R = ring + 1;
   for (let i = 0; i < n - 1; i++) {
     for (let j = 0; j < ring; j++) {
-      const a = i * ring + j, b = i * ring + ((j + 1) % ring), c = (i + 1) * ring + j, d = (i + 1) * ring + ((j + 1) % ring);
+      const a = i * R + j, b = i * R + j + 1, c = (i + 1) * R + j, d = (i + 1) * R + j + 1;
       idx.push(a, b, c, b, d, c);
     }
   }
@@ -110,14 +208,16 @@ export function loft(stations: Station[], opts: { ring?: number; sub?: number; s
     const s = secs[i]!;
     const centre = pos.length / 3;
     pos.push(0, (s.y0 + s.y1) / 2, s.z);
+    uv.push(0.25, i === 0 ? 0 : 1);
     for (let j = 0; j < ring; j++) {
-      const a = i * ring + j, b = i * ring + ((j + 1) % ring);
+      const a = i * R + j, b = i * R + j + 1;
       if (flip) idx.push(centre, b, a);
       else idx.push(centre, a, b);
     }
   }
   const g = new BufferGeometry();
   g.setAttribute('position', new BufferAttribute(new Float32Array(pos), 3));
+  g.setAttribute('uv', new BufferAttribute(new Float32Array(uv), 2));
   g.setIndex(idx);
   g.computeVertexNormals();
   return g;

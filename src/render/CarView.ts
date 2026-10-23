@@ -1,12 +1,15 @@
-import { AdditiveBlending, Color, ConeGeometry, Group, InstancedMesh, Material, Mesh, MeshBasicMaterial } from 'three';
+import { AdditiveBlending, CanvasTexture, Color, ConeGeometry, Group, InstancedMesh, Material, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace } from 'three';
 import { CarId } from '../data/cars';
 import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { buildDune } from './cars/dune';
 import { buildFrost } from './cars/frost';
 import { buildGravel } from './cars/gravel';
-import { CarMaterials, CarModel, makeMaterials, makeWheel } from './cars/parts';
+import { CarMaterials, CarModel, makeMaterials, makeWheel, paintLivery } from './cars/parts';
 import { buildVolt } from './cars/volt';
+
+/** Race numbers painted on each car's livery. */
+const NUMBERS: Record<CarId, number> = { volt: 1, gravel: 7, frost: 22, dune: 44 };
 
 const BUILDERS: Record<CarId, (m: CarMaterials) => CarModel> = {
   volt: buildVolt,
@@ -39,7 +42,7 @@ export class CarView {
       [-params.halfTrackRear, params.rearAxleZ],
       [params.halfTrackRear, params.rearAxleZ],
     ];
-    this.mats = makeMaterials(primary, accent);
+    this.mats = makeMaterials(primary, accent, NUMBERS[id]);
     this.model = BUILDERS[id](this.mats);
     this.body = this.model.body;
     this.body.traverse((o) => {
@@ -55,6 +58,44 @@ export class CarView {
       this.wheelRoots.push(wr);
       this.wheelSpin.push(spin);
     }
+    this.addPlate();
+  }
+
+  private plate: { ctx: CanvasRenderingContext2D; tex: CanvasTexture; shown: number } | null = null;
+
+  /** The digital speed display on the back of the car (canvas texture, redrawn when the number changes). */
+  private addPlate(): void {
+    const p = this.model.plate;
+    if (!p) return;
+    const c = document.createElement('canvas');
+    c.width = 192;
+    c.height = 64;
+    const tex = new CanvasTexture(c);
+    tex.colorSpace = SRGBColorSpace;
+    const mesh = new Mesh(new PlaneGeometry(p.w, p.h), new MeshBasicMaterial({ map: tex }));
+    mesh.position.set(p.x, p.y, p.z + 0.012);
+    this.body.add(mesh);
+    this.plate = { ctx: c.getContext('2d')!, tex, shown: -1 };
+    this.setSpeed(0);
+  }
+
+  /** Speed (km/h) shown on the rear display. */
+  setSpeed(kmh: number): void {
+    const P = this.plate;
+    const v = Math.max(0, Math.min(999, Math.round(kmh)));
+    if (!P || v === P.shown) return;
+    P.shown = v;
+    const g = P.ctx;
+    g.fillStyle = '#07090c';
+    g.fillRect(0, 0, 192, 64);
+    g.font = 'italic 700 54px "Barlow Condensed", "Arial Narrow", sans-serif';
+    g.textAlign = 'center';
+    g.textBaseline = 'middle';
+    g.fillStyle = 'rgba(255,255,255,0.08)';
+    g.fillText('888', 96, 34);
+    g.fillStyle = '#f2f6ff';
+    g.fillText(String(v).padStart(3, ' '), 96, 34);
+    P.tex.needsUpdate = true;
   }
 
   private lights: { flames: Mesh[]; flameMat: MeshBasicMaterial; fire: boolean } | null = null;
@@ -133,6 +174,11 @@ export class CarView {
   setLivery(primary: number, accent: number): void {
     this.mats.paint.color.setHex(primary);
     this.mats.accent.color.setHex(accent);
+    const map = this.mats.livery.map as CanvasTexture | null;
+    if (map) {
+      paintLivery((map.image as HTMLCanvasElement).getContext('2d')!, primary, accent, NUMBERS[this.id]);
+      map.needsUpdate = true;
+    }
   }
 
   /** Hood cam: keep the hull (you see the bonnet) but hide parts that would block the view. */

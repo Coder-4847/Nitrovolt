@@ -5,6 +5,14 @@ import { formatDelta } from '../core/Records';
 import { medalBadge } from './medals';
 import { EffectId } from '../physics/Surface';
 
+/** Race clock: m:ss.cc (centiseconds), as on the big timer. */
+export function formatClock(ms: number): string {
+  const t = Math.max(0, Math.floor(ms / 10));
+  const m = Math.floor(t / 6000);
+  const s = Math.floor((t % 6000) / 100);
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(t % 100).padStart(2, '0')}`;
+}
+
 export function formatTime(ms: number): string {
   const t = Math.max(0, Math.floor(ms));
   const m = Math.floor(t / 60000);
@@ -44,7 +52,11 @@ export interface FinishAction {
   onClick: () => void;
 }
 
-/** In-run HUD: speed, run clock, countdown, checkpoint splits with deltas, active effects, finish panel. */
+/**
+ * In-run HUD laid out like a race broadcast: the big clock at the bottom, a checkpoint split pop-up in the
+ * middle (blue = ahead of your best, red = behind), a times board top-left (personal best and the next
+ * medal), lap / checkpoint counters top-right, a small speed readout, the countdown and the finish panel.
+ */
 export class Hud {
   private readonly root: HTMLElement;
   private readonly q = (s: string): HTMLElement => this.root.querySelector(s)!;
@@ -55,6 +67,7 @@ export class Hud {
   private lastSpeed = -1;
   private lastTime = '';
   private lastEffects = '';
+  private cpTimer = 0;
 
   constructor(parent: HTMLElement, input: InputManager) {
     this.root = document.createElement('div');
@@ -62,9 +75,12 @@ export class Hud {
     const k = input.bindings.keyboard;
     const key = (a: keyof typeof k): string => prettyKey(k[a][0] ?? '?');
     this.root.innerHTML = `
-      <div class="hud-time"><small data-title>Run</small><span data-t>0:00.000</span><small data-cp class="cp"></small></div>
+      <div class="hud-board" data-board></div>
+      <div class="hud-lap"><small data-title>Run</small><div data-lap></div><small data-cp class="cp"></small></div>
+      <div class="hud-cp" data-cpbox><span class="t" data-cpt></span><span class="d" data-cpd></span></div>
       <div class="hud-splits" data-splits></div>
       <div class="hud-effects" data-fx></div>
+      <div class="hud-time"><span data-t>00:00.00</span></div>
       <div class="hud-speed"><div class="num" data-n>0</div><div class="unit">km/h</div><div class="hud-bar"><i data-b></i></div></div>
       <div class="hud-count" data-count></div>
       <div class="hud-toast" data-toast></div>
@@ -93,7 +109,7 @@ export class Hud {
       this.q('[data-b]').style.width = `${Math.min(100, (speedMs / topSpeed) * 100).toFixed(1)}%`;
     }
     this.vignette.style.opacity = this.speedFx ? String(Math.max(0, Math.min(0.6, Math.max((speedMs - 40) / 70, boost * 0.5)))) : '0';
-    const t = formatTime(runMs);
+    const t = formatClock(runMs);
     if (t !== this.lastTime) {
       this.lastTime = t;
       this.q('[data-t]').textContent = t;
@@ -101,10 +117,19 @@ export class Hud {
   }
 
   setProgress(cp: number, cpTotal: number, lap: number, laps: number): void {
-    const parts: string[] = [];
-    if (laps > 1) parts.push(`LAP ${Math.min(lap + 1, laps)}/${laps}`);
-    if (cpTotal > 0) parts.push(`CP ${cp}/${cpTotal}`);
-    this.q('[data-cp]').textContent = parts.join('  ·  ');
+    this.q('[data-lap]').textContent = laps > 1 ? `Lap ${Math.min(lap + 1, laps)}/${laps}` : '';
+    this.q('[data-cp]').textContent = cpTotal > 0 ? `Checkpoint ${cp}/${cpTotal}` : '';
+  }
+
+  /** Personal best and medal times for the times board (the next medal to beat is highlighted). */
+  setTargets(pb: number | null, medals: Record<'author' | 'gold' | 'silver' | 'bronze', number>): void {
+    const rows: string[] = [];
+    const tiers = ['author', 'gold', 'silver', 'bronze'] as const;
+    const next = [...tiers].reverse().find((m) => medals[m] > 0 && (pb === null || pb > medals[m]));
+    if (pb !== null) rows.push(`<div class="pb"><span>Personal best</span><b>${formatTime(pb)}</b></div>`);
+    if (next) rows.push(`<div class="next m-${next}"><span><i class="dot"></i>Next: ${MEDAL_LABEL[next].toLowerCase()}</span><b>${formatTime(medals[next])}</b></div>`);
+    else if (medals.author > 0) rows.push(`<div class="next m-author"><span><i class="dot"></i>Author beaten</span><b>${formatTime(medals.author)}</b></div>`);
+    this.q('[data-board]').innerHTML = rows.join('');
   }
 
   setCountdown(beat: number | null): void {
@@ -122,6 +147,7 @@ export class Hud {
 
   clearSplits(): void {
     this.q('[data-splits]').innerHTML = '';
+    this.q('[data-cpbox]').classList.remove('show');
   }
 
   addSplit(label: string, time: number, delta: number | null): void {
@@ -131,7 +157,17 @@ export class Hud {
     const host = this.q('[data-splits]');
     host.appendChild(row);
     while (host.children.length > 5) host.firstElementChild!.remove();
-    if (delta !== null) this.toast(`${label}  ${formatDelta(delta)}`, 1400, delta <= 0 ? 'good' : 'bad');
+    // the split pop-up in the middle of the screen
+    const box = this.q('[data-cpbox]');
+    this.q('[data-cpt]').textContent = `${label}  ${formatTime(time)}`;
+    const d = this.q('[data-cpd]');
+    d.textContent = delta === null ? '' : formatDelta(delta);
+    d.className = `d ${delta === null ? 'none' : delta <= 0 ? 'ahead' : 'behind'}`;
+    box.classList.remove('show');
+    void box.offsetWidth;
+    box.classList.add('show');
+    clearTimeout(this.cpTimer);
+    this.cpTimer = window.setTimeout(() => box.classList.remove('show'), 2600);
   }
 
   setEffects(active: readonly EffectId[]): void {
