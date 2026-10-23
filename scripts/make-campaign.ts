@@ -38,7 +38,7 @@ interface Row {
 
 const SET_TYPES: Record<string, string> = { loop: 'loop', halfpipe2: 'half-pipe', wallRide4L: 'wall-ride', wallRide4R: 'wall-ride', spiralDownL: 'spiral', spiralDownR: 'spiral', platform: 'platform', platformBig: 'platform' };
 const only = process.env.ONLY ? new Set(process.env.ONLY.split(',')) : null;
-const SEASON_NAMES = ['Neon City Night', 'Alpine Snow', 'Desert Canyon', 'Coast & Industry'];
+const SEASON_NAMES = ['Metro', 'Alpine', 'Desert Canyon', 'Coast & Harbour'];
 
 function hash(...n: number[]): number {
   let h = 2166136261;

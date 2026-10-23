@@ -138,7 +138,7 @@ export class TrackBuilder {
         const x1 = side * (w + th);
         // walls extend slightly below the road surface so there is no gap at the seam
         const prof: Profile = [[x0, -0.3], [x1, -0.3], [x1, h], [x0, h]];
-        this.builder('wall', wallSurface).sweep(frames, prof);
+        this.builder('wall', wallSurface).sweep(frames, prof, true, 0, h);
       };
       if (o.walls === 'left' || o.walls === 'both') mk(-1);
       if (o.walls === 'right' || o.walls === 'both') mk(1);

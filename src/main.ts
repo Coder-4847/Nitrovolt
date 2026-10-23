@@ -30,6 +30,6 @@ if (!webglAvailable()) {
     })
     .catch((err: unknown) => {
       console.error(err);
-      boot.innerHTML = `NITRO<span>VOLT</span><small>failed to start: ${(err as Error)?.message ?? err}</small><small><a href="" style="color:#18e0ff">reload</a></small>`;
+      boot.innerHTML = `NITRO<span>VOLT</span><small>failed to start: ${(err as Error)?.message ?? err}</small><small><a href="" style="color:#3d7eff">reload</a></small>`;
     });
 }

@@ -55,7 +55,7 @@ const SPECIAL_LABEL: Record<EffectId, string> = {
 };
 const TOOL_KEYS: Record<Tool, string> = { place: '1', paint: '2', erase: '3', pick: '4' };
 const TOOL_LABEL: Record<Tool, string> = { place: 'Place', paint: 'Paint', erase: 'Erase', pick: 'Pick' };
-const HOVER_COLOR: Record<Tool, number> = { place: 0xffffff, paint: 0xffd21f, erase: 0xff4040, pick: 0x18e0ff };
+const HOVER_COLOR: Record<Tool, number> = { place: 0xffffff, paint: 0xffd21f, erase: 0xff4040, pick: 0x3d7eff };
 
 const _ray = new Raycaster();
 const _ndc = new Vector2();
@@ -620,6 +620,7 @@ export class EditorSession {
     }
     this.cam.update();
     gfx.viewCamera = this.cam.camera;
+    gfx.sightProbe = null;
     if (this.pose) gfx.render(dt, this.pose, new Vector3(), 0, 0);
   }
 

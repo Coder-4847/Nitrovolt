@@ -19,7 +19,10 @@ export class MeshBuilder {
   private nor: number[] = [];
   private uv: number[] = [];
   private idx: number[] = [];
-  /** Per vertex: metres from the road's left edge and the road width, or (-1, 0) off the driving surface. */
+  /**
+   * Per vertex: metres from the road's left edge and the road width, or (-1, 0) off the driving surface.
+   * Barriers store (height above the road, -wall height) instead, so their shader can paint a top band.
+   */
   private lat: number[] = [];
 
   constructor(
@@ -96,9 +99,10 @@ export class MeshBuilder {
   /**
    * Sweep a convex cross-section along `frames`. Each profile edge becomes a smooth-shaded strip,
    * with hard edges between edges. UVs are in metres/4 so a grid texture stays square everywhere.
-   * With `halfWidth`, upward-facing edges also get a lateral coordinate (for road markings).
+   * With `halfWidth`, upward-facing edges also get a lateral coordinate (for road markings); with
+   * `wallHeight`, every vertex gets its height in the profile instead (barrier paint).
    */
-  sweep(frames: Frame[], profileIn: Profile, caps = true, halfWidth = 0): void {
+  sweep(frames: Frame[], profileIn: Profile, caps = true, halfWidth = 0, wallHeight = 0): void {
     if (frames.length < 2) return;
     // ensure CCW (x right, y up)
     let area = 0;
@@ -149,10 +153,13 @@ export class MeshBuilder {
         if (halfWidth > 0 && topFacing[j]) {
           const la = profile[j]![0] + halfWidth, lb = profile[j2]![0] + halfWidth;
           lats = [la, lb, lb, la];
+        } else if (wallHeight > 0) {
+          const ya = profile[j]![1], yb = profile[j2]![1];
+          lats = [ya, yb, yb, ya];
         }
         this.quad(A, B, C, D, n0, n0, n1, n1, [
           [per[j]! / 4, s0], [per[j + 1]! / 4, s0], [per[j + 1]! / 4, s1], [per[j]! / 4, s1],
-        ], n0, lats, halfWidth * 2);
+        ], n0, lats, wallHeight > 0 ? -wallHeight : halfWidth * 2);
       }
     }
     if (caps) {

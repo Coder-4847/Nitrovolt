@@ -31,7 +31,11 @@ export class Sparks {
       depthWrite: false,
       blending: AdditiveBlending,
       vertexShader: `attribute float aHeat; varying float vH; void main(){ vH = aHeat; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-      fragmentShader: `varying float vH; void main(){ vec3 c = mix(vec3(1.0, 0.25, 0.05), vec3(1.0, 0.9, 0.55), vH); gl_FragColor = vec4(c * (0.6 + vH * 2.2), vH); }`,
+      fragmentShader: `varying float vH; void main(){
+        vec3 c = mix(vec3(1.0, 0.35, 0.08), vec3(1.0, 0.85, 0.55), vH);
+        gl_FragColor = vec4(c * (0.5 + vH * 0.6), vH);
+        #include <colorspace_fragment>
+      }`,
     });
     this.mesh = new LineSegments(this.geo, mat);
     this.mesh.frustumCulled = false;

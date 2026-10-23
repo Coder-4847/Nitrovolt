@@ -137,6 +137,7 @@ export class Vehicle {
   private body!: RT.RigidBody;
   private collider!: RT.Collider;
   private readonly ray = new RAPIER.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: -1, z: 0 });
+  private readonly sightRay = new RAPIER.Ray({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 1 });
   private readonly force = new Vector3();
   private readonly torque = new Vector3();
   private prevSpringLen = [0, 0, 0, 0];
@@ -205,6 +206,18 @@ export class Vehicle {
       { x: i.x, y: i.y, z: i.z },
       { x: 0, y: 0, z: 0, w: 1 },
     );
+  }
+
+  /**
+   * Distance along a ray to the first track surface (the chassis itself ignored), or null within `max`.
+   * A read-only query for the renderer (chase-camera collision); it never touches the simulation state.
+   */
+  sightDistance(o: { x: number; y: number; z: number }, d: { x: number; y: number; z: number }, max: number): number | null {
+    const r = this.sightRay;
+    r.origin.x = o.x; r.origin.y = o.y; r.origin.z = o.z;
+    r.dir.x = d.x; r.dir.y = d.y; r.dir.z = d.z;
+    const hit = this.physics.world.castRay(r, max, true, undefined, undefined, undefined, this.body);
+    return hit ? hit.timeOfImpact : null;
   }
 
   /** (Re)create the chassis at a pose with zero velocity. A fresh body guarantees identical restarts. */

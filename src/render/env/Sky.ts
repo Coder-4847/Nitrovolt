@@ -2,8 +2,9 @@ import { BackSide, Color, Mesh, ShaderMaterial, SphereGeometry, Vector3 } from '
 import { ThemeDef } from './Theme';
 
 /**
- * Procedural sky dome: three-stop gradient, sun or moon with glow, a star field (night) and drifting
- * clouds, all from one shader. Follows the camera and always draws at the far plane.
+ * Procedural daytime sky dome: zenith-to-horizon gradient with a soft haze band, the sun with a gentle glow
+ * and two layers of drifting clouds, all from one shader. Follows the camera and is drawn first, behind
+ * everything (no depth test, so it can never be clipped at the far plane).
  */
 export class Sky {
   readonly mesh: Mesh;
@@ -14,6 +15,7 @@ export class Sky {
     this.mat = new ShaderMaterial({
       side: BackSide,
       depthWrite: false,
+      depthTest: false,
       fog: false,
       uniforms: {
         uZenith: { value: new Color() },
@@ -24,24 +26,19 @@ export class Sky {
         uSun: { value: this.sunDir },
         uSunSize: { value: 0.6 },
         uSunGlow: { value: 0.3 },
-        uStars: { value: 0 },
-        uMoon: { value: 0 },
         uClouds: { value: 0.3 },
         uTime: { value: 0 },
       },
       vertexShader: `
         varying vec3 vDir;
         void main() {
-          vDir = normalize(position);
-          vec4 p = modelViewMatrix * vec4(position, 1.0);
-          gl_Position = projectionMatrix * p;
-          gl_Position.z = gl_Position.w;
+          vDir = position;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
         }`,
       fragmentShader: `
         uniform vec3 uZenith, uHorizon, uNadir, uSunCol, uCloudCol, uSun;
-        uniform float uSunSize, uSunGlow, uStars, uMoon, uClouds, uTime;
+        uniform float uSunSize, uSunGlow, uClouds, uTime;
         varying vec3 vDir;
-        float hash(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }
         float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         float noise(vec2 p) {
           vec2 i = floor(p), f = fract(p);
@@ -52,33 +49,23 @@ export class Sky {
         void main() {
           vec3 d = normalize(vDir);
           float h = d.y;
-          vec3 col = mix(uHorizon, uZenith, pow(clamp(h, 0.0, 1.0), 0.5));
-          col = mix(col, uNadir, smoothstep(0.0, -0.18, h));
+          float up = clamp(h, 0.0, 1.0);
+          vec3 col = mix(uHorizon, uZenith, sqrt(up) * (2.0 - sqrt(up)) * 0.85 + up * 0.15);
+          // brighter, whiter haze right at the horizon, then the ground colour below it
+          col = mix(col, mix(uHorizon, vec3(1.0), 0.25), exp(-abs(h) * 28.0) * 0.5);
+          col = mix(col, uNadir, smoothstep(0.0, -0.12, h));
           float s = max(dot(d, uSun), 0.0);
-          // stars: sparse hashed cells on the direction, twinkling a little
-          if (uStars > 0.0 && h > 0.0) {
-            vec3 cell = floor(d * 260.0);
-            float r = hash(cell);
-            float tw = 0.65 + 0.35 * sin(uTime * 2.0 + r * 40.0);
-            float star = step(0.9965, r) * tw * smoothstep(0.0, 0.25, h);
-            col += vec3(0.9, 0.95, 1.0) * star * uStars * 1.4;
-            // a faint band of haze across the sky
-            col += vec3(0.18, 0.1, 0.32) * uStars * exp(-pow(d.z * 2.2 + d.y * 0.8, 2.0)) * 0.35;
+          // clouds: a broad soft layer and a finer one, lit toward the sun
+          if (uClouds > 0.0 && h > 0.01) {
+            vec2 uv = d.xz / (h + 0.1);
+            float c1 = smoothstep(0.55 - uClouds * 0.25, 0.9, fbm(uv * 0.9 + vec2(uTime * 0.004, uTime * 0.0015)));
+            float c2 = smoothstep(0.6 - uClouds * 0.2, 0.95, fbm(uv * 2.6 + vec2(-uTime * 0.006, uTime * 0.003) + 13.0)) * 0.6;
+            float c = clamp(c1 + c2 * (1.0 - c1), 0.0, 1.0);
+            float lit = 0.82 + 0.25 * s * s * s;
+            vec3 cc = mix(uCloudCol * 0.78, uCloudCol, c1) * lit;
+            col = mix(col, cc, c * smoothstep(0.01, 0.2, h) * 0.9);
           }
-          // clouds: fbm on a plane above the camera
-          if (uClouds > 0.0 && h > 0.02) {
-            vec2 uv = d.xz / (h + 0.12) * 1.4 + vec2(uTime * 0.006, uTime * 0.002);
-            float c = smoothstep(0.52 - uClouds * 0.22, 0.85, fbm(uv));
-            float lit = 0.75 + 0.35 * pow(s, 3.0);
-            col = mix(col, uCloudCol * lit, c * smoothstep(0.02, 0.25, h) * 0.85);
-          }
-          if (uMoon > 0.5) {
-            float disc = smoothstep(0.9993 - uSunSize * 0.0004, 0.9996 - uSunSize * 0.0002, s);
-            col = mix(col, uSunCol * 1.6, disc);
-            col += uSunCol * pow(s, 60.0) * uSunGlow;
-          } else {
-            col += uSunCol * (smoothstep(0.99955 - uSunSize * 0.0003, 0.9998, s) * 3.0 + pow(s, 10.0) * uSunGlow + pow(s, 600.0) * 1.5);
-          }
+          col += uSunCol * (smoothstep(0.99955 - uSunSize * 0.0003, 0.9998, s) * 2.0 + pow(s, 12.0) * uSunGlow + pow(s, 500.0) * 0.6);
           gl_FragColor = vec4(col, 1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>
@@ -99,8 +86,6 @@ export class Sky {
     this.sunDir.set(...t.sky.sunDir).normalize();
     u.uSunSize!.value = t.sky.sunSize;
     u.uSunGlow!.value = t.sky.sunGlow;
-    u.uStars!.value = t.sky.stars;
-    u.uMoon!.value = t.sky.moon ? 1 : 0;
     u.uClouds!.value = t.sky.clouds;
   }
 

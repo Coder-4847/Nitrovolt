@@ -49,6 +49,8 @@ export class Hud {
   private readonly root: HTMLElement;
   private readonly q = (s: string): HTMLElement => this.root.querySelector(s)!;
   private readonly vignette: HTMLElement;
+  /** Darken the screen edges a little at high speed (Settings > Speed vignette). */
+  speedFx = true;
   private toastTimer = 0;
   private lastSpeed = -1;
   private lastTime = '';
@@ -90,7 +92,7 @@ export class Hud {
       this.q('[data-n]').textContent = String(kmh);
       this.q('[data-b]').style.width = `${Math.min(100, (speedMs / topSpeed) * 100).toFixed(1)}%`;
     }
-    this.vignette.style.opacity = String(Math.max(0, Math.min(0.9, Math.max((speedMs - 35) / 60, boost * 0.8))));
+    this.vignette.style.opacity = this.speedFx ? String(Math.max(0, Math.min(0.6, Math.max((speedMs - 40) / 70, boost * 0.5)))) : '0';
     const t = formatTime(runMs);
     if (t !== this.lastTime) {
       this.lastTime = t;

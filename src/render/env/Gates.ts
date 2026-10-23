@@ -1,10 +1,12 @@
-import { AdditiveBlending, Color, DoubleSide, Group, Mesh, PlaneGeometry, ShaderMaterial } from 'three';
+import { Color, DoubleSide, Group, Mesh, PlaneGeometry, ShaderMaterial } from 'three';
 import { TrackTrigger } from '../../tracks/TrackTypes';
 import { ThemeDef } from './Theme';
 
 /**
- * Holographic curtains across every checkpoint and finish line: a soft gradient with scrolling scan lines,
- * a chequered band on the finish, and a bright flash when the car crosses.
+ * Timing gates across every checkpoint and finish line: a thin light line on the road, a faint glass
+ * panel between the gantry posts and, on the finish, a chequered banner under the crossbar. Crossing
+ * brightens the gate briefly. The panel fades out as the camera comes close, so driving through never
+ * tints the whole screen.
  */
 export class Gates {
   readonly group = new Group();
@@ -18,45 +20,47 @@ export class Gates {
         transparent: true,
         depthWrite: false,
         side: DoubleSide,
-        blending: AdditiveBlending,
         fog: true,
         uniforms: {
           uCol: { value: new Color(finish ? theme.gate.finish : theme.gate.checkpoint) },
-          uTime: { value: 0 },
           uFlash: { value: 0 },
           uFinish: { value: finish ? 1 : 0 },
           uAspect: { value: 1 },
+          uHeight: { value: 7.4 },
           fogColor: { value: new Color(theme.fog.color) },
           fogNear: { value: theme.fog.near },
           fogFar: { value: theme.fog.far },
         },
         vertexShader: `
-          varying vec2 vUv;
+          varying vec2 vUv; varying float vDepth;
           #include <fog_pars_vertex>
           void main() {
             vUv = uv;
             vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vDepth = -mvPosition.z;
             gl_Position = projectionMatrix * mvPosition;
             #include <fog_vertex>
           }`,
         fragmentShader: `
-          uniform vec3 uCol; uniform float uTime, uFlash, uFinish, uAspect;
-          varying vec2 vUv;
+          uniform vec3 uCol; uniform float uFlash, uFinish, uAspect, uHeight;
+          varying vec2 vUv; varying float vDepth;
           #include <fog_pars_fragment>
           void main() {
-            float edge = smoothstep(0.0, 0.04, vUv.x) * smoothstep(1.0, 0.96, vUv.x);
-            float rise = pow(1.0 - vUv.y, 1.6);
-            float scan = 0.55 + 0.45 * sin(vUv.y * 80.0 - uTime * 6.0);
-            float side = smoothstep(0.035, 0.0, min(vUv.x, 1.0 - vUv.x));
-            float a = (rise * 0.16 * scan + side * 0.5) * edge + uFlash * 0.55 * edge;
-            vec3 col = uCol;
-            if (uFinish > 0.5 && vUv.y > 0.82) {
-              vec2 c = floor(vec2(vUv.x * uAspect * 2.0, vUv.y * 22.0));
-              float chk = mod(c.x + c.y, 2.0);
-              col = mix(vec3(0.05), vec3(1.0), chk);
-              a = 0.55 * edge + uFlash * 0.3;
+            float y = vUv.y * uHeight;
+            float near = smoothstep(2.0, 9.0, vDepth);
+            float wy = max(fwidth(y), 1e-3);
+            float line = 1.0 - smoothstep(0.12, 0.12 + wy, y);
+            float glass = (0.05 + 0.18 * uFlash) * (1.0 - smoothstep(0.0, 1.0, vUv.y)) * near;
+            vec3 col = mix(uCol, vec3(1.0), 0.35 + 0.4 * uFlash);
+            float a = max(line * (0.8 + 0.2 * uFlash), glass);
+            if (uFinish > 0.5 && vUv.y > 0.86) {
+              vec2 c = floor(vec2(vUv.x * uAspect * 2.0, (vUv.y - 0.86) * 30.0));
+              col = mix(vec3(0.08), vec3(0.96), mod(c.x + c.y, 2.0));
+              a = 0.95;
             }
-            gl_FragColor = vec4(col * a * 1.6, 1.0);
+            gl_FragColor = vec4(col, a);
+            #include <tonemapping_fragment>
+            #include <colorspace_fragment>
             #include <fog_fragment>
           }`,
       });
@@ -78,9 +82,8 @@ export class Gates {
     for (const it of this.items) if (it.trig.kind === kind && (kind === 'finish' || it.trig.index === index)) it.mat.uniforms.uFlash!.value = 1;
   }
 
-  update(time: number, dt: number): void {
+  update(_time: number, dt: number): void {
     for (const it of this.items) {
-      it.mat.uniforms.uTime!.value = time;
       it.mat.uniforms.uFlash!.value = Math.max(0, (it.mat.uniforms.uFlash!.value as number) - dt * 2.2);
     }
   }

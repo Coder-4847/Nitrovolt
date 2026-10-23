@@ -1,5 +1,5 @@
 import {
-  ACESFilmicToneMapping, Color, DirectionalLight, Fog, HemisphereLight, Mesh, PCFShadowMap, PMREMGenerator,
+  Color, DirectionalLight, Fog, HemisphereLight, Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator,
   PerspectiveCamera, Scene, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
 import { CarDef } from '../data/cars';
@@ -13,11 +13,9 @@ import { Scenery } from './env/Scenery';
 import { planScenery } from './env/SceneryPlan';
 import { Sky } from './env/Sky';
 import { THEMES, ThemeDef, themeFor } from './env/Theme';
-import { PostFx } from './PostFx';
 import { QUALITY, QualityLevel, ResolutionGovernor } from './Quality';
 import { SkidMarks } from './SkidMarks';
 import { Sparks } from './Sparks';
-import { SpeedFx } from './SpeedFx';
 import { TrackView } from './TrackView';
 import { WheelFx } from './WheelFx';
 
@@ -27,10 +25,13 @@ const _v = new Vector3();
 const _r = new Vector3();
 const _u = new Vector3();
 const _f = new Vector3();
+/** Ghost cars fade out when they come this close to the camera (m: transparent at the first, full at the second). */
+const GHOST_FADE: [number, number] = [2.5, 9];
 
 /**
- * Owns the Three.js scene: themed sky / fog / light / ground / scenery, the track, the car, cameras,
- * effects and the post-processing chain. Quality presets scale all of it.
+ * Owns the Three.js scene: themed sky / fog / light / ground / scenery, the track, the car, cameras and
+ * effects. It renders straight to the canvas (native MSAA, tone mapping in the materials); quality presets
+ * scale resolution, shadows, scenery density and particle budgets.
  */
 export class GameRenderer {
   readonly renderer: WebGLRenderer;
@@ -43,7 +44,8 @@ export class GameRenderer {
   /** Dev only: render from an arbitrary camera instead of the rig (overview screenshots). */
   debugCam: PerspectiveCamera | null = null;
   trackView: TrackView | null = null;
-  speedFxEnabled = true;
+  /** Ray query against the track colliders (set by the driving session); enables chase-camera collision. */
+  sightProbe: ((origin: Vector3, dir: Vector3, max: number) => number | null) | null = null;
   /** Hold ~60 fps by lowering the render scale (Settings > Graphics). */
   dynamicResolution = true;
   wheelFx: WheelFx;
@@ -60,8 +62,6 @@ export class GameRenderer {
   private scenery: Scenery | null = null;
   private skid: SkidMarks;
   private readonly sparks = new Sparks();
-  private speedFx: SpeedFx;
-  private post: PostFx | null = null;
   private quality: QualityLevel;
   private theme: ThemeDef = THEMES.stadium;
   private track: TrackData | null = null;
@@ -79,10 +79,10 @@ export class GameRenderer {
     this.def = def;
     this.quality = quality;
     const q = QUALITY[quality];
-    // with post-processing the composer's MSAA target does the antialiasing
-    this.renderer = new WebGLRenderer({ antialias: q.antialias && !q.post, powerPreference: 'high-performance', preserveDrawingBuffer: false });
-    this.renderer.toneMapping = ACESFilmicToneMapping;
-    this.renderer.toneMappingExposure = 1.05;
+    this.renderer = new WebGLRenderer({ antialias: q.antialias, powerPreference: 'high-performance', preserveDrawingBuffer: false });
+    // neutral tone mapping keeps paint and signage colours true instead of pushing them toward a filmic grade
+    this.renderer.toneMapping = NeutralToneMapping;
+    this.renderer.toneMappingExposure = 1;
     this.renderer.info.autoReset = false; // count every pass of a frame (debug overlay)
     container.appendChild(this.renderer.domElement);
     this.pmrem = new PMREMGenerator(this.renderer);
@@ -100,8 +100,6 @@ export class GameRenderer {
     this.scene.add(this.wheelFx.particles.points, this.car.root, this.sparks.mesh);
     this.skid = new SkidMarks(q.skidSegments, this.theme.fog);
     this.scene.add(this.skid.mesh);
-    this.speedFx = new SpeedFx(q.speedLines);
-    this.scene.add(this.speedFx.mesh);
 
     this.applyTheme(THEMES.stadium);
     this.applyQuality(quality);
@@ -123,7 +121,6 @@ export class GameRenderer {
     this.def = def;
     this.car = new CarView(def.id, params, livery.primary, livery.accent);
     this.car.addDriverLights();
-    this.car.setBeam(this.theme.night && QUALITY[this.quality].beams);
     this.scene.add(this.car.root);
     this.rig.style = def.camera;
     this.rig.snap();
@@ -161,8 +158,6 @@ export class GameRenderer {
     this.sun.color.setHex(t.light.sunColor);
     this.sun.intensity = t.light.sun;
     this.renderer.toneMappingExposure = t.light.exposure;
-    this.post?.applyTheme(t);
-    this.car.setBeam(t.night && QUALITY[this.quality].beams);
     // reflections: the themed sky baked into a prefiltered environment map
     const envScene = new Scene();
     envScene.add(this.envSky.mesh);
@@ -206,7 +201,7 @@ export class GameRenderer {
     }
     if (!this.track || !this.sceneryOn) return;
     const props = planScenery({ centerline: this.track.centerline, seed: (this.track.seed ^ idHash(this.track.id)) >>> 0, groundY: this.ground.mesh.position.y }, this.theme.scenery, QUALITY[this.quality].scenery);
-    this.scenery = new Scenery(props, { night: this.theme.night });
+    this.scenery = new Scenery(props, this.theme);
     this.scene.add(this.scenery.group);
   }
 
@@ -226,19 +221,12 @@ export class GameRenderer {
     const c = this.sun.shadow.camera;
     c.left = -r; c.right = r; c.top = r; c.bottom = -r; c.near = 1; c.far = 400;
     c.updateProjectionMatrix();
-    this.sun.shadow.bias = -0.0004;
-    this.sun.shadow.normalBias = 0.05;
+    this.sun.shadow.radius = q.softShadows ? 2.5 : 1;
+    this.sun.shadow.bias = -0.0003;
+    this.sun.shadow.normalBias = 0.04;
     this.scene.traverse((o) => {
       if (o instanceof Mesh && o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach((m) => (m.needsUpdate = true));
     });
-    this.post?.dispose();
-    this.post = q.post ? new PostFx(this.renderer, this.scene, this.rig.camera, q.msaa, q.bloom) : null;
-    this.post?.applyTheme(this.theme);
-    this.speedFx.dispose();
-    this.scene.remove(this.speedFx.mesh);
-    this.speedFx = new SpeedFx(q.speedLines);
-    this.scene.add(this.speedFx.mesh);
-    this.car.setBeam(this.theme.night && q.beams);
     this.scene.remove(this.skid.mesh);
     this.skid.dispose();
     this.skid = new SkidMarks(q.skidSegments, this.theme.fog);
@@ -323,7 +311,6 @@ export class GameRenderer {
     this.renderer.domElement.style.width = '100%';
     this.renderer.domElement.style.height = '100%';
     this.rig.resize(w, h);
-    this.post?.setSize(w, h, pr);
   };
 
   /** Draw calls / triangles of the last frame, all passes included. */
@@ -345,13 +332,9 @@ export class GameRenderer {
     this.car.update(pose);
     this.car.setDrive(this.brake, Math.max(boost, this.boost), this.clock);
     this.rig.update(dt, pose, velocity, speed, boost);
+    if (this.rig.mode !== 'hood') this.keepCameraInView(pose.position);
     const cam = this.rig.camera;
     this.car.setCockpit(this.rig.mode === 'hood' && !this.viewCamera && !this.debugCam);
-
-    _r.set(1, 0, 0).applyQuaternion(cam.quaternion);
-    _u.set(0, 1, 0).applyQuaternion(cam.quaternion);
-    _f.set(0, 0, -1).applyQuaternion(cam.quaternion);
-    this.speedFx.update(dt, cam.position, _r, _u, _f, velocity, speed, this.speedFxEnabled && !this.viewCamera, boost);
 
     const view = this.viewCamera;
     if (view && view.aspect !== cam.aspect) {
@@ -359,19 +342,60 @@ export class GameRenderer {
       view.updateProjectionMatrix();
     }
     const eye = this.debugCam ?? view ?? cam;
+    // ghosts that drive right past the lens would cover the screen: fade them out up close
+    for (const g of this.ghosts) {
+      const d = g.root.position.distanceTo(eye.position);
+      g.setGhostFade(Math.min(1, Math.max(0, (d - GHOST_FADE[0]) / (GHOST_FADE[1] - GHOST_FADE[0]))));
+    }
     // sky + ground follow the camera, sun shadow follows the car
     this.sky.mesh.position.copy(eye.position);
     this.ground.update(this.clock, eye.position);
-    this.sun.target.position.copy(pose.position);
-    this.sun.position.copy(pose.position).addScaledVector(this.sky.sunDir, 160);
+    this.placeSun(pose.position);
+    this.renderer.render(this.scene, eye);
+  }
 
-    if (this.post) this.post.render(eye, dt, Math.min(1, speed / 90), boost, this.rig.reducedMotion);
-    else this.renderer.render(this.scene, eye);
+  /**
+   * Pull the chase camera in front of any track geometry between it and the car (tight corners lined with
+   * barriers, tunnels, overhanging blocks), so a wall never fills the screen.
+   */
+  private keepCameraInView(car: Vector3): void {
+    const probe = this.sightProbe;
+    if (!probe) return;
+    const cam = this.rig.camera;
+    _v.copy(car).addScaledVector(cam.up, 0.9);
+    _r.subVectors(cam.position, _v);
+    const dist = _r.length();
+    if (dist < 1.5) return;
+    _r.divideScalar(dist);
+    const hit = probe(_v, _r, dist);
+    if (hit === null) return;
+    this.rig.constrain(Math.max(1.2, hit - 0.4), _v, _r);
+  }
+
+  /**
+   * The sun's shadow camera follows the car, snapped to whole shadow-map texels in light space so the
+   * shadows do not crawl or shimmer as the car moves.
+   */
+  private placeSun(target: Vector3): void {
+    const q = QUALITY[this.quality];
+    const texel = (q.shadowRange * 2) / q.shadowMapSize;
+    const dir = this.sky.sunDir;
+    // light-space basis
+    _f.copy(dir).negate();
+    _u.set(0, 1, 0);
+    if (Math.abs(_f.y) > 0.99) _u.set(0, 0, 1);
+    _r.crossVectors(_u, _f).normalize();
+    _u.crossVectors(_f, _r).normalize();
+    const x = Math.round(target.dot(_r) / texel) * texel;
+    const y = Math.round(target.dot(_u) / texel) * texel;
+    const z = target.dot(_f);
+    _v.set(0, 0, 0).addScaledVector(_r, x).addScaledVector(_u, y).addScaledVector(_f, z);
+    this.sun.target.position.copy(_v);
+    this.sun.position.copy(_v).addScaledVector(dir, 160);
   }
 
   dispose(): void {
     window.removeEventListener('resize', this.resize);
-    this.post?.dispose();
     this.envRT?.dispose();
     this.pmrem.dispose();
     this.scenery?.dispose();

@@ -24,11 +24,11 @@ export function levelThumbnail(track: TrackData, w = 320, h = 180): string {
   // tinted by the level's theme so a season reads at a glance
   const th = themeFor(track.theme);
   const css = (c: number, k: number): string => `rgb(${((c >> 16) & 255) * k | 0},${((c >> 8) & 255) * k | 0},${(c & 255) * k | 0})`;
-  bg.addColorStop(0, css(th.sky.zenith, th.night ? 0.9 : 0.45));
-  bg.addColorStop(1, css(th.ground.a, th.night ? 1 : 0.32));
+  bg.addColorStop(0, css(th.sky.zenith, 0.4));
+  bg.addColorStop(1, css(th.ground.a, 0.3));
   g.fillStyle = bg;
   g.fillRect(0, 0, w, h);
-  g.strokeStyle = 'rgba(120,160,255,0.08)';
+  g.strokeStyle = 'rgba(255,255,255,0.06)';
   g.lineWidth = 1;
   for (let x = 0; x < w; x += 20) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
   for (let y = 0; y < h; y += 20) { g.beginPath(); g.moveTo(0, y); g.lineTo(w, y); g.stroke(); }
@@ -94,8 +94,9 @@ export function levelThumbnail(track: TrackData, w = 320, h = 180): string {
     g.lineWidth = 1.5;
     g.stroke();
   };
-  for (const t of track.triggers) dot(t.position.x, t.position.z, t.kind === 'finish' ? '#ff3b2f' : '#18e0ff', t.kind === 'finish' ? 4.5 : 3);
-  dot(track.start.position.x, track.start.position.z, '#39ff88', 4.5);
+  const hex = (c: number): string => '#' + c.toString(16).padStart(6, '0');
+  for (const t of track.triggers) dot(t.position.x, t.position.z, hex(t.kind === 'finish' ? th.gate.finish : th.gate.checkpoint), t.kind === 'finish' ? 4.5 : 3);
+  dot(track.start.position.x, track.start.position.z, '#ffffff', 4.5);
 
   const url = c.toDataURL('image/png');
   cache.set(key, url);

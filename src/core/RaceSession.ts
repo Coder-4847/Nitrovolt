@@ -25,7 +25,7 @@ import { COUNTDOWN_SECONDS, GhostShow, Settings } from './Settings';
 const CAMERA_LABEL: { [K in CameraMode]: string } = { chase: 'Chase cam', far: 'Far cam', hood: 'Hood cam' };
 export const GHOST_CYCLE: GhostShow[] = ['pb', 'author', 'both', 'off'];
 const GHOST_LABEL: Record<GhostShow, string> = { pb: 'Ghost: personal best', author: 'Ghost: author', both: 'Ghosts: PB + author', off: 'Ghosts off' };
-const GHOST_COLOR = { pb: 0x7fe6ff, author: 0x6bff9e };
+const GHOST_COLOR = { pb: 0xa9d6ff, author: 0xb4f0c8 };
 
 export interface SessionCtx {
   gfx: GameRenderer;
@@ -78,6 +78,7 @@ interface GhostSlot {
 /** One attempt-after-attempt session on a level: countdown, driving, ghosts, records and the finish flow. */
 export class RaceSession {
   readonly sim: Simulation;
+  private readonly sight = (o: Vector3, d: Vector3, max: number): number | null => this.sim.vehicle.sightDistance(o, d, max);
   readonly track: TrackData;
   readonly def: CarDef;
   paused = false;
@@ -197,7 +198,10 @@ export class RaceSession {
 
   /** Show / hide the ghost cars (hidden while a replay is on screen). */
   setGhostsVisible(v: boolean): void {
-    for (const g of this.ghosts) g.view.root.visible = v;
+    for (const g of this.ghosts) {
+      g.view.ghostShown = v;
+      g.view.root.visible = v;
+    }
   }
 
   dispose(): void {
@@ -415,6 +419,7 @@ export class RaceSession {
     }
     if (!this.paused) gfx.updateFx(dt, v);
     gfx.setDrive(this.phase === 'grid' ? 0 : v.appliedInput.brake, mods.boostLevel);
+    gfx.sightProbe = this.sight;
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
 
     let slip = 0;

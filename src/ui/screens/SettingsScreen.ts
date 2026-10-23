@@ -90,7 +90,7 @@ export class SettingsScreen implements Screen {
         b.append(
           row('Quality', select<QualityChoice>([['auto', `Auto (now ${gfx.qualityLevel})`], ...(Object.keys(QUALITY) as QualityLevel[]).map((k): [QualityChoice, string] => [k, k[0]!.toUpperCase() + k.slice(1)])], loadQualityChoice(), (v) => this.app.setQuality(v)), 'Auto measures your device on the menu and picks a level'),
           row('Dynamic resolution', check(s.dynamicResolution, (v) => Settings.set('dynamicResolution', v)), 'Renders fewer pixels when the frame rate drops'),
-          row('Speed lines', check(s.speedFx, (v) => Settings.set('speedFx', v))),
+          row('Speed vignette', check(s.speedFx, (v) => Settings.set('speedFx', v))),
           row('Show FPS', check(s.showFps, (v) => Settings.set('showFps', v))),
           row('Fullscreen', h('button', { class: 'btn', type: 'button', onclick: () => toggleFullscreen() }, document.fullscreenElement ? 'Leave' : 'Enter'), 'F11 on desktop; on phones this also hides the browser bars'),
         );

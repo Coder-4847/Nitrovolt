@@ -7,27 +7,21 @@ export interface QualitySettings {
   shadows: boolean;
   shadowMapSize: number;
   shadowRange: number;
-  /** Native canvas antialiasing (only used without post-processing). */
+  /** Wider shadow filtering (softer edges). */
+  softShadows: boolean;
+  /** Native canvas MSAA. */
   antialias: boolean;
-  speedLines: number;
-  /** Post-processing chain (bloom, vignette, boost colour shift). */
-  post: boolean;
-  bloom: boolean;
-  /** MSAA samples of the post-processing target (0 = off). */
-  msaa: number;
   /** Scenery density multiplier (1 = full). */
   scenery: number;
   particles: number;
   skidSegments: number;
-  /** Headlight beams on night levels. */
-  beams: boolean;
 }
 
 export const QUALITY: Record<QualityLevel, QualitySettings> = {
-  low: { pixelRatioCap: 1, shadows: false, shadowMapSize: 1024, shadowRange: 50, antialias: false, speedLines: 40, post: false, bloom: false, msaa: 0, scenery: 0.35, particles: 700, skidSegments: 700, beams: false },
-  medium: { pixelRatioCap: 1.5, shadows: true, shadowMapSize: 1024, shadowRange: 70, antialias: true, speedLines: 80, post: true, bloom: true, msaa: 2, scenery: 0.6, particles: 1100, skidSegments: 1400, beams: false },
-  high: { pixelRatioCap: 2, shadows: true, shadowMapSize: 2048, shadowRange: 90, antialias: true, speedLines: 120, post: true, bloom: true, msaa: 4, scenery: 1, particles: 1400, skidSegments: 2400, beams: true },
-  ultra: { pixelRatioCap: 2.5, shadows: true, shadowMapSize: 4096, shadowRange: 110, antialias: true, speedLines: 160, post: true, bloom: true, msaa: 4, scenery: 1.35, particles: 2000, skidSegments: 3600, beams: true },
+  low: { pixelRatioCap: 1, shadows: false, shadowMapSize: 1024, shadowRange: 50, softShadows: false, antialias: false, scenery: 0.35, particles: 700, skidSegments: 700 },
+  medium: { pixelRatioCap: 1.5, shadows: true, shadowMapSize: 1024, shadowRange: 60, softShadows: false, antialias: true, scenery: 0.6, particles: 1100, skidSegments: 1400 },
+  high: { pixelRatioCap: 2, shadows: true, shadowMapSize: 2048, shadowRange: 80, softShadows: true, antialias: true, scenery: 1, particles: 1400, skidSegments: 2400 },
+  ultra: { pixelRatioCap: 2.5, shadows: true, shadowMapSize: 4096, shadowRange: 100, softShadows: true, antialias: true, scenery: 1.35, particles: 2000, skidSegments: 3600 },
 };
 
 export const QUALITY_LEVELS: QualityLevel[] = ['low', 'medium', 'high', 'ultra'];

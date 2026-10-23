@@ -776,7 +776,7 @@ export class App implements AppApi {
 
   // ---- settings ----
   private applySettings(s: SettingsData): void {
-    this.gfx.speedFxEnabled = s.speedFx;
+    this.hud.speedFx = s.speedFx;
     this.gfx.rig.reducedMotion = s.reducedMotion;
     document.body.classList.toggle('cb', s.cbMedals);
     document.body.classList.toggle('rm', s.reducedMotion);
@@ -863,6 +863,7 @@ export class App implements AppApi {
     this.bdCam.position.set(this.bdStart.x + Math.sin(a) * r, this.bdStart.y + 4 + Math.sin(this.bdTime * 0.4) * 0.8, this.bdStart.z + Math.cos(a) * r);
     this.bdCam.lookAt(this.bdStart.x, this.bdStart.y + 1, this.bdStart.z);
     this.gfx.viewCamera = this.bdCam;
+    this.gfx.sightProbe = null;
     this.gfx.render(dt, this.bdPose, new Vector3(), 0, 0);
   }
 }

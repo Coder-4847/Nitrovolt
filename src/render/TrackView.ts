@@ -6,7 +6,11 @@ import { TrackData, TrackMesh } from '../tracks/TrackTypes';
 import { Gates } from './env/Gates';
 import { roadMaterial } from './env/RoadMaterial';
 import { THEMES, ThemeDef } from './env/Theme';
-import { makeEffectTexture, makeStripeTexture } from './Textures';
+import { wallMaterial } from './env/WallMaterial';
+import { makeEffectTexture } from './Textures';
+
+/** Block-library deco tints (start / checkpoint / finish / lap gantries, scenery blocks) -> theme paint. */
+const DECO = { start: 0x28ff7a, checkpoint: 0x18e0ff, finish: 0xff3b2f, finishAlt: 0xff3a14, lap: 0xffd21f, tower: 0x2a3350, beacon: 0xff8a1f };
 
 /** Effects whose pad texture scrolls along the driving direction. */
 const SCROLLING: Partial<Record<EffectId, number>> = { turbo: 1.6, turbo2: 2.6, reactor: 2.2, cruise: 0.8, gravity: 0.7 };
@@ -17,15 +21,12 @@ export class TrackView {
   private readonly materials = new Map<string, Material>();
   private readonly textures: Texture[] = [];
   private readonly effectTextures = new Map<EffectId, CanvasTexture>();
-  private readonly glowMats: Array<{ mat: MeshStandardMaterial; base: number }> = [];
   private readonly fragile = new Map<number, Mesh>();
   readonly gates: Gates;
 
   constructor(track: TrackData, private readonly theme: ThemeDef = THEMES.stadium) {
-    const stripes = makeStripeTexture(theme.wall.a, theme.wall.b);
-    this.textures.push(stripes);
     for (const m of track.meshes) {
-      const mesh = this.makeMesh(m, stripes);
+      const mesh = this.makeMesh(m);
       if (m.effect === 'fragile' && m.blockId >= 0) this.fragile.set(m.blockId, mesh);
       this.group.add(mesh);
     }
@@ -41,35 +42,42 @@ export class TrackView {
       this.effectTextures.set(effect, tex);
       this.textures.push(tex);
     }
-    const glowing = props.glow !== 0;
+    // painted pads with a faint backlight on the markings so they stay readable in shade
     const mat = new MeshStandardMaterial({
       map: tex,
       color: 0xffffff,
       emissive: new Color(props.glow),
-      emissiveMap: glowing ? tex : null,
-      emissiveIntensity: glowing ? 1.1 : 0,
-      roughness: 0.55,
-      metalness: 0.1,
+      emissiveMap: props.glow !== 0 ? tex : null,
+      emissiveIntensity: props.glow !== 0 ? 0.22 : 0,
+      roughness: 0.5,
+      metalness: 0.05,
     });
-    if (glowing) this.glowMats.push({ mat, base: 1.1 });
     return mat;
   }
 
-  private material(m: TrackMesh, stripes: Texture): Material {
+  private decoColor(raw: number): number {
+    const t = this.theme;
+    switch (raw) {
+      case DECO.checkpoint: return t.gate.checkpoint;
+      case DECO.finish: case DECO.finishAlt: return t.gate.finish;
+      case DECO.start: return 0xeceef1;
+      case DECO.lap: return 0xd9a933;
+      case DECO.tower: return 0x8c9096;
+      case DECO.beacon: return 0xe07a2a;
+      default: return raw;
+    }
+  }
+
+  private material(m: TrackMesh): Material {
     const key = `${m.kind}:${m.surface}:${m.tint ?? ''}:${m.effect ?? ''}`;
     let mat = this.materials.get(key);
     if (!mat) {
       const t = this.theme;
       if (m.kind === 'wall') {
-        mat = new MeshStandardMaterial({
-          map: stripes, roughness: 0.7, metalness: 0.0,
-          emissive: new Color(t.wall.glow ? 0xffffff : 0), emissiveMap: t.wall.glow ? stripes : null, emissiveIntensity: 0.55 * t.wall.glow,
-        });
+        mat = wallMaterial(t);
       } else if (m.kind === 'deco') {
-        // checkpoint / finish gantries take the theme's gate colours
-        const raw = m.tint ?? 0xff4d2e;
-        const c = raw === 0x18e0ff ? t.gate.checkpoint : raw === 0xff3b2f ? t.gate.finish : raw;
-        mat = new MeshStandardMaterial({ color: c, emissive: new Color(c), emissiveIntensity: t.night ? 1.4 : 0.55, roughness: 0.5 });
+        // gantries and scenery blocks: painted steel in the theme's gate colours
+        mat = new MeshStandardMaterial({ color: this.decoColor(m.tint ?? DECO.finish), roughness: 0.45, metalness: 0.35 });
       } else if (m.effect) {
         mat = this.effectMaterial(m.effect);
       } else {
@@ -80,7 +88,7 @@ export class TrackView {
     return mat;
   }
 
-  private makeMesh(m: TrackMesh, stripes: Texture): Mesh {
+  private makeMesh(m: TrackMesh): Mesh {
     const g = new BufferGeometry();
     g.setAttribute('position', new BufferAttribute(m.positions, 3));
     g.setAttribute('normal', new BufferAttribute(m.normals, 3));
@@ -90,7 +98,7 @@ export class TrackView {
     g.setAttribute('lateral', new BufferAttribute(lat, 2));
     g.setIndex(new BufferAttribute(m.indices, 1));
     g.computeBoundingSphere();
-    const mesh = new Mesh(g, this.material(m, stripes));
+    const mesh = new Mesh(g, this.material(m));
     mesh.castShadow = m.kind !== 'road';
     mesh.receiveShadow = true;
     return mesh;
@@ -101,15 +109,13 @@ export class TrackView {
     for (const [id, mesh] of this.fragile) mesh.visible = !ids.has(id);
   }
 
-  /** Animate boost pads (scrolling chevrons, pulsing glow) and the gates. */
+  /** Animate boost pads (scrolling chevrons) and the gates. */
   update(timeSeconds: number, dt = 0.016): void {
     this.gates.update(timeSeconds, dt);
     for (const [effect, tex] of this.effectTextures) {
       const speed = SCROLLING[effect];
       if (speed) tex.offset.y = -(timeSeconds * speed) % 1;
     }
-    const pulse = 0.85 + 0.25 * Math.sin(timeSeconds * 5);
-    for (const g of this.glowMats) g.mat.emissiveIntensity = g.base * pulse;
   }
 
   dispose(): void {

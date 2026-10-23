@@ -63,6 +63,8 @@ export class ReplaySession {
     }
   };
 
+  private readonly sight = (o: Vector3, d: Vector3, max: number): number | null => this.player.vehicle.sightDistance(o, d, max);
+
   private constructor(
     private readonly ctx: SessionCtx,
     private readonly src: ReplaySource,
@@ -276,6 +278,7 @@ export class ReplaySession {
     const mods = v.effects.mods;
     if (!this.paused) gfx.updateFx(dt * (this.playing ? this.speed : 0), v);
     gfx.setDrive(this.scrubbing ? 0 : v.appliedInput.brake, mods.boostLevel);
+    gfx.sightProbe = this.sight;
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
     audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface(), boost: v.effects.mods.boostLevel }, dt);
     hud.update(v.speed, v.params.topSpeed, Math.min(ms, total), mods.boostLevel);

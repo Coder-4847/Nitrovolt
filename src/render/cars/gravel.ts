@@ -1,29 +1,57 @@
-import { Group, Mesh, MeshBasicMaterial } from 'three';
-import { CarMaterials, CarModel, box, sideExtrude } from './parts';
+import { Group } from 'three';
+import { CarMaterials, CarModel, box, mirrored, shell, tube } from './parts';
 
-/** Gravel: tall rally hatchback, fender flares, roof scoop, light pod, big wing, knobbly tyres. */
+/**
+ * Gravel: modern rally hatchback. Boxed arches over long-travel wheels, a tall hatch cabin with a painted
+ * roof and scoop, a big rear wing, mud flaps and a light pod.
+ */
 export function buildGravel(m: CarMaterials): CarModel {
   const body = new Group();
-  const hull = new Mesh(
-    sideExtrude([[-2.0, -0.42], [1.95, -0.42], [2.0, -0.2], [1.8, 0.02], [0.95, 0.1], [0.55, 0.16], [0.12, 0.74], [-1.15, 0.78], [-1.75, 0.3], [-2.0, 0.18]], 1.7),
-    m.paint,
-  );
-  const glass = new Mesh(sideExtrude([[0.48, 0.2], [0.12, 0.68], [-1.1, 0.72], [-1.62, 0.3]], 1.5, 0.03), m.glass);
-  glass.scale.set(1.005, 1, 1.002);
-  const roof = box(1.4, 0.05, 1.1, m.paint, 0, 0.8, -0.3);
-  const scoop = box(0.5, 0.16, 0.5, m.dark, 0, 0.9, -0.15);
-  const lightPod = box(1.3, 0.14, 0.2, m.dark, 0, 0.84, -0.78);
-  const lights = box(1.2, 0.08, 0.04, new MeshBasicMaterial({ color: 0xfff1c0 }), 0, 0.84, -0.89);
-  const wingPlane = box(1.85, 0.06, 0.6, m.dark, 0, 0.98, 1.9);
-  const wingStripe = box(1.85, 0.065, 0.12, m.accent, 0, 0.985, 1.65);
-  const stalkL = box(0.07, 0.5, 0.2, m.dark, -0.7, 0.72, 1.9);
-  const stalkR = box(0.07, 0.5, 0.2, m.dark, 0.7, 0.72, 1.9);
-  const bumper = box(1.8, 0.2, 0.3, m.dark, 0, -0.36, -2.0);
-  const rearBumper = box(1.8, 0.2, 0.3, m.dark, 0, -0.34, 2.0);
-  const stripe = box(0.4, 0.02, 3.2, m.accent, 0, 0.12, -0.2);
-  const tail = box(1.2, 0.07, 0.04, new MeshBasicMaterial({ color: 0xff2020 }), 0, 0.15, 2.02);
-  const flares = [-1, 1].flatMap((sx) => [-1.3, 1.25].map((z) => box(0.22, 0.12, 1.05, m.dark, sx * 0.9, -0.12, z)));
-  const flaps = [-1, 1].map((sx) => box(0.04, 0.3, 0.4, m.dark, sx * 0.95, -0.38, 1.7));
-  body.add(hull, glass, roof, scoop, lightPod, lights, wingPlane, wingStripe, stalkL, stalkR, bumper, rearBumper, stripe, tail, ...flares, ...flaps);
-  return { body, cockpitHidden: [glass, roof, scoop, lightPod, lights, wingPlane, wingStripe, stalkL, stalkR], tyre: 'knobby', tyreWidth: 0.3 };
+  const hull = shell([
+    { z: -2.03, w: 1.5, y0: -0.52, y1: -0.22, bot: 0.92, top: 0.8 },
+    { z: -1.9, w: 1.84, y0: -0.56, y1: -0.05, bot: 0.92, top: 0.86 },
+    { z: -1.6, w: 2.02, y0: -0.57, y1: 0.06, bot: 0.84, top: 0.9 },
+    { z: -1.3, w: 2.06, y0: -0.57, y1: 0.12, bot: 0.74, top: 0.9 },
+    { z: -0.95, w: 2.0, y0: -0.57, y1: 0.16, bot: 0.84, top: 0.9 },
+    { z: -0.4, w: 1.86, y0: -0.57, y1: 0.22, bot: 0.95, top: 0.88 },
+    { z: 0.4, w: 1.88, y0: -0.57, y1: 0.27, bot: 0.95, top: 0.88 },
+    { z: 0.9, w: 2.02, y0: -0.56, y1: 0.31, bot: 0.84, top: 0.9 },
+    { z: 1.25, w: 2.06, y0: -0.55, y1: 0.33, bot: 0.74, top: 0.9 },
+    { z: 1.62, w: 2.0, y0: -0.51, y1: 0.34, bot: 0.86, top: 0.88 },
+    { z: 1.92, w: 1.86, y0: -0.43, y1: 0.3, bot: 0.9, top: 0.85 },
+    { z: 2.02, w: 1.66, y0: -0.34, y1: 0.22, bot: 0.9, top: 0.8 },
+  ], m.paint, { square: 5.5 });
+  const cabin = shell([
+    { z: -0.78, w: 1.62, y0: 0.1, y1: 0.2, top: 0.82 },
+    { z: -0.38, w: 1.58, y0: 0.12, y1: 0.7, top: 0.74 },
+    { z: 0.3, w: 1.56, y0: 0.14, y1: 0.8, top: 0.72 },
+    { z: 1.2, w: 1.5, y0: 0.2, y1: 0.78, top: 0.72 },
+    { z: 1.68, w: 1.42, y0: 0.3, y1: 0.62, top: 0.74 },
+    { z: 1.9, w: 1.3, y0: 0.32, y1: 0.4, top: 0.76 },
+  ], m.glass, { square: 5.5 });
+  const roof = shell([
+    { z: -0.28, w: 0.96, y0: 0.69, y1: 0.72 },
+    { z: 0.3, w: 1.14, y0: 0.78, y1: 0.815 },
+    { z: 1.2, w: 1.1, y0: 0.76, y1: 0.795 },
+    { z: 1.6, w: 0.96, y0: 0.64, y1: 0.67 },
+  ], m.paint, { square: 3 });
+  const scoop = shell([
+    { z: -0.1, w: 0.36, y0: 0.79, y1: 0.8 },
+    { z: 0.15, w: 0.44, y0: 0.79, y1: 0.9 },
+    { z: 0.42, w: 0.44, y0: 0.8, y1: 0.86 },
+  ], m.dark, { square: 5 });
+  const wing = box(1.82, 0.05, 0.42, m.dark, 0, 0.95, 1.82);
+  const wingTip = box(0.04, 0.22, 0.5, m.accent, 0.91, 0.88, 1.82);
+  const stalks = [tube([-0.55, 0.62, 1.88], [-0.55, 0.93, 1.82], 0.03, m.dark), tube([0.55, 0.62, 1.88], [0.55, 0.93, 1.82], 0.03, m.dark)];
+  const bumper = box(1.86, 0.18, 0.2, m.dark, 0, -0.46, -1.97);
+  const rearBumper = box(1.84, 0.18, 0.2, m.dark, 0, -0.44, 1.95);
+  const plate = box(1.4, 0.035, 0.5, m.metal, 0, -0.56, -1.7);
+  const pod = box(1.1, 0.1, 0.12, m.dark, 0, -0.18, -2.06);
+  const podLamps = [-0.36, -0.12, 0.12, 0.36].map((x) => box(0.18, 0.06, 0.03, m.head, x, -0.18, -2.125));
+  const head = box(1.5, 0.04, 0.04, m.head, 0, 0.0, -1.94);
+  const tail = box(1.5, 0.05, 0.04, m.tail, 0, 0.12, 2.03);
+  const flap = box(0.03, 0.26, 0.38, m.dark, 0.94, -0.5, 1.62);
+  const stripe = box(0.5, 0.012, 1.7, m.accent, 0, 0.81, 0.6);
+  body.add(hull, cabin, roof, scoop, wing, wingTip, mirrored(wingTip), ...stalks, bumper, rearBumper, plate, pod, ...podLamps, head, tail, flap, mirrored(flap), stripe);
+  return { body, cockpitHidden: [cabin, roof, scoop, stripe, wing, wingTip, ...stalks], tyre: 'knobby', tyreWidth: 0.3, exhaust: [[0.58, -0.42, 2.06]], flame: 'fire' };
 }

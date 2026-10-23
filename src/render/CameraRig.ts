@@ -19,7 +19,7 @@ const _q = new Quaternion();
 
 /** Chase / far / hood cameras with speed-based FOV, landing shake and loop-aware roll following. */
 export class CameraRig {
-  readonly camera = new PerspectiveCamera(70, 1, 0.1, 4000);
+  readonly camera = new PerspectiveCamera(70, 1, 0.2, 4000);
   mode: CameraMode = 'chase';
   /** Per-car camera character (distance, lag, FOV, shake). */
   style: CameraStyle = { distance: 6.4, height: 2.0, speedPull: 1.6, lookAhead: 9, fovBase: 70, fovKick: 30, headingRate: 7, positionRate: 22, shake: 1 };
@@ -116,6 +116,16 @@ export class CameraRig {
     this.camera.fov = this.fov;
     this.camera.updateProjectionMatrix();
     this.ready = true;
+  }
+
+  /**
+   * Something solid is between the car and the camera: put the camera `dist` from `origin` along `dir`
+   * (in front of the obstacle). The smoothed position follows, so it eases back out once the view clears.
+   */
+  constrain(dist: number, origin: Vector3, dir: Vector3): void {
+    this.camera.position.copy(origin).addScaledVector(dir, dist);
+    this.pos.copy(this.camera.position);
+    this.camera.lookAt(this.look);
   }
 
   private applyShake(dt: number): void {

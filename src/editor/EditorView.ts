@@ -7,7 +7,7 @@ import { buildTrack } from '../tracks/TrackGenerator';
 import { CellUse, blockCells } from '../tracks/Footprint';
 import { ChainStart } from '../tracks/ChainLayout';
 
-const OK = new Color(0x39ff88);
+const OK = new Color(0x3ecf8e);
 const BAD = new Color(0xff4040);
 
 /** Editor overlays drawn into the game scene: build grid, block preview, cursor arrow, cell outlines. */
@@ -23,7 +23,7 @@ export class EditorView {
   private readonly cursorBox: LineSegments;
 
   constructor(private readonly scene: Scene) {
-    this.grid = new GridHelper(CELL * 40, 40, 0x18e0ff, 0x3a4c6a);
+    this.grid = new GridHelper(CELL * 40, 40, 0x3d7eff, 0x4a5058);
     const gm = this.grid.material as LineBasicMaterial;
     gm.transparent = true;
     gm.opacity = 0.45;

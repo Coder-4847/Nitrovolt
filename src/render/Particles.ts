@@ -43,18 +43,22 @@ export class Particles {
         attribute vec4 aColor; attribute float aSize; uniform float uScale;
         varying vec4 vColor;
         void main() {
-          vColor = aColor;
           vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float depth = -mv.z;
+          // smoke right at the lens would cover the screen: fade it out close up, and cap the sprite size
+          vColor = vec4(aColor.rgb, aColor.a * smoothstep(0.8, 3.5, depth));
           gl_Position = projectionMatrix * mv;
-          gl_PointSize = aSize * uScale / max(-mv.z, 0.1);
+          gl_PointSize = min(aSize * uScale / max(depth, 0.1), 320.0);
         }`,
       fragmentShader: `
         varying vec4 vColor;
         void main() {
           float d = length(gl_PointCoord - 0.5);
-          float a = smoothstep(0.5, 0.05, d) * vColor.a;
+          float a = (1.0 - smoothstep(0.05, 0.5, d)) * vColor.a;
           if (a < 0.01) discard;
           gl_FragColor = vec4(vColor.rgb, a);
+          #include <tonemapping_fragment>
+          #include <colorspace_fragment>
         }`,
     });
     this.points = new Points(this.geo, this.mat);

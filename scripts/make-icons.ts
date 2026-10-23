@@ -66,12 +66,12 @@ function icon(size: number, maskable: boolean): Buffer {
       // soft glow around the bolt: distance-free approximation by sampling a blurred neighbourhood
       const gx = ((x / size - 0.5) / scale + 0.5) * 32, gy = ((y / size - 0.5) / scale + 0.5) * 32;
       for (const [ox, oy] of [[-1.2, 0], [1.2, 0], [0, -1.2], [0, 1.2], [-0.8, -0.8], [0.8, 0.8], [-0.8, 0.8], [0.8, -0.8]] as const) if (inside(gx + ox, gy + oy, BOLT)) glow++;
-      const a = bg / (ss * ss), b = bolt / (ss * ss), g = (glow / 8) * (1 - b) * 0.55;
-      // background: dark navy with a slight vertical gradient
+      const a = bg / (ss * ss), b = bolt / (ss * ss), g = (glow / 8) * (1 - b) * 0.18;
+      // background: graphite with a slight vertical gradient; a white bolt with a faint soft edge
       const t = y / size;
-      let r = 10 + 8 * t, gg = 14 + 10 * t, bb = 28 + 18 * t;
-      r = r * (1 - g) + 24 * g; gg = gg * (1 - g) + 224 * g; bb = bb * (1 - g) + 255 * g;
-      r = r * (1 - b) + 24 * b; gg = gg * (1 - b) + 224 * b; bb = bb * (1 - b) + 255 * b;
+      let r = 26 + 10 * t, gg = 29 + 10 * t, bb = 34 + 10 * t;
+      r = r * (1 - g) + 61 * g; gg = gg * (1 - g) + 126 * g; bb = bb * (1 - g) + 255 * g;
+      r = r * (1 - b) + 246 * b; gg = gg * (1 - b) + 247 * b; bb = bb * (1 - b) + 249 * b;
       const i = (y * size + x) * 4;
       out[i] = Math.round(r); out[i + 1] = Math.round(gg); out[i + 2] = Math.round(bb); out[i + 3] = Math.round(255 * a);
     }

@@ -35,7 +35,7 @@ export function blockIcon(type: string, size = 56): string {
   const cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
   const sx = (x: number): number => size / 2 + (x - cx) * scale;
   const sz = (z: number): number => size / 2 + (z - cz) * scale;
-  g.fillStyle = '#101624';
+  g.fillStyle = '#1a1d22';
   g.fillRect(0, 0, size, size);
   g.lineCap = 'round';
   g.lineJoin = 'round';
@@ -46,7 +46,7 @@ export function blockIcon(type: string, size = 56): string {
     g.fill();
   }
   // road body
-  g.strokeStyle = '#3a4460';
+  g.strokeStyle = '#3a3f47';
   g.lineWidth = Math.max(3, width * scale);
   g.beginPath();
   pts.forEach((p, i) => (i ? g.lineTo(sx(p.x), sz(p.z)) : g.moveTo(sx(p.x), sz(p.z))));
@@ -58,7 +58,7 @@ export function blockIcon(type: string, size = 56): string {
     const a = pts[i - 1]!, b = pts[i]!;
     if (a.distanceTo(b) > 12) continue;
     const h = (b.y - minY) / span01;
-    g.strokeStyle = maxY - minY < 0.5 ? '#18e0ff' : `hsl(${190 - h * 170}, 95%, ${55 + h * 10}%)`;
+    g.strokeStyle = maxY - minY < 0.5 ? '#e6e8eb' : `hsl(${215 - h * 175}, 75%, ${62 + h * 8}%)`;
     g.beginPath();
     g.moveTo(sx(a.x), sz(a.z));
     g.lineTo(sx(b.x), sz(b.z));

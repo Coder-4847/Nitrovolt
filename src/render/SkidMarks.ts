@@ -62,6 +62,7 @@ export class SkidMarks {
         #include <fog_pars_fragment>
         void main() {
           gl_FragColor = vC;
+          #include <colorspace_fragment>
           #include <fog_fragment>
         }`,
     });

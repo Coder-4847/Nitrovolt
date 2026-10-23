@@ -17,32 +17,25 @@ function canvasTexture(size: number, draw: (g: CanvasRenderingContext2D, s: numb
   return t;
 }
 
-/** Diagonal hazard stripes for barriers (two theme colours); tiles seamlessly. */
-export function makeStripeTexture(a = 0xf2f2f2, b = 0xe0323a): CanvasTexture {
-  return canvasTexture(128, (g, s) => {
-    g.fillStyle = hexCss(a);
-    g.fillRect(0, 0, s, s);
-    g.strokeStyle = hexCss(b);
-    g.lineWidth = (s / 4) * Math.SQRT1_2 * 1.4;
-    for (let x = -s; x <= 2 * s; x += s / 2) {
-      g.beginPath();
-      g.moveTo(x, -2);
-      g.lineTo(x - s - 2, s + 2);
-      g.stroke();
-    }
-  });
-}
-
-
 const hex = (c: number): string => hexCss(c);
 
-/** Pad textures for special blocks: one tile = 4 m x 4 m; the bright pattern is also used as the emissive map. */
-export function makeEffectTexture(effect: EffectId, color: number, glow: number): CanvasTexture {
+/** Mix two sRGB hex colours. */
+function mixHex(a: number, b: number, t: number): number {
+  const ch = (s: number): number => Math.round(((a >> s) & 255) * (1 - t) + ((b >> s) & 255) * t);
+  return (ch(16) << 16) | (ch(8) << 8) | ch(0);
+}
+
+/**
+ * Pad textures for special blocks: one tile = 4 m x 4 m. A panel in the effect's colour (toned down
+ * toward dark grey) with lighter painted markings; the same texture drives the faint backlight.
+ */
+export function makeEffectTexture(effect: EffectId, color: number, _glow: number): CanvasTexture {
   return canvasTexture(256, (g, s) => {
-    g.fillStyle = hex((color >> 1) & 0x7f7f7f);
+    g.fillStyle = hex(mixHex(color, 0x2a2d33, 0.45));
     g.fillRect(0, 0, s, s);
-    g.strokeStyle = hex(glow);
-    g.fillStyle = hex(glow);
+    const mark = hex(mixHex(color, 0xffffff, 0.55));
+    g.strokeStyle = mark;
+    g.fillStyle = mark;
     g.lineWidth = 22;
     g.lineCap = 'round';
     g.lineJoin = 'round';
@@ -125,8 +118,8 @@ export function makeEffectTexture(effect: EffectId, color: number, glow: number)
         }
         break;
     }
-    g.strokeStyle = 'rgba(255,255,255,0.5)';
-    g.lineWidth = 5;
+    g.strokeStyle = 'rgba(255,255,255,0.35)';
+    g.lineWidth = 4;
     g.strokeRect(2, 2, s - 4, s - 4);
   });
 }

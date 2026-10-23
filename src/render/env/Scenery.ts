@@ -1,11 +1,11 @@
 import {
   BoxGeometry, BufferAttribute, BufferGeometry, Color, ConeGeometry, CylinderGeometry, DynamicDrawUsage, Group,
-  IcosahedronGeometry, InstancedMesh, Material, Matrix4, MeshBasicMaterial, MeshStandardMaterial, Quaternion,
-  SphereGeometry, Vector3,
+  IcosahedronGeometry, InstancedMesh, Material, Matrix4, MeshStandardMaterial, Quaternion, Vector3,
 } from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { Rng } from '../../core/Rng';
 import { Prop, PropKind } from './SceneryPlan';
+import { ThemeDef } from './Theme';
 
 /** How a prop kind maps onto its unit mesh: per-axis scaling (box-like) or uniform by height. */
 const UNIFORM: Partial<Record<PropKind, number>> = { crane: 40, turbine: 56, chimney: 100, lightTower: 34 };
@@ -72,20 +72,24 @@ function heightColors(g: BufferGeometry, bands: Array<[number, number]>): Buffer
 
 interface KindDef {
   geo: () => BufferGeometry;
-  mat: 'building' | 'matte' | 'flat' | 'glow' | 'metal';
+  /** concrete / glass: procedural facades; flat: faceted vertex colours; soft: smooth vertex colours. */
+  mat: 'concrete' | 'glass' | 'matte' | 'flat' | 'soft' | 'metal';
   /** Instance colour tints the vertex colours (false = vertex colours only). */
   tint?: boolean;
 }
 
 const KINDS: Record<PropKind, KindDef> = {
-  building: { geo: () => boxAt(1, 1, 1), mat: 'building', tint: true },
-  skyscraper: { geo: () => mergeGeometries([boxAt(1, 0.82, 1), boxAt(0.78, 0.14, 0.78, 0, 0.82), boxAt(0.42, 0.04, 0.42, 0, 0.96)])!, mat: 'building', tint: true },
-  neonBar: { geo: () => mergeGeometries([boxAt(1, 1, 0.04, 0, 0, 0.5), boxAt(1, 1, 0.04, 0, 0, -0.5), boxAt(0.04, 1, 1, 0.5), boxAt(0.04, 1, 1, -0.5)])!, mat: 'glow', tint: true },
-  billboard: {
-    geo: () => mergeGeometries([colored(boxAt(0.05, 0.55, 0.3, -0.35), 0x30344a), colored(boxAt(0.05, 0.55, 0.3, 0.35), 0x30344a), colored(boxAt(1, 0.45, 1, 0, 0.55), 0xffffff)])!,
-    mat: 'glow', tint: true,
+  building: { geo: () => boxAt(1, 1, 1), mat: 'concrete', tint: true },
+  tower: { geo: () => mergeGeometries([boxAt(1, 0.9, 1), boxAt(0.86, 0.1, 0.86, 0, 0.9)])!, mat: 'glass', tint: true },
+  skyscraper: { geo: () => mergeGeometries([boxAt(1, 0.82, 1), boxAt(0.78, 0.14, 0.78, 0, 0.82), boxAt(0.42, 0.04, 0.42, 0, 0.96)])!, mat: 'glass', tint: true },
+  roofUnit: { geo: () => boxAt(1, 1, 1), mat: 'metal', tint: true },
+  tree: {
+    geo: () => mergeGeometries([
+      colored(new CylinderGeometry(0.05, 0.07, 0.42, 6).translate(0, 0.21, 0), 0x5a4634),
+      colored(jitter(new IcosahedronGeometry(0.42, 1).scale(1, 0.9, 1).translate(0, 0.62, 0), 0.05, 5, false), 0xffffff),
+    ])!,
+    mat: 'soft', tint: true,
   },
-  beacon: { geo: () => new SphereGeometry(0.5, 8, 6), mat: 'glow', tint: true },
   pine: {
     geo: () => mergeGeometries([
       colored(new CylinderGeometry(0.06, 0.09, 0.25, 6).translate(0, 0.125, 0), 0x4a3424),
@@ -141,23 +145,38 @@ const KINDS: Record<PropKind, KindDef> = {
     mat: 'flat',
   },
   stand: {
+    // raked seating under a cantilevered roof on two columns
     geo: () => {
       const g = new BoxGeometry(1, 1, 1).translate(0, 0.5, 0);
       const pos = g.attributes.position!;
       for (let i = 0; i < pos.count; i++) if (pos.getY(i) > 0.5 && pos.getZ(i) > 0) pos.setY(i, 0.25);
       g.computeVertexNormals();
-      return g;
+      return mergeGeometries([
+        colored(g, 0xffffff),
+        colored(boxAt(1.04, 0.04, 0.9, 0, 1.15, 0.02), 0xe9ebee),
+        colored(boxAt(0.02, 1.15, 0.03, -0.45, 0, -0.42), 0xb8bcc2),
+        colored(boxAt(0.02, 1.15, 0.03, 0.45, 0, -0.42), 0xb8bcc2),
+      ])!;
     },
     mat: 'matte', tint: true,
   },
-  lightTower: { geo: () => mergeGeometries([colored(boxAt(0.6, 34, 0.6), 0xcfd6e0), colored(boxAt(6, 3, 0.6, 0, 33), 0xffffff)])!, mat: 'glow', tint: false },
+  lightTower: { geo: () => mergeGeometries([colored(boxAt(0.6, 34, 0.6), 0xb8bcc2), colored(boxAt(6, 3, 0.6, 0, 33), 0xe4e7ea)])!, mat: 'metal', tint: false },
 };
 
-/** Night windows on building faces, lit at random per instance and floor (world-space, no textures). */
-function buildingMaterial(glow: number): MeshStandardMaterial {
-  const m = new MeshStandardMaterial({ roughness: 0.85, metalness: 0.15 });
+/**
+ * Procedural facades on building faces (world-space, anti-aliased, no textures): a curtain wall of glass
+ * panes between slim mullions and spandrels, or punched windows in a stone / concrete frame. The pane
+ * grid fades to its average colour once a cell gets smaller than a pixel, so distant towers never shimmer.
+ * The instance colour is the glass tint (glass) or the wall colour (concrete). Roofs stay plain.
+ */
+function facadeMaterial(kind: 'glass' | 'concrete'): MeshStandardMaterial {
+  const glass = kind === 'glass';
+  const m = new MeshStandardMaterial({ roughness: glass ? 0.4 : 0.85, metalness: glass ? 0.2 : 0.0 });
+  // column width, floor height, pane rectangle within a cell, pane colour multiplier
+  const g = glass
+    ? { col: '1.6', floor: '3.8', x0: '0.05', x1: '0.95', y0: '0.12', y1: '0.9', frame: 'vec3(0.62, 0.65, 0.68)' }
+    : { col: '3.2', floor: '3.5', x0: '0.22', x1: '0.78', y0: '0.26', y1: '0.82', frame: 'diffuseColor.rgb' };
   m.onBeforeCompile = (sh) => {
-    sh.uniforms.uWin = { value: glow };
     sh.vertexShader = sh.vertexShader
       .replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; varying float vInst;')
       .replace('#include <worldpos_vertex>', `#include <worldpos_vertex>
@@ -170,26 +189,36 @@ function buildingMaterial(glow: number): MeshStandardMaterial {
         vWP = (bldM * vec4(transformed, 1.0)).xyz;
         vWN = normalize(mat3(bldM) * objectNormal);`);
     sh.fragmentShader = sh.fragmentShader
-      .replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; varying float vInst; uniform float uWin;\nfloat whash(vec3 p){ return fract(sin(dot(p, vec3(12.9898,78.233,37.719))) * 43758.5453); }')
-      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
-        if (abs(vWN.y) < 0.5 && uWin > 0.0) {
-          float hcoord = dot(vWP.xz, normalize(vec2(-vWN.z, vWN.x)));
-          vec2 cell = floor(vec2(hcoord / 3.2, vWP.y / 3.8));
-          vec2 f = fract(vec2(hcoord / 3.2, vWP.y / 3.8));
-          float win = step(0.16, f.x) * step(f.x, 0.8) * step(0.22, f.y) * step(f.y, 0.74);
-          float r = whash(vec3(cell, vInst));
-          float lit = step(0.64, r);
-          vec3 wc = mix(vec3(1.0, 0.72, 0.42), vec3(0.45, 0.85, 1.0), step(0.85, r));
-          totalEmissiveRadiance += wc * win * lit * uWin * (0.6 + 0.8 * fract(r * 7.0));
-          diffuseColor.rgb *= 1.0 - win * 0.35;
-        }`);
+      .replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN; varying float vInst;\nfloat whash(vec3 p){ return fract(sin(dot(p, vec3(12.9898,78.233,37.719))) * 43758.5453); }')
+      .replace('#include <map_fragment>', `#include <map_fragment>
+        float fWin = 0.0;
+        if (abs(vWN.y) < 0.5) {
+          vec2 hdir = normalize(vec2(-vWN.z, vWN.x));
+          vec2 q = vec2(dot(vWP.xz, hdir) / ${g.col}, vWP.y / ${g.floor});
+          vec2 fw = max(fwidth(q), vec2(1e-4));
+          vec2 f = fract(q);
+          float wx = smoothstep(${g.x0} - fw.x, ${g.x0} + fw.x, f.x) * (1.0 - smoothstep(${g.x1} - fw.x, ${g.x1} + fw.x, f.x));
+          float wy = smoothstep(${g.y0} - fw.y, ${g.y0} + fw.y, f.y) * (1.0 - smoothstep(${g.y1} - fw.y, ${g.y1} + fw.y, f.y));
+          float far = smoothstep(0.25, 0.7, max(fw.x, fw.y));
+          fWin = mix(wx * wy, (${g.x1} - ${g.x0}) * (${g.y1} - ${g.y0}), far);
+          // per-pane variation only while panes are big on screen (it would sparkle further away)
+          float r = mix(0.5, whash(vec3(floor(q), vInst)), 1.0 - smoothstep(0.06, 0.2, max(fw.x, fw.y)));
+          vec3 tint = diffuseColor.rgb;
+          vec3 pane = ${glass ? 'tint * (0.9 + 0.18 * r)' : 'vec3(0.17, 0.2, 0.24) * (0.88 + 0.24 * r)'};
+          diffuseColor.rgb = mix(${g.frame}, pane, fWin);
+        } else {
+          diffuseColor.rgb *= 0.78;
+        }`)
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor = mix(roughnessFactor, 0.08, fWin);')
+      .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor = mix(metalnessFactor, 0.55, fWin);');
   };
+  m.customProgramCacheKey = () => `facade:${kind}`;
   return m;
 }
 
 /**
  * Instanced scenery: one InstancedMesh per prop kind (a dozen draw calls for thousands of props),
- * plus animated turbine rotors and blinking beacons.
+ * plus animated turbine rotors.
  */
 export class Scenery {
   readonly group = new Group();
@@ -197,9 +226,7 @@ export class Scenery {
   private readonly geos: BufferGeometry[] = [];
   private rotors: InstancedMesh | null = null;
   private rotorBase: Array<{ p: Vector3; yaw: number; s: number; phase: number }> = [];
-  private beaconMat: MeshBasicMaterial | null = null;
-
-  constructor(props: readonly Prop[], opts: { night: boolean }) {
+  constructor(props: readonly Prop[], _theme: ThemeDef) {
     const byKind = new Map<PropKind, Prop[]>();
     for (const p of props) {
       let l = byKind.get(p.kind);
@@ -208,17 +235,18 @@ export class Scenery {
     }
     const matCache = new Map<string, Material>();
     const material = (kind: PropKind, def: KindDef): Material => {
-      const key = kind === 'beacon' ? 'beacon' : def.mat;
+      const vc = kind === 'lightTower' || kind === 'stand';
+      const key = `${def.mat}:${vc}`;
       let m = matCache.get(key);
       if (m) return m;
       switch (def.mat) {
-        case 'building': m = buildingMaterial(opts.night ? 0.85 : 0); break;
-        case 'glow': m = new MeshBasicMaterial({ color: new Color(2.2, 2.2, 2.2), vertexColors: kind === 'billboard' || kind === 'lightTower' }); break;
-        case 'metal': m = new MeshStandardMaterial({ roughness: 0.55, metalness: 0.45 }); break;
-        case 'matte': m = new MeshStandardMaterial({ roughness: 0.9, metalness: 0.0 }); break;
+        case 'concrete': m = facadeMaterial('concrete'); break;
+        case 'glass': m = facadeMaterial('glass'); break;
+        case 'metal': m = new MeshStandardMaterial({ roughness: 0.5, metalness: 0.4, vertexColors: vc }); break;
+        case 'matte': m = new MeshStandardMaterial({ roughness: 0.85, metalness: 0.0, vertexColors: vc }); break;
+        case 'soft': m = new MeshStandardMaterial({ roughness: 0.9, metalness: 0.0, vertexColors: true }); break;
         default: m = new MeshStandardMaterial({ roughness: 0.95, metalness: 0.0, flatShading: true, vertexColors: true });
       }
-      if (kind === 'beacon') this.beaconMat = m as MeshBasicMaterial;
       matCache.set(key, m);
       this.mats.push(m);
       return m;
@@ -276,10 +304,6 @@ export class Scenery {
         this.rotors!.setMatrixAt(i, _m);
       });
       this.rotors.instanceMatrix.needsUpdate = true;
-    }
-    if (this.beaconMat) {
-      const on = Math.sin(time * 3.2) > 0.2 ? 3 : 0.25;
-      this.beaconMat.color.setRGB(on, on, on);
     }
   }
 

@@ -15,10 +15,10 @@ export interface SeasonDef {
 }
 
 export const SEASONS: readonly SeasonDef[] = [
-  { id: 0, name: 'Neon City Night', theme: 'neon', blurb: 'Beginner friendly. Learn the Volt.', gate: 0 },
-  { id: 1, name: 'Alpine Snow', theme: 'alpine', blurb: 'New mechanics. Ice and altitude.', gate: 0.25 },
+  { id: 0, name: 'Metro', theme: 'neon', blurb: 'Beginner friendly. Learn the Volt.', gate: 0 },
+  { id: 1, name: 'Alpine', theme: 'alpine', blurb: 'New mechanics. Ice and altitude.', gate: 0.25 },
   { id: 2, name: 'Desert Canyon', theme: 'desert', blurb: 'Fast, big jumps, wide sand.', gate: 0.5 },
-  { id: 3, name: 'Coast & Industry', theme: 'coast', blurb: 'Expert tracks and creative gimmicks.', gate: 0.75 },
+  { id: 3, name: 'Coast & Harbour', theme: 'coast', blurb: 'Expert tracks and creative gimmicks.', gate: 0.75 },
 ];
 
 export interface CampaignLevel {

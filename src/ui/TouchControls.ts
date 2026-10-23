@@ -98,7 +98,7 @@ export class TouchControls {
     storage.set('nitrovolt.tilt', on);
     this.state.tilt = on ? 0 : null;
     this.left.style.display = this.right.style.display = on ? 'none' : '';
-    this.tiltBtn.style.background = on ? 'rgba(24,224,255,.45)' : '';
+    this.tiltBtn.style.background = on ? 'rgba(61,126,255,.5)' : '';
     if (!silent) this.state.camera = false;
   }
 
