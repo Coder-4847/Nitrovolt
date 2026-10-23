@@ -5,7 +5,7 @@ loops and jumps, instant restarts, exact ghosts and medals. Everything is genera
 scenery, sky, textures, engine sounds and music), with no external assets.
 It is an original game and not affiliated with any other racing title.
 
-**Status: 1.3.0.** Installable and playable offline (PWA), deployable as a static site.
+**Status: 1.3.0.** Handover notes for new sessions: [`MEMORY.md`](MEMORY.md). Installable and playable offline (PWA), deployable as a static site.
 
 ## Features
 
