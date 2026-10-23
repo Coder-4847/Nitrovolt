@@ -47,7 +47,16 @@ export function hintLadder(car: string, base?: BotHints): BotHints[] {
  * Drive a level with the validation bot. A valid level is finished with no respawn (falling off,
  * being stuck or missing a checkpoint all fail it). The successful run is recorded as a ghost.
  */
-export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150): Promise<BotRun> {
+export interface RunOptions {
+  /** Yield to the event loop every N ticks (browser: keep the page responsive). */
+  yieldEvery?: number;
+  /** Progress 0..1 along the track. */
+  onProgress?: (p: number) => void;
+  /** Return true to abandon the run. */
+  cancelled?: () => boolean;
+}
+
+export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150, opts: RunOptions = {}): Promise<BotRun> {
   const track = buildTrack(json);
   const def = getCar(json.car);
   const sim = await Simulation.create(track, carParams(def.id), false, undefined, def.behavior);
@@ -96,6 +105,11 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150)
       bestProgress = prog;
       lastGain = ticks;
     }
+    if (opts.yieldEvery && ticks % opts.yieldEvery === 0) {
+      opts.onProgress?.(bestProgress / Math.max(1, json.laps ?? 1));
+      await new Promise((r) => setTimeout(r, 0));
+      if (opts.cancelled?.()) { failure = 'cancelled'; break; }
+    }
     if (sim.respawnCount > 0) { failure = 'respawn (fell off or flipped)'; break; }
     if (ticks - lastGain > 1500) { failure = `stuck at ${((bestProgress / Math.max(1, json.laps ?? 1)) * 100).toFixed(0)}%`; break; }
     if (ticks > limit) { failure = 'too slow'; break; }
@@ -129,11 +143,12 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150)
 }
 
 /** Try the hint ladder until one style finishes cleanly. */
-export async function validateLevel(json: TrackJson, base?: BotHints, maxSeconds = 150): Promise<{ run: BotRun; attempts: number }> {
+export async function validateLevel(json: TrackJson, base?: BotHints, maxSeconds = 150, opts: RunOptions = {}): Promise<{ run: BotRun; attempts: number }> {
   const ladder = hintLadder(json.car, base);
   let last: BotRun | null = null;
   for (const [i, h] of ladder.entries()) {
-    const r = await botRun(json, h, maxSeconds);
+    const r = await botRun(json, h, maxSeconds, opts);
+    if (r.failure === 'cancelled') return { run: r, attempts: i + 1 };
     if (r.finished) return { run: r, attempts: i + 1 };
     last = r;
   }

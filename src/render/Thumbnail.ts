@@ -9,7 +9,10 @@ const cache = new Map<string, string>();
  * with jump gaps dashed and start / checkpoint / finish markers. Pure canvas, no WebGL.
  */
 export function levelThumbnail(track: TrackData, w = 320, h = 180): string {
-  const key = `${track.id}:${w}x${h}`;
+  // player levels change under the same id: key on the layout too
+  let sig = 0;
+  for (const p of track.centerline) sig = (sig * 31 + Math.round(p.x * 3 + p.z * 7 + p.y * 11)) | 0;
+  const key = `${track.id}:${w}x${h}:${track.centerline.length}:${sig}`;
   const hit = cache.get(key);
   if (hit) return hit;
   const c = document.createElement('canvas');

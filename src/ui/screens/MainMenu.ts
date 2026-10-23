@@ -4,6 +4,7 @@ import { Screen } from './ScreenManager';
 import { SettingsScreen } from './SettingsScreen';
 import { LevelSelectScreen } from './LevelSelectScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
+import { MyLevelsScreen } from './MyLevelsScreen';
 import { medalBadge } from '../medals';
 import { MEDAL_POINTS } from '../../data/campaign';
 
@@ -21,6 +22,7 @@ export class MainMenu implements Screen {
       btn(cont ? `Continue · ${cont.name}` : 'Play', () => this.app.playLevel(this.app.continueLevel()), 'primary big'),
       btn('Campaign', () => this.app.screens.push(new LevelSelectScreen(this.app, 'campaign')), 'big'),
       btn('Free Play', () => this.app.screens.push(new LevelSelectScreen(this.app, 'free')), 'big'),
+      btn('Track editor', () => this.app.screens.push(new MyLevelsScreen(this.app)), 'big'),
       btn('Leaderboard', () => this.app.screens.push(new LeaderboardScreen(this.app)), 'big'),
       btn('Settings', () => this.app.screens.push(new SettingsScreen(this.app)), 'big'),
     );

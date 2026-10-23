@@ -47,6 +47,8 @@ export interface RaceSource {
   json?: TrackJson;
   def: CarDef;
   params: VehicleParams;
+  /** Records key (player levels: id + layout hash, so an edited track starts a fresh record). */
+  recordId?: string;
 }
 
 export interface RaceOptions {
@@ -86,7 +88,8 @@ export class RaceSession {
   private readonly ctx: SessionCtx;
   private readonly source: RaceSource;
   private readonly recorder = new GhostRecorder();
-  private readonly levelHash: string;
+  readonly levelHash: string;
+  private readonly recordId: string;
   private readonly bot: PathBot | null;
   private readonly pose: RenderPose;
   private ghosts: GhostSlot[] = [];
@@ -113,6 +116,7 @@ export class RaceSession {
     this.pose = sim.vehicle.curr;
     this.instant = !!opts.instant;
     this.levelHash = source.json ? levelFingerprint(source.json.blocks, source.json.car, source.json.laps ?? 1) : '';
+    this.recordId = source.recordId ?? source.track.id;
     this.bot = opts.autodrive ? new PathBot(this.track.centerline, this.track.centerSurface, this.track.laps > 1, source.params) : null;
     if (this.bot) applyBotHints(this.bot, opts.hints);
   }
@@ -171,7 +175,7 @@ export class RaceSession {
     hud.setCountdown(null);
     hud.setProgress(0, this.sim.run.checkpointCount, 0, this.track.laps);
     hud.setTitle(`${this.track.name} · ${this.def.label}`);
-    this.pb = Records.get(this.track.id);
+    this.pb = Records.get(this.recordId);
     this.prevBoost = false;
     this.sim.events.length = 0;
     if (this.phase === 'grid') this.beat(3);
@@ -233,7 +237,8 @@ export class RaceSession {
     if (this.source.json && wanted.length) {
       for (const kind of wanted) {
         const data = kind === 'pb' ? await GhostStore.load(this.track.id) : await authorGhost(this.track.id);
-        if (!data || data.carId !== this.def.id) continue;
+        // a ghost of another layout (an edited player level) would drive through thin air
+        if (!data || data.carId !== this.def.id || data.levelHash !== this.levelHash) continue;
         const player = await GhostPlayer.create(this.track, cloneParams(this.source.params), this.def.behavior, data, this.levelHash);
         slots.push({ kind, player, view: this.ctx.gfx.addGhost(this.source.params, this.def.id, GHOST_COLOR[kind]), pose: blankPose() });
       }
@@ -348,7 +353,7 @@ export class RaceSession {
 
   private finish(time: number): void {
     const { hud, audio, input } = this.ctx;
-    const id = this.track.id;
+    const id = this.recordId;
     const before = this.ctx.campaign();
     const prevMedal = Records.medal(id, this.track.medals);
     const delta = this.pb ? time - this.pb.best : null;

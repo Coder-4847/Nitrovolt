@@ -176,8 +176,10 @@ export class GameRenderer {
     this.scene.add(this.skid.mesh);
   }
 
-  setTrack(track: TrackData): void {
+  /** Show a track. `scenery: false` skips the scenery (editor: faster rebuilds, clear view of the grid). */
+  setTrack(track: TrackData, opts: { scenery?: boolean } = {}): void {
     this.track = track;
+    this.sceneryOn = opts.scenery !== false;
     const theme = themeFor(track.theme);
     if (theme !== this.theme) this.applyTheme(theme);
     if (this.trackView) {
@@ -194,13 +196,15 @@ export class GameRenderer {
     this.sparks.clear();
   }
 
+  private sceneryOn = true;
+
   private buildScenery(): void {
     if (this.scenery) {
       this.scene.remove(this.scenery.group);
       this.scenery.dispose();
       this.scenery = null;
     }
-    if (!this.track) return;
+    if (!this.track || !this.sceneryOn) return;
     const props = planScenery({ centerline: this.track.centerline, seed: (this.track.seed ^ idHash(this.track.id)) >>> 0, groundY: this.ground.mesh.position.y }, this.theme.scenery, QUALITY[this.quality].scenery);
     this.scenery = new Scenery(props, { night: this.theme.night });
     this.scene.add(this.scenery.group);
