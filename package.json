@@ -3,13 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "NITROVOLT — a browser time-attack racer",
+  "description": "NITROVOLT \u2014 a browser time-attack racer",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "levels": "tsx scripts/make-levels.ts"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

@@ -116,6 +116,13 @@ export class PathBot {
       const d = this.path[i]!.distanceToSquared(v.position);
       if (d < bestD) { bestD = d; best = i; }
     }
+    // teleported (respawn)? re-locate on the whole path instead of searching only ahead
+    if (bestD > 40 * 40) {
+      for (let i = 0; i < this.path.length; i++) {
+        const d = this.path[i]!.distanceToSquared(v.position);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+    }
     this.idx = best;
     if (this.closed && this.idx >= this.path.length - 4) this.idx = 0;
 

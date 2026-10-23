@@ -21,10 +21,10 @@ await page.keyboard.press('Enter'); await page.waitForTimeout(400); await log('E
 await page.keyboard.press('KeyC'); await page.waitForTimeout(300); await log('C (camera)');
 await page.keyboard.press('KeyC'); await page.waitForTimeout(300); await log('C (camera)');
 await page.keyboard.press('Escape'); await page.waitForTimeout(500);
-console.log('menu open:', await page.evaluate(() => document.querySelector('.menu').classList.contains('on')));
+console.log('menu open:', await page.evaluate(() => !!document.querySelector('.screen.pause')));
 await page.screenshot({ path: '/tmp/claude-0/shots/menu.png' });
 await page.keyboard.press('Escape'); await page.waitForTimeout(300);
-console.log('menu open after Esc:', await page.evaluate(() => document.querySelector('.menu').classList.contains('on')));
+console.log('menu open after Esc:', await page.evaluate(() => !!document.querySelector('.screen.pause')));
 // mouse steering
 await page.keyboard.press('KeyM'); await page.waitForTimeout(200);
 await page.keyboard.press('Enter'); await page.waitForTimeout(300);

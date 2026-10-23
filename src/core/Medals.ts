@@ -14,3 +14,6 @@ export function medalFor(timeMs: number, m: MedalTimes): Medal {
 }
 
 export const betterMedal = (a: Medal, b: Medal): Medal => (MEDAL_ORDER.indexOf(a) >= MEDAL_ORDER.indexOf(b) ? a : b);
+
+/** 0 (none) .. 4 (author). */
+export const medalRank = (m: Medal): number => MEDAL_ORDER.indexOf(m);

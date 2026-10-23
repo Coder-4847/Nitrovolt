@@ -2,6 +2,7 @@ import { prettyKey } from '../core/input/Bindings';
 import { InputManager } from '../core/input/InputManager';
 import { Medal } from '../core/Medals';
 import { formatDelta } from '../core/Records';
+import { medalBadge } from './medals';
 import { EffectId } from '../physics/Surface';
 
 export function formatTime(ms: number): string {
@@ -26,8 +27,21 @@ export interface FinishInfo {
   /** vs the previous personal best (ms, negative = faster), or null on a first finish. */
   delta: number | null;
   newBest: boolean;
+  /** Medal this run earned. */
   medal: Medal;
+  /** True when it is a higher tier than the player had before (plays the medal animation). */
+  medalEarned: boolean;
   respawns: number;
+  /** Names of levels this finish unlocked. */
+  unlocked: string[];
+}
+
+export interface FinishAction {
+  label: string;
+  /** Shown as a key hint. */
+  key?: string;
+  primary?: boolean;
+  onClick: () => void;
 }
 
 /** In-run HUD: speed, run clock, countdown, checkpoint splits with deltas, active effects, finish panel. */
@@ -56,7 +70,7 @@ export class Hud {
       <div class="hud-hints" data-hints>
         <b>${key('accel')}</b><b>${key('left')}</b><b>${key('brake')}</b><b>${key('right')}</b> drive &nbsp;
         <b>${key('restart')}</b> restart &nbsp; <b>${key('respawn')}</b> respawn &nbsp; <b>${key('camera')}</b> camera &nbsp;
-        <b>${key('mouseSteer')}</b> mouse steer &nbsp; <b>${key('pause')}</b> menu
+        <b>G</b> ghost &nbsp; <b>${key('pause')}</b> menu
       </div>`;
     parent.appendChild(this.root);
     this.vignette = document.createElement('div');
@@ -127,18 +141,39 @@ export class Hud {
       .join('');
   }
 
-  showFinish(f: FinishInfo, restartKey: string): void {
+  showFinish(f: FinishInfo, actions: FinishAction[]): void {
     const el = this.q('[data-finish]');
     const delta = f.delta === null ? '' : `<div class="d ${f.delta <= 0 ? 'good' : 'bad'}">${formatDelta(f.delta)} vs PB</div>`;
-    const medal = f.medal === 'none' ? '' : `<div class="medal ${f.medal}">${MEDAL_LABEL[f.medal]}</div>`;
+    const medal = f.medal === 'none' ? '' : `<div class="medal-wrap ${f.medalEarned ? 'earned' : ''}">${medalBadge(f.medal, 'lg')}<div class="medal-name m-${f.medal}">${MEDAL_LABEL[f.medal]}${f.medalEarned ? ' MEDAL' : ''}</div></div>`;
+    const unlocked = f.unlocked.length ? `<div class="unlock">UNLOCKED · ${f.unlocked.join(' · ')}</div>` : '';
     el.innerHTML = `
       <h3>FINISH</h3>
       <div class="t">${formatTime(f.time)}</div>
       ${f.newBest ? '<div class="pb">NEW PERSONAL BEST</div>' : ''}
-      ${delta}${medal}
-      <div class="r">${f.respawns > 0 ? `${f.respawns} respawn${f.respawns > 1 ? 's' : ''} · ` : ''}press <b>${restartKey}</b> to retry</div>`;
+      ${delta}${medal}${unlocked}
+      ${f.respawns > 0 ? `<div class="r">${f.respawns} respawn${f.respawns > 1 ? 's' : ''}</div>` : ''}
+      <div class="acts"></div>`;
+    const host = el.querySelector('.acts')!;
+    for (const a of actions) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = `btn${a.primary ? ' primary' : ''}`;
+      b.dataset.nav = '1';
+      b.innerHTML = `${a.label}${a.key ? ` <kbd>${a.key}</kbd>` : ''}`;
+      b.onclick = a.onClick;
+      host.appendChild(b);
+    }
     el.classList.add('show');
     this.q('[data-toast]').classList.remove('show');
+  }
+
+  /** Tuck the finish panel away (a replay is playing) without losing it. */
+  awayFinish(away: boolean): void {
+    this.q('[data-finish]').classList.toggle('away', away);
+  }
+
+  get finishVisible(): boolean {
+    return this.q('[data-finish]').classList.contains('show');
   }
 
   hideFinish(): void {

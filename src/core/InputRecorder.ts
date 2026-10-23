@@ -37,40 +37,66 @@ export class InputRecorder {
     return out;
   }
 
-  /** Compact binary: [u32 spanCount] then per span [u32 count, i16 steer, u8 accel, u8 brake, u8 flags]. */
+  /**
+   * Compact binary (version 2): `[u8 2][varint spanCount]` then per span
+   * `[varint count][u8 flags][zigzag varint steer delta?][u8 accel?][u8 brake?]`.
+   * Flags: bit0 respawn, bit1 steer changed, bit2 accel changed, bit3 brake changed. Analog steering
+   * moves in small steps, so a typical tick costs 2-3 bytes.
+   */
   toBytes(): Uint8Array {
-    const SPAN_BYTES = 9;
-    const buf = new ArrayBuffer(4 + this.spans.length * SPAN_BYTES);
-    const dv = new DataView(buf);
-    dv.setUint32(0, this.spans.length, true);
-    let o = 4;
-    for (const s of this.spans) {
-      dv.setUint32(o, s.count, true);
-      dv.setInt16(o + 4, Math.round(s.frame.steer * STEER_Q), true);
-      dv.setUint8(o + 6, Math.round(s.frame.accel * PEDAL_Q));
-      dv.setUint8(o + 7, Math.round(s.frame.brake * PEDAL_Q));
-      dv.setUint8(o + 8, s.frame.respawn ? 1 : 0);
-      o += SPAN_BYTES;
+    const out: number[] = [2];
+    const varint = (n: number): void => {
+      let v = n >>> 0;
+      while (v >= 0x80) {
+        out.push((v & 0x7f) | 0x80);
+        v >>>= 7;
+      }
+      out.push(v);
+    };
+    varint(this.spans.length);
+    let steer = 0, accel = 0, brake = 0;
+    for (const sp of this.spans) {
+      const st = Math.round(sp.frame.steer * STEER_Q);
+      const ac = Math.round(sp.frame.accel * PEDAL_Q);
+      const br = Math.round(sp.frame.brake * PEDAL_Q);
+      varint(sp.count);
+      out.push((sp.frame.respawn ? 1 : 0) | (st !== steer ? 2 : 0) | (ac !== accel ? 4 : 0) | (br !== brake ? 8 : 0));
+      if (st !== steer) varint(((st - steer) << 1) ^ ((st - steer) >> 31)); // zigzag
+      if (ac !== accel) out.push(ac);
+      if (br !== brake) out.push(br);
+      steer = st;
+      accel = ac;
+      brake = br;
     }
-    return new Uint8Array(buf);
+    return Uint8Array.from(out);
   }
 
   static fromBytes(bytes: Uint8Array): InputRecorder {
-    const dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
-    const n = dv.getUint32(0, true);
+    let o = 0;
+    if (bytes[o++] !== 2) throw new Error('unsupported input recording version');
+    const varint = (): number => {
+      let v = 0, shift = 0, b: number;
+      do {
+        b = bytes[o++]!;
+        v |= (b & 0x7f) << shift;
+        shift += 7;
+      } while (b & 0x80);
+      return v >>> 0;
+    };
+    const n = varint();
     const rec = new InputRecorder();
-    let o = 4;
+    let steer = 0, accel = 0, brake = 0;
     for (let i = 0; i < n; i++) {
-      const count = dv.getUint32(o, true);
-      const frame = makeFrame(
-        dv.getInt16(o + 4, true) / STEER_Q,
-        dv.getUint8(o + 6) / PEDAL_Q,
-        dv.getUint8(o + 7) / PEDAL_Q,
-        dv.getUint8(o + 8) === 1,
-      );
-      rec.spans.push({ count, frame });
+      const count = varint();
+      const flags = bytes[o++]!;
+      if (flags & 2) {
+        const z = varint();
+        steer += (z >>> 1) ^ -(z & 1);
+      }
+      if (flags & 4) accel = bytes[o++]!;
+      if (flags & 8) brake = bytes[o++]!;
+      rec.spans.push({ count, frame: makeFrame(steer / STEER_Q, accel / PEDAL_Q, brake / PEDAL_Q, (flags & 1) === 1) });
       rec._ticks += count;
-      o += 9;
     }
     return rec;
   }

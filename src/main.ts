@@ -1,9 +1,9 @@
 import './ui/styles.css';
-import { Game } from './core/Game';
+import { App } from './core/App';
 
 const boot = document.getElementById('boot')!;
 
-Game.start(document.getElementById('app')!, document.getElementById('canvas-host')!)
+App.start(document.getElementById('app')!, document.getElementById('canvas-host')!)
   .then(() => {
     boot.classList.add('gone');
     setTimeout(() => boot.remove(), 600);

@@ -16,8 +16,8 @@ const medals = { author: 0, gold: 0, silver: 0, bronze: 0 };
 function level(items: ChainItem[], laps = 1): TrackJson {
   return { id: 't', name: 't', car: 'volt', theme: 'grey', seed: 1, laps, medalTimes: medals, blocks: layoutChain(items).blocks };
 }
-async function sim(items: ChainItem[], countdown = 0, laps = 1): Promise<Simulation> {
-  return Simulation.create(buildTrack(level(items, laps)), cloneParams(VOLT), countdown);
+async function sim(items: ChainItem[], hold = 0, laps = 1): Promise<Simulation> {
+  return Simulation.create(buildTrack(level(items, laps)), cloneParams(VOLT), hold);
 }
 const full = makeFrame(0, 1, 0);
 
@@ -37,22 +37,34 @@ describe('medals', () => {
 });
 
 describe('run logic', () => {
-  it('holds the car during the countdown, then GO starts the clock at 0', async () => {
-    const s = await sim([{ type: 'start' }, { type: 'straight4' }, { type: 'finish' }], 1.2);
-    for (let i = 0; i < 100; i++) s.step(full); // 1.0 s of full throttle during countdown
-    expect(s.run.state).toBe('countdown');
+  it('grids the car and ignores the driver until go(), then starts the clock at zero', async () => {
+    const s = await sim([{ type: 'start' }, { type: 'straight4' }, { type: 'finish' }], 1);
+    expect(s.run.state).toBe('ready');
+    for (let i = 0; i < 100; i++) s.step(full); // full throttle while gridded
+    expect(s.run.state).toBe('ready');
     expect(s.vehicle.speed).toBeLessThan(0.2);
     expect(s.run.timeMs).toBe(0);
-    for (let i = 0; i < 25; i++) s.step(full);
+    s.go();
     expect(s.run.state).toBe('running');
     for (let i = 0; i < 100; i++) s.step(full);
     expect(s.vehicle.speed).toBeGreaterThan(5);
-    expect(s.run.timeMs).toBeGreaterThan(900);
+    expect(s.run.timeMs).toBeCloseTo(1000, -1);
   });
 
-  it('instant countdown starts running immediately', async () => {
+  it('starts running immediately unless held', async () => {
     const s = await sim([{ type: 'start' }, { type: 'finish' }], 0);
     expect(s.run.state).toBe('running');
+  });
+
+  it('is in the same state at GO however long the countdown UI waits (what makes ghosts exact)', async () => {
+    const items: ChainItem[] = [{ type: 'start' }, { type: 'straight4' }, { type: 'finish' }];
+    const a = await sim(items, 1);
+    const b = await sim(items, 1);
+    // one waits "a long time" (no physics steps happen while gridded), the other starts at once
+    for (let i = 0; i < 500; i++) b.step(full);
+    a.go();
+    b.go();
+    expect(a.vehicle.stateHash()).toEqual(b.vehicle.stateHash());
   });
 
   it('finishes after the checkpoints, with a millisecond time and interpolated splits', async () => {
@@ -112,14 +124,16 @@ describe('run logic', () => {
 
   it('restart is instant and resets everything', async () => {
     const items: ChainItem[] = [{ type: 'start' }, { type: 'straight2' }, { type: 'checkpoint' }, { type: 'straight4' }, { type: 'finish' }];
-    const s = await sim(items, 1.2);
+    const s = await sim(items, 1);
+    s.go();
     for (let i = 0; i < 400; i++) s.step(full);
     s.restart();
-    expect(s.run.state).toBe('countdown');
+    expect(s.run.state).toBe('ready');
     expect(s.run.nextCp).toBe(0);
     expect(s.run.splits).toHaveLength(0);
     expect(s.vehicle.speed).toBeLessThan(0.1);
     expect(s.respawnCount).toBe(0);
+    expect(s.tick).toBe(0);
   });
 
   it('counts laps on a closed circuit and finishes on the last one', async () => {

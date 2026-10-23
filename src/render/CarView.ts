@@ -1,4 +1,4 @@
-import { Group, Mesh } from 'three';
+import { Group, Material, Mesh, MeshBasicMaterial } from 'three';
 import { CarId } from '../data/cars';
 import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
@@ -55,6 +55,23 @@ export class CarView {
       this.wheelRoots.push(wr);
       this.wheelSpin.push(spin);
     }
+  }
+
+  /** Turn this car into a translucent, unlit, shadowless ghost of one flat colour. */
+  makeGhost(color: number, opacity: number): void {
+    const cache = new Map<Material, MeshBasicMaterial>();
+    this.root.traverse((o) => {
+      if (!(o instanceof Mesh)) return;
+      o.castShadow = false;
+      o.receiveShadow = false;
+      const src = o.material as Material;
+      let g = cache.get(src);
+      if (!g) {
+        g = new MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, fog: false });
+        cache.set(src, g);
+      }
+      o.material = g;
+    });
   }
 
   setLivery(primary: number, accent: number): void {

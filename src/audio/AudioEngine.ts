@@ -180,10 +180,18 @@ export class AudioEngine {
     }
   }
 
+  private engineOn = true;
+
+  /** Mute / unmute the driving sounds (engine, road, wind) while a menu is the main thing on screen. */
+  setDriving(on: boolean): void {
+    this.engineOn = on;
+    if (this.ctx) this.engineGain.gain.setTargetAtTime(on ? this.settings.engine : 0, this.ctx.currentTime, 0.15);
+  }
+
   applySettings(): void {
     if (!this.ctx) return;
     this.master.gain.value = this.settings.master;
-    this.engineGain.gain.value = this.settings.engine;
+    this.engineGain.gain.value = this.engineOn ? this.settings.engine : 0;
     this.sfxGain.gain.value = this.settings.sfx;
     storage.set(KEY, this.settings);
   }
@@ -308,6 +316,32 @@ export class AudioEngine {
   /** Finish fanfare. */
   fanfare(): void {
     [523, 659, 784, 1047].forEach((f, i) => this.tone(f, 0.28, 'triangle', 0.22, i * 0.1));
+  }
+
+  /** Menu focus tick. */
+  tick(): void {
+    this.tone(1400, 0.035, 'square', 0.04);
+  }
+
+  /** Menu confirm. */
+  confirm(): void {
+    this.tone(660, 0.07, 'triangle', 0.14);
+    this.tone(990, 0.1, 'triangle', 0.12, 0.05);
+  }
+
+  /** Menu back. */
+  back(): void {
+    this.tone(520, 0.08, 'triangle', 0.12);
+    this.tone(390, 0.1, 'triangle', 0.1, 0.05);
+  }
+
+  /** Medal earned: a rising arpeggio that gets longer and brighter with the tier (1 bronze .. 4 author). */
+  medalJingle(rank: number): void {
+    const scale = [523, 659, 784, 1047, 1319, 1568, 2093];
+    const notes = Math.min(scale.length, 2 + rank);
+    for (let i = 0; i < notes; i++) this.tone(scale[i]!, 0.3 + i * 0.03, 'triangle', 0.2, i * 0.085);
+    this.tone(scale[notes - 1]! * 0.5, 0.7, 'sine', 0.16, notes * 0.085);
+    if (rank >= 3) for (let i = 0; i < 5; i++) this.tone(2400 + i * 330, 0.12, 'sine', 0.06, 0.5 + i * 0.07);
   }
 
   /** Boost pad whoosh: rising filtered noise. */

@@ -5,6 +5,7 @@ import { CarId, carParams, getCar } from '../src/data/cars';
 import { Simulation } from '../src/physics/Simulation';
 import { BLOCK_TYPE_SET } from '../src/tracks/BlockLibrary';
 import { ChainItem, layoutChain } from '../src/tracks/ChainLayout';
+import { GhostRecorder, levelFingerprint } from '../src/core/Ghost';
 import { PathBot, applyBotHints } from '../src/tracks/PathBot';
 import { TrackJson, validateTrackJson } from '../src/tracks/TrackSchema';
 import { buildTrack } from '../src/tracks/TrackGenerator';
@@ -164,14 +165,24 @@ async function main(): Promise<void> {
     if (process.env.SLEW) bot.steerSlew = Number(process.env.SLEW);
     if (process.env.LAT) bot.lateralBudget = Number(process.env.LAT);
     let ticks = 0;
+    const rec = new GhostRecorder();
+    rec.start(sim);
     while (sim.run.state !== 'finished' && ticks < 20000) {
-      sim.step(bot.drive(sim.vehicle));
+      const frame = bot.drive(sim.vehicle);
+      rec.push(frame);
+      sim.step(frame);
+      rec.afterStep(sim);
       ticks++;
     }
     const finished = sim.run.state === 'finished';
     const t = sim.run.finishTime ?? 0;
     console.log(`${lv.id.padEnd(10)} blocks=${blocks.length} bot ${finished ? 'FINISHED' : 'FAILED'} time=${(t / 1000).toFixed(2)}s respawns=${sim.respawnCount} progress=${(bot.progress * 100).toFixed(0)}% cps=${sim.run.nextCp}/${sim.run.checkpointCount}`);
-    if (finished) json.medalTimes = { author: t, gold: Math.round(t * 1.08), silver: Math.round(t * 1.2), bronze: Math.round(t * 1.45) };
+    if (finished) {
+      json.medalTimes = { author: t, gold: Math.round(t * 1.08), silver: Math.round(t * 1.2), bronze: Math.round(t * 1.45) };
+      // the bot's run is the author ghost
+      const ghost = rec.finish(sim, { trackId: lv.id, carId: def.id, levelHash: levelFingerprint(json.blocks, json.car, json.laps ?? 1) });
+      writeFileSync(`src/data/ghosts/${lv.id}.json`, JSON.stringify(ghost) + '\n');
+    }
     writeFileSync(`src/data/levels/${lv.id}.json`, JSON.stringify(json, null, 1) + '\n');
   }
 }

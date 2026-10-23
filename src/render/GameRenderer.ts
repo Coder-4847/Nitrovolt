@@ -22,7 +22,11 @@ export class GameRenderer {
   readonly renderer: WebGLRenderer;
   readonly scene = new Scene();
   readonly rig = new CameraRig();
-  readonly car: CarView;
+  car: CarView;
+  def: CarDef;
+  /** Extra camera (replay orbit / free / menu backdrop); replaces the chase rig's view while set. */
+  viewCamera: PerspectiveCamera | null = null;
+  private readonly ghosts = new Set<CarView>();
   private readonly sky = new Sky();
   private readonly sun: DirectionalLight;
   private readonly ground: Mesh;
@@ -38,11 +42,12 @@ export class GameRenderer {
 
   constructor(
     private readonly container: HTMLElement,
-    readonly def: CarDef,
+    def: CarDef,
     params: VehicleParams,
     quality: QualityLevel,
     livery: { primary: number; accent: number },
   ) {
+    this.def = def;
     this.quality = quality;
     const q = QUALITY[quality];
     this.renderer = new WebGLRenderer({ antialias: q.antialias, powerPreference: 'high-performance', preserveDrawingBuffer: false });
@@ -92,6 +97,31 @@ export class GameRenderer {
     this.applyQuality(quality);
     window.addEventListener('resize', this.resize);
     this.resize();
+  }
+
+  /** Swap the player's car (the level declares which one drives it). */
+  setCar(def: CarDef, params: VehicleParams, livery: { primary: number; accent: number }): void {
+    this.scene.remove(this.car.root);
+    this.def = def;
+    this.car = new CarView(def.id, params, livery.primary, livery.accent);
+    this.scene.add(this.car.root);
+    this.rig.style = def.camera;
+    this.rig.snap();
+    this.wheelFx.clear();
+  }
+
+  /** A translucent ghost car in the scene; call `view.update(pose)` each frame. */
+  addGhost(params: VehicleParams, carId: CarDef['id'], color: number, opacity = 0.42): CarView {
+    const view = new CarView(carId, params, color, color);
+    view.makeGhost(color, opacity);
+    this.scene.add(view.root);
+    this.ghosts.add(view);
+    return view;
+  }
+
+  removeGhost(view: CarView): void {
+    this.scene.remove(view.root);
+    this.ghosts.delete(view);
   }
 
   get qualityLevel(): QualityLevel {
@@ -190,7 +220,12 @@ export class GameRenderer {
     this.sun.target.position.copy(pose.position);
     this.sun.position.copy(pose.position).addScaledVector(this.sky.sunDir, 160);
 
-    this.renderer.render(this.scene, this.debugCam ?? cam);
+    const view = this.viewCamera;
+    if (view && view.aspect !== cam.aspect) {
+      view.aspect = cam.aspect;
+      view.updateProjectionMatrix();
+    }
+    this.renderer.render(this.scene, this.debugCam ?? view ?? cam);
   }
 
   dispose(): void {

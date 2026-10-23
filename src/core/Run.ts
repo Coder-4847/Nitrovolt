@@ -2,10 +2,10 @@ import { Quaternion, Vector3 } from 'three';
 import { PHYSICS_DT } from './FixedLoop';
 import { TrackTrigger } from '../tracks/TrackTypes';
 
-export type RunState = 'countdown' | 'running' | 'finished';
+/** `ready` = the car is gridded and waiting for GO (the countdown is a UI timer; the physics is not stepped). */
+export type RunState = 'ready' | 'running' | 'finished';
 
 export type RunEvent =
-  | { type: 'countdown'; beat: number } // 3, 2, 1, then 0 = GO
   | { type: 'checkpoint'; index: number; splitIndex: number; time: number }
   | { type: 'lap'; lap: number; splitIndex: number; time: number }
   | { type: 'finish'; time: number; splitIndex: number };
@@ -30,10 +30,9 @@ function toLocal(t: TrackTrigger, pos: Vector3, out: Vector3): Vector3 {
  * they are millisecond-accurate (and exactly reproducible).
  */
 export class RunLogic {
-  state: RunState = 'countdown';
-  /** Ticks elapsed since restart (the simulation's clock). */
+  state: RunState = 'ready';
+  /** Ticks elapsed since GO (the run clock; the grid pre-roll is not counted). */
   tick = 0;
-  goTick = 0;
   nextCp = 0;
   lap = 0;
   /** Every split in order: each checkpoint, each lap line, then the finish (ms). */
@@ -41,8 +40,6 @@ export class RunLogic {
   finishTime: number | null = null;
   readonly events: RunEvent[] = [];
 
-  private countdownTicks = 0;
-  private beatTicks = 0;
   private armed = false;
   private readonly cps: TrackTrigger[];
   private readonly finish: TrackTrigger | undefined;
@@ -59,39 +56,33 @@ export class RunLogic {
     return this.cps.length;
   }
 
-  /** Milliseconds on the run clock at the *start* of the current tick (0 during the countdown). */
+  /** Milliseconds on the run clock at the *start* of the current tick (0 before GO). */
   get timeMs(): number {
-    if (this.state === 'countdown') return 0;
+    if (this.state === 'ready') return 0;
     if (this.state === 'finished' && this.finishTime !== null) return this.finishTime;
-    return Math.max(0, (this.tick - this.goTick) * PHYSICS_DT * 1000);
+    return this.tick * PHYSICS_DT * 1000;
   }
 
-  /** Whole-second countdown value to display (3, 2, 1), or 0 once GO. */
-  get countdownBeat(): number {
-    if (this.state !== 'countdown' || this.beatTicks === 0) return 0;
-    return Math.ceil((this.countdownTicks - this.tick) / this.beatTicks);
-  }
-
-  reset(countdownSeconds: number): void {
-    this.countdownTicks = Math.round(countdownSeconds / PHYSICS_DT);
-    this.beatTicks = this.countdownTicks > 0 ? Math.round(this.countdownTicks / 3) : 0;
-    this.countdownTicks = this.beatTicks * 3;
+  /** Back to the grid, waiting for GO. */
+  reset(): void {
     this.tick = 0;
-    this.goTick = this.countdownTicks;
     this.nextCp = 0;
     this.lap = 0;
     this.splits = [];
     this.finishTime = null;
     this.armed = false;
     this.events.length = 0;
-    this.state = this.countdownTicks > 0 ? 'countdown' : 'running';
-    if (this.state === 'countdown') this.events.push({ type: 'countdown', beat: 3 });
-    else this.events.push({ type: 'countdown', beat: 0 });
+    this.state = 'ready';
+  }
+
+  /** GO: the clock starts at zero. */
+  go(): void {
+    if (this.state === 'ready') this.state = 'running';
   }
 
   /** True while the player must not be able to drive. */
   get locked(): boolean {
-    return this.state === 'countdown';
+    return this.state === 'ready';
   }
 
   /**
@@ -102,15 +93,7 @@ export class RunLogic {
     const n = this.tick;
     let collected: TrackTrigger | null = null;
 
-    if (this.state === 'countdown') {
-      const next = n + 1;
-      if (next >= this.countdownTicks) {
-        this.state = 'running';
-        this.events.push({ type: 'countdown', beat: 0 });
-      } else if (next % this.beatTicks === 0) {
-        this.events.push({ type: 'countdown', beat: 3 - next / this.beatTicks });
-      }
-    } else if (this.state === 'running') {
+    if (this.state === 'running') {
       const cp = this.cps[this.nextCp];
       if (cp) {
         const t = this.crossing(cp, prev, curr);
@@ -145,7 +128,7 @@ export class RunLogic {
         }
       }
     }
-    this.tick++;
+    if (this.state !== 'ready') this.tick++;
     return collected;
   }
 
@@ -164,6 +147,6 @@ export class RunLogic {
   }
 
   private msAt(tickStart: number, alpha: number): number {
-    return Math.round((tickStart + alpha - this.goTick) * PHYSICS_DT * 1000);
+    return Math.round((tickStart + alpha) * PHYSICS_DT * 1000);
   }
 }
