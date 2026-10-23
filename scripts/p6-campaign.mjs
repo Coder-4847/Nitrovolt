@@ -5,11 +5,11 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 const errors = [];
 page.on('pageerror', (e) => errors.push(e.message));
 await page.goto('http://127.0.0.1:5173/?quality=low');
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 // unlock everything so every card shows its level
 await page.evaluate(() => { localStorage.setItem('nitrovolt.settings.v1', JSON.stringify({ unlockAll: true })); });
 await page.reload();
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 await page.getByRole('button', { name: 'Campaign' }).click();
 for (let s = 0; s < 4; s++) {
   await page.locator('.tab').nth(s).click();

@@ -13,7 +13,7 @@ It is an original game and not affiliated with any other racing title.
 - **Medals and exact ghosts**: Author / Gold / Silver / Bronze; ghosts are the recorded input stream re-simulated bit-exactly (PB and author ghosts, replay viewer with free camera).
 - **Special blocks**: turbo, turbo 2, reactor, no-steer, no-brake, cruise, engine off, slow motion, low gravity, fragile; loops, half-pipes, wall-rides, spirals, jumps.
 - **Track editor**: palette, chain building, live checks, test drive, bot validation, My tracks, share links that carry the whole track.
-- **Look and sound**: a clean, modern daylight look: four themes with procedural sky, ground and instanced scenery (glass-and-concrete city, alpine, desert, harbour), smooth lofted car bodies with clear-coat paint, anti-aliased road markings, skid marks and sparks; a generative soundtrack per season and a synthesised engine per car.
+- **Look and sound**: stadium arenas in four seasons (summer, winter, canyon, sunset) with roofed grandstands, flags, LED boards, video screens and arches; painted roads; four detailed cars (open-wheel stadium racer, rally hatch, snow buggy, desert truck) with liveries and a rear speed display; skid marks and sparks; a generative soundtrack per season and a synthesised engine per car.
 - **Every input**: keyboard (remappable), mouse steering, gamepad (analog, rumble), touch with tilt steering; full keyboard / gamepad menu navigation.
 - **Accessibility**: HUD size, colour-blind medal palette (medals also differ by shape), reduced motion, unlock everything, countdown length.
 - **Performance**: quality presets with an automatic benchmark and dynamic resolution; physics and editor load on demand.
@@ -72,7 +72,7 @@ offline play, and share links keep their data in the URL hash, so no server is n
 
 Phase notes: [`1`](docs/PHASE_1.md) physics & input · [`2`](docs/PHASE_2.md) tracks & timing · [`3`](docs/PHASE_3.md) cars & surfaces ·
 [`4`](docs/PHASE_4.md) menus, medals, ghosts · [`5`](docs/PHASE_5.md) visuals · [`6`](docs/PHASE_6.md) campaign · [`7`](docs/PHASE_7.md) editor ·
-[`8`](docs/PHASE_8.md) polish & release. · [`1.1`](docs/VISUAL_OVERHAUL.md) visual overhaul & rendering fixes.
+[`8`](docs/PHASE_8.md) polish & release. · [`1.1`](docs/VISUAL_OVERHAUL.md) visual overhaul & rendering fixes · [`1.2`](docs/STADIUM_UPDATE.md) stadium arenas, new cars, accurate jumps, landing page.
 
 ## Licence notes
 

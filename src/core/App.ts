@@ -19,6 +19,7 @@ import { AppApi, GhostKind } from '../ui/screens/AppApi';
 import { LeaderboardScreen } from '../ui/screens/LeaderboardScreen';
 import { LevelSelectScreen } from '../ui/screens/LevelSelectScreen';
 import { MainMenu } from '../ui/screens/MainMenu';
+import { LandingScreen } from '../ui/screens/LandingScreen';
 import { PauseScreen } from '../ui/screens/PauseScreen';
 import { ScreenManager } from '../ui/screens/ScreenManager';
 import { TouchControls } from '../ui/TouchControls';
@@ -211,6 +212,8 @@ export class App implements AppApi {
     } else {
       app.enterMenu(first);
       app.screens.set(new MainMenu(app));
+      // arrivals land on the landing page; Play or Esc goes on to the menu
+      app.screens.push(new LandingScreen(app));
     }
     app.loop.start();
     // the physics engine (WASM) streams in while the player looks at the menu

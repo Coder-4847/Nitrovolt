@@ -16,6 +16,8 @@ const ok = (c, msg) => console.log(`${c ? 'PASS' : 'FAIL'}  ${msg}`);
 
 await page.goto('http://127.0.0.1:5173/?debug=1');
 await page.waitForSelector('#boot', { state: 'detached', timeout: 60000 });
+ok(await page.locator('.landing').count() === 1, 'landing page shown first');
+await page.keyboard.press('Escape');
 await shot('01_menu', 1000);
 ok(await page.locator('.main-menu').count() === 1, 'main menu shown');
 
@@ -96,18 +98,18 @@ await shot('15_ghost_race', 800);
 
 // menu keyboard navigation + leaderboard + export/import
 await page.goto('http://127.0.0.1:5173/?debug=1');
-await page.waitForSelector('.main-menu');
+await page.waitForSelector('.screen.top', { timeout: 30000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 await page.keyboard.press('ArrowDown');
 const focused = await page.evaluate(() => document.activeElement?.textContent);
-ok(focused === 'Campaign', `ArrowDown moves focus to Campaign (${focused})`);
+ok(focused?.startsWith('Campaign'), `ArrowDown moves focus to Campaign (${focused})`);
 await page.keyboard.press('Enter');
 await page.waitForSelector('.level-select');
 await page.keyboard.press('Escape');
-await page.waitForSelector('.main-menu');
+await page.waitForSelector('.screen.top', { timeout: 30000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 ok(true, 'Enter opens campaign, Esc returns');
 const medalsAfter = await page.locator('.mm-medals span').allTextContents();
 ok(medalsAfter.some((t) => /[1-9]/.test(t)), `main menu shows earned medals (${medalsAfter.join('|').replace(/\s+/g, ' ')})`);
-await page.getByRole('button', { name: 'Leaderboard' }).click();
+await page.getByRole('button', { name: 'Records' }).click();
 await shot('16_leaderboard', 800);
 ok(await page.locator('table.lb tbody tr').count() >= 1, 'leaderboard lists the PB');
 await page.keyboard.press('Escape');
@@ -125,7 +127,7 @@ await page.evaluate(() => localStorage.clear());
 await page.setInputFiles('input[type=file]', path);
 await page.waitForFunction(() => performance.now() > 0 && true);
 await page.waitForTimeout(1500);
-await page.waitForSelector('.main-menu', { timeout: 20000 });
+await page.waitForSelector('.screen.top', { timeout: 20000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 const recs = await page.evaluate(() => localStorage.getItem('nitrovolt.records.v1'));
 ok(!!recs && recs.includes('sprint01'), 'import restored the records after reload');
 

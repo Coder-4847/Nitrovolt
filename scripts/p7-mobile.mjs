@@ -6,7 +6,7 @@ const page = await ctx.newPage();
 const errs = [];
 page.on('pageerror', (e) => errs.push(e.message));
 await page.goto('http://127.0.0.1:5173/?debug=1&quality=low');
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 await page.addStyleTag({ content: '.tuning,.debug{display:none!important}' });
 await page.getByRole('button', { name: 'Track editor' }).tap();
 await page.getByRole('button', { name: 'New track' }).tap();

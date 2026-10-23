@@ -49,7 +49,7 @@ export const CARS: Readonly<Record<CarId, CarDef>> = {
   volt: {
     id: 'volt',
     label: 'Volt',
-    blurb: 'Stadium: huge downforce, laser steering, long drifts on a quick counter-steer.',
+    blurb: 'Stadium: open-wheel racer. Huge downforce, laser steering, long drifts on a quick counter-steer.',
     params: VOLT,
     camera: { distance: 4.6, height: 1.45, speedPull: 1.2, lookAhead: 12, fovBase: 74, fovKick: 30, headingRate: 7, positionRate: 22, shake: 1 },
     particles: { amount: 0.8, size: 0.9, smoke: 1 },
@@ -59,7 +59,7 @@ export const CARS: Readonly<Record<CarId, CarDef>> = {
   gravel: {
     id: 'gravel',
     label: 'Gravel',
-    blurb: 'Rally: loose-surface specialist. Long travel, big body roll, power slides.',
+    blurb: 'Rally: hatchback built for dirt. Long travel, big body roll, power slides.',
     params: GRAVEL,
     behavior: gravelBehavior,
     camera: { distance: 5.2, height: 1.75, speedPull: 1.0, lookAhead: 11, fovBase: 74, fovKick: 26, headingRate: 6, positionRate: 16, shake: 1.4 },
@@ -70,7 +70,7 @@ export const CARS: Readonly<Record<CarId, CarDef>> = {
   frost: {
     id: 'frost',
     label: 'Frost',
-    blurb: 'Snow: heavy and studded. Low grip, ice-sliding momentum, wide drifts.',
+    blurb: 'Snow: caged buggy on studded tyres. Low grip, ice-sliding momentum, wide drifts.',
     params: FROST,
     behavior: frostBehavior,
     camera: { distance: 5.4, height: 1.8, speedPull: 1.1, lookAhead: 11, fovBase: 72, fovKick: 24, headingRate: 4.2, positionRate: 12, shake: 1.1 },
@@ -81,7 +81,7 @@ export const CARS: Readonly<Record<CarId, CarDef>> = {
   dune: {
     id: 'dune',
     label: 'Dune',
-    blurb: 'Desert: light, floaty and fast on sand. Spring-launch off crests, wide arcs.',
+    blurb: 'Desert: trophy truck. Light, floaty and fast on sand, spring-launches off crests.',
     params: DUNE,
     behavior: duneBehavior,
     camera: { distance: 5.8, height: 2.0, speedPull: 1.6, lookAhead: 12, fovBase: 74, fovKick: 34, headingRate: 6.5, positionRate: 18, shake: 0.9 },

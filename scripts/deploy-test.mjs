@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 // Release smoke test against a production build served from a sub-path, like GitHub Pages:
 //   BASE_PATH=/Nitrovolt/ npm run build && BASE_PATH=/Nitrovolt/ npx vite preview --port 4173 --host 127.0.0.1 &
 //   node scripts/deploy-test.mjs
@@ -16,7 +17,7 @@ const ok = (c, msg) => console.log(`${c ? 'PASS' : 'FAIL'}  ${msg}`);
 
 const t0 = Date.now();
 await page.goto(base);
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 ok(true, `menu shown after ${((Date.now() - t0) / 1000).toFixed(1)} s (software GL)`);
 const manifest = await page.evaluate(async () => {
   const href = document.querySelector('link[rel=manifest]').href;
@@ -31,7 +32,7 @@ await page.evaluate(() => navigator.serviceWorker.ready);
 await page.waitForFunction(async () => (await caches.keys()).some((k) => k.startsWith('nitrovolt-')), null, { timeout: 60000 });
 await page.waitForTimeout(3000);
 await page.reload();
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 const controlled = await page.evaluate(() => !!navigator.serviceWorker.controller);
 const cached = await page.evaluate(async () => {
   const c = await caches.open((await caches.keys()).find((k) => k.startsWith('nitrovolt-')));
@@ -39,7 +40,7 @@ const cached = await page.evaluate(async () => {
 });
 ok(controlled, `service worker controls the page (${cached} files precached)`);
 
-await page.locator('.mm-buttons .btn.primary').click();
+await page.locator('.mm-buttons .mm-item.primary').click();
 await page.waitForFunction(() => document.querySelector('.hud')?.style.display !== 'none' && document.querySelector('.hud-time'), null, { timeout: 60000 });
 await page.waitForTimeout(2500);
 ok(true, 'a race starts online (physics WASM loaded from its own file)');
@@ -47,9 +48,9 @@ ok(true, 'a race starts online (physics WASM loaded from its own file)');
 // offline
 await ctx.setOffline(true);
 await page.goto(base);
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 ok(true, 'menu loads with the network off');
-await page.locator('.mm-buttons .btn.primary').click();
+await page.locator('.mm-buttons .mm-item.primary').click();
 await page.waitForTimeout(6000);
 const racing = await page.evaluate(() => getComputedStyle(document.querySelector('.hud')).display !== 'none');
 ok(racing, 'a race starts offline');
@@ -64,7 +65,7 @@ const res = await p3.evaluate(async () => {
   for (let i = 0; i < 90 && g.simulation.run.state !== 'finished'; i++) g.fastForward(1);
   return { time: g.simulation.run.finishTime };
 });
-const author = 22107;
+const author = JSON.parse(readFileSync(new URL('../src/data/levels/sprint01.json', import.meta.url), 'utf8')).medalTimes.author;
 ok(res.time === author, `production physics is bit-identical: bot finishes Sprint 01 in ${res.time} ms (author ${author})`);
 console.log(errors.length ? errors.join('\n') : 'no console errors');
 await browser.close();

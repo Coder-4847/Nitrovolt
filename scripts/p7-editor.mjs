@@ -12,7 +12,7 @@ const ok = (c, msg) => console.log(`${c ? 'PASS' : 'FAIL'}  ${msg}`);
 const shot = async (n, w = 400) => { await page.waitForTimeout(w); await page.screenshot({ path: `${out}_${n}.png` }); };
 
 await page.goto('http://127.0.0.1:5173/?debug=1&quality=medium');
-await page.waitForSelector('.main-menu', { timeout: 60000 });
+await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 await page.addStyleTag({ content: '.tuning,.debug{display:none!important}' });
 await page.getByRole('button', { name: 'Track editor' }).click();
 await page.waitForSelector('.my-levels');
