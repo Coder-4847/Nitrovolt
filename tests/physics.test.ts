@@ -105,7 +105,7 @@ describe('grey-box track', () => {
   it('the path bot completes the whole course without a respawn', async () => {
     const track = buildGreyboxTrack();
     const sim = await Simulation.create(track, cloneParams(VOLT));
-    const bot = new PathBot(track.centerline, track.centerSurface, false, sim.vehicle.params);
+    const bot = new PathBot(track.centerline, track.centerSurface, false, sim.vehicle.params, track.centerFrame);
     let ticks = 0;
     while (!bot.finished && ticks < 9000) {
       sim.step(bot.drive(sim.vehicle));

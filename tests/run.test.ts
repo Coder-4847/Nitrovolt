@@ -138,11 +138,12 @@ describe('run logic', () => {
   });
 
   it('counts laps on a closed circuit and finishes on the last one', async () => {
-    const lv = LEVELS.find((l) => l.id === 'circuit01')!;
+    const lv = LEVELS.find((l) => l.id === 'c20')!;
     const track = buildTrack(lv);
     const s = await Simulation.create(track, cloneParams(VOLT), 0);
-    const bot = new PathBot(track.centerline, track.centerSurface, true);
-    for (let i = 0; i < 9000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
+    const bot = new PathBot(track.centerline, track.centerSurface, true, s.vehicle.params, track.centerFrame);
+    applyBotHints(bot, lv.bot);
+    for (let i = 0; i < 12000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
     expect(s.run.state).toBe('finished');
     // 2 laps x (2 checkpoints + 1 line)
     expect(s.run.splits).toHaveLength(6);
@@ -156,7 +157,7 @@ describe('built-in levels', () => {
       const track = buildTrack(lv);
       const def = getCar(lv.car);
       const s = await Simulation.create(track, carParams(def.id), 0, undefined, def.behavior);
-      const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, s.vehicle.params);
+      const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, s.vehicle.params, track.centerFrame);
       applyBotHints(bot, lv.bot);
       for (let i = 0; i < 20000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
       expect(s.run.state).toBe('finished');

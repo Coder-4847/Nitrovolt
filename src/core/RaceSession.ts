@@ -1,6 +1,6 @@
 import { Quaternion, Vector3 } from 'three';
 import { AudioEngine } from '../audio/AudioEngine';
-import { CarDef } from '../data/cars';
+import { CarDef, carParams, getCar } from '../data/cars';
 import { CampaignState } from '../data/campaign';
 import { PHYSICS_DT } from './FixedLoop';
 import { Simulation, SimulationEvent } from '../physics/Simulation';
@@ -73,6 +73,8 @@ interface GhostSlot {
   player: GhostPlayer;
   view: CarView;
   pose: RenderPose;
+  /** Car the ghost's view shows (car gates switch it). */
+  car: string;
 }
 
 /** One attempt-after-attempt session on a level: countdown, driving, ghosts, records and the finish flow. */
@@ -245,7 +247,7 @@ export class RaceSession {
         // a ghost of another layout (an edited player level) would drive through thin air
         if (!data || data.carId !== this.def.id || data.levelHash !== this.levelHash) continue;
         const player = await GhostPlayer.create(this.track, cloneParams(this.source.params), this.def.behavior, data, this.levelHash);
-        slots.push({ kind, player, view: this.ctx.gfx.addGhost(this.source.params, this.def.id, GHOST_COLOR[kind]), pose: blankPose() });
+        slots.push({ kind, player, view: this.ctx.gfx.addGhost(this.source.params, this.def.id, GHOST_COLOR[kind]), pose: blankPose(), car: this.def.id });
       }
     }
     if (this.disposed || gen !== this.ghostGen) {
@@ -415,8 +417,22 @@ export class RaceSession {
     this.prevBoost = boosting;
 
     for (const g of this.ghosts) {
+      const car = g.player.carAt(g.player.currentTick);
+      if (car !== g.car) {
+        // the ghost drove through a car gate: swap its model
+        const shown = g.view.root.visible;
+        this.ctx.gfx.removeGhost(g.view);
+        g.view = this.ctx.gfx.addGhost(carParams(car), getCar(car).id, GHOST_COLOR[g.kind]);
+        g.view.ghostShown = shown;
+        g.car = car;
+      }
       g.player.pose(a, g.pose);
       g.view.update(g.pose);
+    }
+    // the player's own car gate swaps
+    if (gfx.ensureCar(this.sim.carId, v.params)) {
+      audio.setVoice(gfx.def.voice);
+      hud.setTitle(`${this.track.name} · ${gfx.def.label}`);
     }
     if (!this.paused) gfx.updateFx(dt, v);
     gfx.setDrive(this.phase === 'grid' ? 0 : v.appliedInput.brake, mods.boostLevel);

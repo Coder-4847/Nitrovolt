@@ -18,6 +18,10 @@ const TABS: Array<[Tab, string]> = [
   ['gameplay', 'Gameplay'], ['graphics', 'Graphics'], ['audio', 'Audio'], ['controls', 'Controls'], ['garage', 'Garage'], ['access', 'Accessibility'], ['data', 'Data'],
 ];
 let lastTab: Tab = 'gameplay';
+/** Open the settings on a given tab next time (the main menu's Garage button). */
+export function setSettingsTab(t: Tab): void {
+  lastTab = t;
+}
 
 /** Enter / leave fullscreen and, on phones, try to hold landscape. */
 export function toggleFullscreen(): void {

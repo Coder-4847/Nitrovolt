@@ -30,16 +30,16 @@ describe('special block effects', () => {
   it('turbo adds speed beyond what the plain car reaches', async () => {
     const plain = await padSim(null);
     const boosted = await padSim('turbo');
-    driveTo(plain, -230, throttle);
-    driveTo(boosted, -230, throttle);
+    driveTo(plain, -460, throttle);
+    driveTo(boosted, -460, throttle);
     expect(boosted.vehicle.speed).toBeGreaterThan(plain.vehicle.speed + 6);
   });
 
   it('turbo2 is stronger than turbo', async () => {
     const a = await padSim('turbo');
     const b = await padSim('turbo2');
-    driveTo(a, -230, throttle);
-    driveTo(b, -230, throttle);
+    driveTo(a, -460, throttle);
+    driveTo(b, -460, throttle);
     expect(b.vehicle.speed).toBeGreaterThan(a.vehicle.speed + 3);
   });
 
@@ -47,7 +47,7 @@ describe('special block effects', () => {
     const s = await padSim('reactor');
     let sawLift = false;
     let ended = false;
-    driveTo(s, -330, throttle, () => {
+    driveTo(s, -660, throttle, () => {
       const m = s.vehicle.effects.mods;
       if (m.lift > 0.3 && m.boostAccel > 10) sawLift = true;
       if (sawLift && m.lift === 0) ended = true;
@@ -59,9 +59,9 @@ describe('special block effects', () => {
   it('noSteer ignores steering on the pad', async () => {
     const run = async (effect: EffectId | null): Promise<number> => {
       const s = await padSim(effect);
-      driveTo(s, -75, throttle); // the pad spans z = -72 .. -104
+      driveTo(s, -150, throttle); // the pad spans z = -144 .. -208
       const x0 = s.vehicle.position.x;
-      driveTo(s, -103, () => makeFrame(1, 0.3, 0)); // full right while crossing it
+      driveTo(s, -206, () => makeFrame(1, 0.3, 0)); // full right while crossing it
       return Math.abs(s.vehicle.position.x - x0);
     };
     const steered = await run(null);
@@ -73,9 +73,9 @@ describe('special block effects', () => {
   it('noBrake makes the brake do nothing on the pad', async () => {
     const run = async (effect: EffectId | null): Promise<number> => {
       const s = await padSim(effect);
-      driveTo(s, -75, throttle); // fast, entering the pad (z = -72 .. -104)
+      driveTo(s, -150, throttle); // fast, entering the pad (z = -144 .. -208)
       const v0 = s.vehicle.speed;
-      driveTo(s, -103, () => makeFrame(0, 0, 1));
+      driveTo(s, -206, () => makeFrame(0, 0, 1));
       return v0 - s.vehicle.speed;
     };
     const braked = await run(null);
@@ -87,8 +87,8 @@ describe('special block effects', () => {
   it('engineOff stops the engine pushing', async () => {
     const run = async (effect: EffectId | null): Promise<number> => {
       const s = await padSim(effect);
-      driveTo(s, -100, throttle);
-      driveTo(s, -140, throttle);
+      driveTo(s, -200, throttle);
+      driveTo(s, -280, throttle);
       return s.vehicle.speed;
     };
     expect(await run('engineOff')).toBeLessThan((await run(null)) - 5);
@@ -97,10 +97,10 @@ describe('special block effects', () => {
   it('cruise control holds the entry speed regardless of pedals', async () => {
     const s = await padSim('cruise');
     let entry = 0;
-    driveTo(s, -80, throttle, () => (entry = s.vehicle.forwardSpeed));
+    driveTo(s, -160, throttle, () => (entry = s.vehicle.forwardSpeed));
     // on the pad: full throttle should NOT keep accelerating, brake should NOT stop the car
     const cruiseSpeeds: number[] = [];
-    driveTo(s, -125, throttle, () => s.vehicle.effects.mods.cruiseSpeed !== null && cruiseSpeeds.push(s.vehicle.forwardSpeed));
+    driveTo(s, -250, throttle, () => s.vehicle.effects.mods.cruiseSpeed !== null && cruiseSpeeds.push(s.vehicle.forwardSpeed));
     expect(cruiseSpeeds.length).toBeGreaterThan(20);
     const last = cruiseSpeeds[cruiseSpeeds.length - 1]!;
     expect(Math.abs(last - cruiseSpeeds[0]!)).toBeLessThan(6);
@@ -110,11 +110,11 @@ describe('special block effects', () => {
   it('slow motion scales the physics time step, and gravity pads lower gravity', async () => {
     const sm = await padSim('slowMo');
     let minScale = 1;
-    driveTo(sm, -170, throttle, () => (minScale = Math.min(minScale, sm.vehicle.effects.mods.timeScale)));
+    driveTo(sm, -340, throttle, () => (minScale = Math.min(minScale, sm.vehicle.effects.mods.timeScale)));
     expect(minScale).toBeLessThan(0.5);
     const gr = await padSim('gravity');
     let g = 1;
-    driveTo(gr, -170, throttle, () => (g = Math.min(g, gr.vehicle.effects.mods.gravityScale)));
+    driveTo(gr, -340, throttle, () => (g = Math.min(g, gr.vehicle.effects.mods.gravityScale)));
     expect(g).toBeLessThan(0.6);
   });
 
@@ -122,7 +122,7 @@ describe('special block effects', () => {
     const items: ChainItem[] = [{ type: 'start' }, { type: 'straight2', surface: 'fragile' }, { type: 'straight4' }, { type: 'finish' }];
     const track = buildTrack({ id: 'f', name: 'f', car: 'volt', theme: 'g', seed: 1, medalTimes: medals, blocks: layoutChain(items).blocks });
     const s = await Simulation.create(track, cloneParams(VOLT), 0);
-    const above = track.start.position.clone().add(new Vector3(0, 0, -30)).setY(8);
+    const above = track.start.position.clone().add(new Vector3(0, 0, -60)).setY(8);
     s.vehicle.reset(above, new Quaternion(), new Vector3(0, -2, 0));
     let broke = false;
     for (let i = 0; i < 300; i++) {

@@ -7,7 +7,7 @@ import { buildTrack } from '../src/tracks/TrackGenerator';
 
 /** Measures high-frequency body motion (the "vibration") and event spam while the bot drives a level. */
 async function main(): Promise<void> {
-  const id = process.argv[2] ?? 'sprint01';
+  const id = process.argv[2] ?? 'c01';
   const json = JSON.parse(readFileSync(`src/data/levels/${id}.json`, 'utf8'));
   const track = buildTrack(json);
   const def = getCar(json.car);

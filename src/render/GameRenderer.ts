@@ -2,7 +2,8 @@ import {
   Color, DirectionalLight, Material, Fog, HemisphereLight, InstancedMesh, Mesh, NeutralToneMapping, PCFShadowMap, PMREMGenerator,
   PerspectiveCamera, Scene, Vector3, WebGLRenderTarget, WebGLRenderer,
 } from 'three';
-import { CarDef } from '../data/cars';
+import { CarDef, getCar } from '../data/cars';
+import { loadLivery } from '../core/Livery';
 import { RenderPose, Vehicle } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { TrackData } from '../tracks/TrackTypes';
@@ -22,6 +23,7 @@ import { SkidMarks } from './SkidMarks';
 import { Sparks } from './Sparks';
 import { TrackView } from './TrackView';
 import { WheelFx } from './WheelFx';
+import { Showroom } from './Showroom';
 
 const idHash = (s: string): number => [...s].reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619), 2166136261) >>> 0;
 
@@ -134,6 +136,24 @@ export class GameRenderer {
     this.wheelFx.clear();
     this.skid.clear();
     this.skid.width = params.wheelRadius * 0.85;
+  }
+
+  /**
+   * Make sure the player's car on screen is `id` (car gates swap it mid-run): replaces the model and the
+   * camera's character without snapping the camera. Returns true when it changed.
+   */
+  ensureCar(id: string, params: VehicleParams): boolean {
+    if (this.def.id === id) return false;
+    const def = getCar(id);
+    const livery = loadLivery(def);
+    this.scene.remove(this.car.root);
+    this.def = def;
+    this.car = new CarView(def.id, params, livery.primary, livery.accent);
+    this.car.addDriverLights();
+    this.scene.add(this.car.root);
+    this.rig.style = def.camera;
+    this.skid.width = params.wheelRadius * 0.85;
+    return true;
   }
 
   /** A translucent ghost car in the scene; call `view.update(pose)` each frame. */
@@ -429,8 +449,24 @@ export class GameRenderer {
     this.sun.position.copy(_v).addScaledVector(dir, 160);
   }
 
+  private showroom: Showroom | null = null;
+
+  /** Menu backdrop: the car on its podium (built on first use). */
+  renderShowroom(dt: number, def: CarDef, livery: { primary: number; accent: number }, shift: number): void {
+    this.showroom ??= new Showroom(this.pmrem);
+    const sr = this.showroom;
+    sr.setCar(def, livery);
+    sr.shift = shift;
+    if (this.dynamicResolution && this.governor.update(dt)) this.resize();
+    const el = this.renderer.domElement;
+    sr.update(dt, el.clientWidth || 1280, el.clientHeight || 720);
+    this.renderer.info.reset();
+    this.renderer.render(sr.scene, sr.camera);
+  }
+
   dispose(): void {
     window.removeEventListener('resize', this.resize);
+    this.showroom?.dispose();
     this.envRT?.dispose();
     this.pmrem.dispose();
     this.scenery?.dispose();

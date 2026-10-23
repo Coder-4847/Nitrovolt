@@ -28,6 +28,12 @@ export class CarView {
   private readonly model: CarModel;
   private readonly mountY: number;
   private readonly mounts: Array<[number, number]>;
+  /** Shown suspension length per wheel (droop is rate-limited; see update). */
+  private readonly shownSpring = [0, 0, 0, 0];
+  private readonly lastSpin = [0, 0, 0, 0];
+  private readonly shownSpin = [0, 0, 0, 0];
+  private readonly blurAmount = [0, 0, 0, 0];
+  private first = true;
 
   constructor(
     readonly id: CarId,
@@ -186,15 +192,39 @@ export class CarView {
     for (const m of this.model.cockpitHidden) m.visible = !on;
   }
 
+  /**
+   * Place the car and its wheels for this frame. Two things keep the wheels calm at speed: a wheel that
+   * loses contact for a tick no longer flicks to full droop (extension is rate-limited, compression is
+   * immediate), and a wheel spinning faster than the eye can follow shows a blurred rim that turns
+   * slowly instead of strobing spokes.
+   */
   update(pose: RenderPose): void {
     this.root.position.copy(pose.position);
     this.root.quaternion.copy(pose.quaternion);
     for (let k = 0; k < 4; k++) {
       const [x, z] = this.mounts[k]!;
       const wr = this.wheelRoots[k]!;
-      wr.position.set(x, this.mountY - pose.springLen[k]!, z);
+      const target = pose.springLen[k]!;
+      if (this.first || target < this.shownSpring[k]!) this.shownSpring[k] = target;
+      else this.shownSpring[k] = Math.min(target, this.shownSpring[k]! + 0.045);
+      wr.position.set(x, this.mountY - this.shownSpring[k]!, z);
       wr.rotation.y = -pose.steer[k]!;
-      this.wheelSpin[k]!.rotation.x = -pose.spin[k]!;
+      const spin = pose.spin[k]!;
+      const d = this.first ? 0 : spin - this.lastSpin[k]!;
+      this.lastSpin[k] = spin;
+      // past ~0.35 rad per frame the spokes start to alias: fade in the blur and slow the visible roll
+      const fast = Math.min(1, Math.max(0, (Math.abs(d) - 0.25) / 0.2));
+      this.blurAmount[k] += (fast - this.blurAmount[k]!) * 0.3;
+      const step = Math.sign(d) * Math.min(Math.abs(d), 0.25 + 0.05 * this.blurAmount[k]!);
+      this.shownSpin[k] = this.blurAmount[k]! > 0.5 ? this.shownSpin[k]! + step : spin;
+      const w = this.wheelSpin[k]!;
+      w.rotation.x = -this.shownSpin[k]!;
+      const blurred = this.blurAmount[k]! > 0.5;
+      const detail = w.userData.detail as Array<{ visible: boolean }> | undefined;
+      if (detail) for (const o of detail) o.visible = !blurred;
+      const blur = w.userData.blur as { visible: boolean } | undefined;
+      if (blur) blur.visible = blurred;
     }
+    this.first = false;
   }
 }

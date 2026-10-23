@@ -1,5 +1,5 @@
 import {
-  BoxGeometry, BufferAttribute, BufferGeometry, CanvasTexture, Color, CylinderGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
+  BoxGeometry, BufferAttribute, BufferGeometry, CanvasTexture, CircleGeometry, Color, CylinderGeometry, Group, InstancedMesh, LatheGeometry, Matrix4,
   Mesh, MeshBasicMaterial, MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Quaternion, RepeatWrapping, SRGBColorSpace, Vector2, Vector3,
 } from 'three';
 
@@ -17,6 +17,10 @@ export interface CarMaterials {
   metal: MeshStandardMaterial;
   head: MeshBasicMaterial;
   tail: MeshBasicMaterial;
+  /** Coloured LED strips (stadium car rear, light bars). */
+  led: MeshBasicMaterial;
+  /** Chrome bumpers and trim. */
+  chrome: MeshStandardMaterial;
 }
 
 export function makeMaterials(primary: number, accent: number, number = 1): CarMaterials {
@@ -28,11 +32,51 @@ export function makeMaterials(primary: number, accent: number, number = 1): CarM
     carbon: new MeshStandardMaterial({ map: carbonTexture(), color: 0x9aa0a8, roughness: 0.38, metalness: 0.3 }),
     accent: new MeshStandardMaterial({ color: accent, roughness: 0.45, metalness: 0.2 }),
     dark: new MeshStandardMaterial({ color: 0x1b1d21, roughness: 0.72, metalness: 0.1 }),
-    glass: new MeshPhysicalMaterial({ color: 0x141a22, roughness: 0.1, metalness: 0.1, clearcoat: 1, clearcoatRoughness: 0.1 }),
+    glass: new MeshPhysicalMaterial({ color: 0x2c3a48, roughness: 0.04, metalness: 0.2, clearcoat: 1, clearcoatRoughness: 0.05, envMapIntensity: 1.6 }),
     metal: new MeshStandardMaterial({ color: 0xa8aeb6, roughness: 0.35, metalness: 0.85 }),
     head: new MeshBasicMaterial({ color: new Color(0.95, 0.97, 1) }),
     tail: new MeshBasicMaterial({ color: new Color(0.5, 0.03, 0.03) }),
+    led: new MeshBasicMaterial({ color: new Color(0.25, 0.95, 0.9) }),
+    chrome: new MeshStandardMaterial({ color: 0xe8ecf0, roughness: 0.18, metalness: 1 }),
   };
+}
+
+/** A round lamp (headlight / spot) facing -Z (or +Z with `back`). */
+export function lamp(r: number, mat: MeshBasicMaterial, x: number, y: number, z: number, back = false): Mesh {
+  const m = new Mesh(new CylinderGeometry(r, r, 0.04, 18).rotateX(Math.PI / 2), mat);
+  m.position.set(x, y, z + (back ? 0.02 : -0.02));
+  return m;
+}
+
+/** Wheel-arch flare: a half tube over a wheel (axis along X) of inner radius `r`, `w` wide. */
+export function flare(r: number, w: number, thick: number, mat: MeshStandardMaterial, x: number, y: number, z: number, span = Math.PI): Mesh {
+  const pts: Vector2[] = [new Vector2(r, -w / 2), new Vector2(r + thick, -w / 2 + thick * 0.3), new Vector2(r + thick, w / 2 - thick * 0.3), new Vector2(r, w / 2)];
+  // lathe about Y, then turn so the axis is X and the open side faces down
+  const g = new LatheGeometry(pts, 20, -span / 2, span).rotateZ(Math.PI / 2).rotateX(-Math.PI / 2);
+  const m = new Mesh(g, mat);
+  m.position.set(x, y, z);
+  return m;
+}
+
+/** Static number plate (white, black digits). */
+export function plateTexture(text: string): CanvasTexture {
+  const c = document.createElement('canvas');
+  c.width = 128;
+  c.height = 48;
+  const g = c.getContext('2d')!;
+  g.fillStyle = '#f2f2ee';
+  g.fillRect(0, 0, 128, 48);
+  g.strokeStyle = '#222';
+  g.lineWidth = 4;
+  g.strokeRect(3, 3, 122, 42);
+  g.fillStyle = '#111';
+  g.font = `800 34px ${FONT}`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(text, 64, 26);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  return t;
 }
 
 export type TyreKind = 'sport' | 'knobby' | 'studded' | 'balloon';
@@ -332,5 +376,33 @@ export function makeWheel(kind: TyreKind, radius: number, width: number, outer: 
   spin.traverse((o) => {
     if (o instanceof Mesh || o instanceof InstancedMesh) o.castShadow = true;
   });
+  // fast-spinning wheels: spokes and tread would strobe, so a blurred disc and a smooth tyre stand in
+  const detail = spin.children.filter((c) => c !== spin.children[0] && c !== spin.children[1]);
+  const blur = new Mesh(new CircleGeometry(rimR * 0.99, 28).rotateY(outer * Math.PI / 2), blurMaterial(kind === 'sport' ? 0x34383e : 0xb8bec6));
+  blur.position.x = face + outer * 0.005;
+  blur.visible = false;
+  spin.add(blur);
+  spin.userData.detail = detail;
+  spin.userData.blur = blur;
   return spin;
+}
+
+/** Radially blurred rim face (transparent toward the hub ring, a faint spoke haze). */
+function blurMaterial(rim: number): MeshStandardMaterial {
+  const c = document.createElement('canvas');
+  c.width = c.height = 64;
+  const g = c.getContext('2d')!;
+  const col = new Color(rim);
+  const css = `rgba(${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)},`;
+  const grad = g.createRadialGradient(32, 32, 2, 32, 32, 32);
+  grad.addColorStop(0, css + '1)');
+  grad.addColorStop(0.25, css + '0.95)');
+  grad.addColorStop(0.3, 'rgba(20,22,26,0.85)');
+  grad.addColorStop(0.85, css + '0.7)');
+  grad.addColorStop(1, 'rgba(20,22,26,0.9)');
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 64, 64);
+  const t = new CanvasTexture(c);
+  t.colorSpace = SRGBColorSpace;
+  return new MeshStandardMaterial({ map: t, transparent: true, roughness: 0.4, metalness: 0.6 });
 }

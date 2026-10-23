@@ -9,13 +9,13 @@ import { buildTrack } from '../src/tracks/TrackGenerator';
 
 /** Renders the chase camera at a fixed frame rate (no GPU) and measures how much the car jitters on screen. */
 async function main(): Promise<void> {
-  const id = process.argv[2] ?? 'sprint01';
+  const id = process.argv[2] ?? 'c01';
   const fps = Number(process.argv[3] ?? 60);
   const json = JSON.parse(readFileSync(`src/data/levels/${id}.json`, 'utf8'));
   const track = buildTrack(json);
   const def = getCar(json.car);
   const sim = await Simulation.create(track, carParams(json.car), false, undefined, def.behavior);
-  const bot = new PathBot(track.centerline, track.centerSurface, track.laps > 1, sim.vehicle.params);
+  const bot = new PathBot(track.centerline, track.centerSurface, track.laps > 1, sim.vehicle.params, track.centerFrame);
   applyBotHints(bot, json.bot);
   const v = sim.vehicle;
   const rig = new CameraRig();

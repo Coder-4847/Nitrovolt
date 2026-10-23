@@ -24,7 +24,7 @@ const PUFFS: Record<SurfaceId, Puff> = {
   sand: { r: 0.88, g: 0.77, b: 0.52, alpha: 0.38, size: 0.8, rate: 60, rise: 0.8, life: 1.1, slipOnly: false },
   snow: { r: 0.95, g: 0.97, b: 1.0, alpha: 0.42, size: 0.55, rate: 50, rise: 0.5, life: 0.9, slipOnly: false },
   ice: { r: 0.85, g: 0.94, b: 1.0, alpha: 0.4, size: 0.55, rate: 50, rise: 0.4, life: 0.8, slipOnly: true },
-  tarmac: { r: 0.78, g: 0.78, b: 0.8, alpha: 0.4, size: 0.7, rate: 80, rise: 0.9, life: 1.2, slipOnly: true },
+  tarmac: { r: 0.78, g: 0.78, b: 0.8, alpha: 0.26, size: 0.6, rate: 70, rise: 0.9, life: 1.0, slipOnly: true },
   wood: { r: 0.7, g: 0.66, b: 0.6, alpha: 0.3, size: 0.6, rate: 55, rise: 0.8, life: 1.0, slipOnly: true },
   plastic: { r: 0.9, g: 0.5, b: 0.7, alpha: 0.3, size: 0.6, rate: 55, rise: 0.8, life: 1.0, slipOnly: true },
   tech: { r: 0.7, g: 0.78, b: 0.9, alpha: 0.3, size: 0.6, rate: 55, rise: 0.8, life: 1.0, slipOnly: true },
@@ -52,6 +52,11 @@ export class WheelFx {
       }
       const puff = PUFFS[w.surface];
       const loose = SURFACES[w.surface].loose;
+      // a tyre carrying almost no load (just touching after a crest) reads as "sliding": ignore it
+      if (w.load < 800) {
+        this.acc[k] = 0;
+        continue;
+      }
       const slip = Math.max(0, Math.min(1.4, w.gripUse));
       const sliding = w.slipping || slip > 0.96;
       if (puff.slipOnly && !sliding) {
@@ -73,8 +78,10 @@ export class WheelFx {
     for (const w of v.wheels) {
       if (!w.contact) continue;
       const puff = PUFFS[w.surface];
-      if (puff.slipOnly && w.surface !== 'tarmac') continue;
-      const n = Math.round(Math.min(22, 4 + intensity * 0.8) * (SURFACES[w.surface].loose ? style.amount : 0.5));
+      const loose = SURFACES[w.surface].loose;
+      // hard ground only puffs on a really hard landing, and only a little
+      if (!loose && (w.surface !== 'tarmac' || intensity < 12)) continue;
+      const n = Math.round(Math.min(22, 4 + intensity * 0.8) * (loose ? style.amount : 0.25));
       for (let i = 0; i < n; i++) this.spawn(v, w.contactPoint, puff, SURFACES[w.surface].loose ? style.size : 1, 2.2);
     }
   }

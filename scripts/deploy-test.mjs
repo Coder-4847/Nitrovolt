@@ -36,11 +36,12 @@ await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.lo
 const controlled = await page.evaluate(() => !!navigator.serviceWorker.controller);
 const cached = await page.evaluate(async () => {
   const c = await caches.open((await caches.keys()).find((k) => k.startsWith('nitrovolt-')));
-  return (await c.keys()).length;
+  const keys = (await c.keys()).map((r) => r.url);
+  return { n: keys.length, art: keys.filter((u) => u.includes('/art/')).length };
 });
-ok(controlled, `service worker controls the page (${cached} files precached)`);
+ok(controlled && cached.art >= 9, `service worker controls the page (${cached.n} files precached, ${cached.art} menu pictures)`);
 
-await page.locator('.mm-buttons .mm-item.primary').click();
+await page.locator('.mm-list .mm-item').nth(1).click(); // Continue
 await page.waitForFunction(() => document.querySelector('.hud')?.style.display !== 'none' && document.querySelector('.hud-time'), null, { timeout: 60000 });
 await page.waitForTimeout(2500);
 ok(true, 'a race starts online (physics WASM loaded from its own file)');
@@ -50,22 +51,22 @@ await ctx.setOffline(true);
 await page.goto(base);
 await page.waitForSelector('.screen.top', { timeout: 60000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 ok(true, 'menu loads with the network off');
-await page.locator('.mm-buttons .mm-item.primary').click();
+await page.locator('.mm-list .mm-item').nth(1).click(); // Continue
 await page.waitForTimeout(6000);
 const racing = await page.evaluate(() => getComputedStyle(document.querySelector('.hud')).display !== 'none');
 ok(racing, 'a race starts offline');
-await page.screenshot({ path: '/tmp/claude-0/shots/p8_offline_race.png' });
+await page.screenshot({ path: `${process.env.SHOTS ?? '/tmp'}/p8_offline_race.png` });
 // determinism in the production build: the bot reproduces the author time recorded by the dev pipeline
 await ctx.setOffline(false);
 const p3 = await ctx.newPage();
-await p3.goto(`${base}?debug=1&autodrive=1&level=sprint01&quality=low`);
+await p3.goto(`${base}?debug=1&autodrive=1&level=c18&quality=low`);
 await p3.waitForFunction(() => window.__nv?.race, null, { timeout: 60000 });
 const res = await p3.evaluate(async () => {
   const g = window.__nv;
   for (let i = 0; i < 90 && g.simulation.run.state !== 'finished'; i++) g.fastForward(1);
   return { time: g.simulation.run.finishTime };
 });
-const author = JSON.parse(readFileSync(new URL('../src/data/levels/sprint01.json', import.meta.url), 'utf8')).medalTimes.author;
-ok(res.time === author, `production physics is bit-identical: bot finishes Sprint 01 in ${res.time} ms (author ${author})`);
+const author = JSON.parse(readFileSync(new URL('../src/data/levels/c18.json', import.meta.url), 'utf8')).medalTimes.author;
+ok(res.time === author, `production physics is bit-identical: bot finishes c18 (two cars) in ${res.time} ms (author ${author})`);
 console.log(errors.length ? errors.join('\n') : 'no console errors');
 await browser.close();

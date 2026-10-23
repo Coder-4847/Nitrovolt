@@ -5,6 +5,7 @@ import { medalBadge } from '../medals';
 import { MEDAL_META } from '../medals';
 import { AppApi } from './AppApi';
 import { header, levelMedal } from './common';
+import { levelCars } from './LevelSelectScreen';
 import { Screen } from './ScreenManager';
 import { MEDAL_POINTS } from '../../data/campaign';
 
@@ -22,7 +23,7 @@ export class LeaderboardScreen implements Screen {
     const c = this.app.campaign();
     const total = rows.reduce((a, r) => a + r.pb!.best, 0);
     const table = h('table', { class: 'lb' });
-    table.append(h('thead', {}, h('tr', {}, ...['#', 'Level', 'Car', 'Best', 'Medal', 'To next', 'Date', ''].map((t) => h('th', {}, t)))));
+    table.append(h('thead', {}, h('tr', {}, ...['#', 'Track', 'Car', 'Best', 'Medal', 'To next', 'Date', ''].map((t) => h('th', {}, t)))));
     const tb = h('tbody');
     const order = new Map(c.levels.map((l, i) => [l.entry.levelId, i]));
     rows.sort((a, b) => (order.get(a.lv.id) ?? 999) - (order.get(b.lv.id) ?? 999));
@@ -37,7 +38,7 @@ export class LeaderboardScreen implements Screen {
       tb.append(h('tr', {},
         h('td', {}, String(i + 1)),
         h('td', { class: 'ln' }, r.lv.name),
-        h('td', {}, this.app.car(r.lv.car).label),
+        h('td', {}, levelCars(this.app, r.lv.id).map((x) => this.app.car(x).label).join(' › ')),
         h('td', { class: 'tm' }, formatTime(r.pb!.best)),
         h('td', { html: `${medalBadge(medal)} <span class="mn">${MEDAL_META[medal].label}</span>` }),
         h('td', { class: 'gap' }, gap),
@@ -55,14 +56,14 @@ export class LeaderboardScreen implements Screen {
       if (m !== 'none') counts[m]!++;
     }
     const stats = h('div', { class: 'lb-stats' },
-      h('div', {}, h('b', {}, String(rows.length)), ' levels finished'),
+      h('div', {}, h('b', {}, String(rows.length)), ' tracks finished'),
       h('div', {}, h('b', {}, `${c.totalPoints}`), ` medal points (${MEDAL_POINTS.author} per Author)`),
       h('div', {}, h('b', {}, rows.length ? formatTime(total) : '—'), ' total of best times'),
       h('div', { class: 'lb-medals', html: (['author', 'gold', 'silver', 'bronze'] as const).map((m) => `<span>${medalBadge(m)} ${counts[m]}</span>`).join('') }),
     );
     this.el.replaceChildren(
-      header('Leaderboard', () => this.app.screens.back()),
-      h('div', { class: 'ls-body' }, stats, rows.length ? h('div', { class: 'lb-scroll' }, table) : h('div', { class: 'empty-note' }, 'No finished runs yet. Finish a level to set your first personal best.')),
+      header('Records', () => this.app.screens.back()),
+      h('div', { class: 'ls-body' }, stats, rows.length ? h('div', { class: 'lb-scroll' }, table) : h('div', { class: 'empty-note' }, 'No finished runs yet. Finish a track to set your first personal best.')),
     );
   }
 }

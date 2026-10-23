@@ -1,20 +1,26 @@
-import { SEASONS, SEASON_COUNT, LevelState, LEVELS_PER_SEASON } from '../../data/campaign';
-import { Medal } from '../../core/Medals';
+import { LevelState, TIERS, TIER_UNLOCK } from '../../data/campaign';
 import { Records } from '../../core/Records';
 import { h } from '../dom';
 import { formatTime } from '../Hud';
 import { medalBadge } from '../medals';
 import { AppApi } from './AppApi';
-import { header, levelMedal, pbText } from './common';
+import { header, pbText } from './common';
 import { Screen } from './ScreenManager';
-import { TrackJson } from '../../tracks/TrackSchema';
 
-type Kind = 'campaign' | 'free';
+type Kind = 'campaign' | 'training';
 
-/** Campaign map (4 seasons x 25) or the free-play list of every level. */
+/** Cars a level is driven with (its start car, then every gate in order). */
+export function levelCars(app: AppApi, id: string): string[] {
+  const lv = app.level(id);
+  if (!lv) return [];
+  const out = [lv.car];
+  for (const b of lv.blocks) if (b.type.startsWith('gate')) out.push(b.type.slice(4).toLowerCase());
+  return out.filter((c, i) => i === 0 || c !== out[i - 1]);
+}
+
+/** The campaign (five tiers of five tracks, a row each) or the list of training tracks. */
 export class LevelSelectScreen implements Screen {
   readonly el = h('div', { class: 'screen level-select' });
-  private season = 0;
 
   constructor(
     private readonly app: AppApi,
@@ -23,82 +29,52 @@ export class LevelSelectScreen implements Screen {
 
   onShow(): void {
     const c = this.app.campaign();
-    // open on the season of the level the player would continue
-    if (this.kind === 'campaign') {
-      const cont = c.levels.find((l) => l.entry.levelId === this.app.continueLevel());
-      if (cont && this.el.childElementCount === 0) this.season = cont.entry.season;
-    }
-    this.build();
-  }
-
-  private build(): void {
-    const c = this.app.campaign();
     const body = h('div', { class: 'ls-body' });
-    const title = this.kind === 'campaign' ? 'Campaign' : 'Free Play';
-    this.el.replaceChildren(header(title, () => this.app.screens.back(), h('div', { class: 'ls-pts' }, `${c.totalPoints} pts`)), body);
-
+    const title = this.kind === 'campaign' ? 'Campaign' : 'Training';
+    this.el.replaceChildren(header(title, () => this.app.screens.back(), h('div', { class: 'ls-pts' }, this.kind === 'campaign' ? `${c.totalPoints} / ${c.maxPoints} medal points` : `${c.training.length} tracks`)), body);
     if (this.kind === 'campaign') {
-      const tabs = h('div', { class: 'tabs' });
-      for (let s = 0; s < SEASON_COUNT; s++) {
-        const st = c.seasons[s]!;
-        const b = h('button', { class: `tab${s === this.season ? ' on' : ''}${st.unlocked ? '' : ' locked'}`, type: 'button', onclick: () => { this.season = s; this.build(); this.focusTab(); } },
-          `${SEASONS[s]!.name}`, h('small', {}, st.unlocked ? `${st.points}/${st.maxPoints || '—'} pts` : '🔒'));
-        tabs.append(b);
+      for (const t of c.tiers) {
+        const row = h('div', { class: `tier-row${t.unlocked ? '' : ' locked'}`, style: `--tier:${t.def.color}` },
+          h('div', { class: 'tier-tag' }, h('b', {}, t.def.name), h('small', {}, t.unlocked ? `${t.done}/${t.count} done` : `Finish ${TIER_UNLOCK} ${TIERS[t.def.id - 1]?.name ?? ''}`)),
+        );
+        const tiles = h('div', { class: 'tier-tiles' });
+        for (const l of c.levels.filter((x) => x.entry.tier === t.def.id)) tiles.append(this.tile(l));
+        row.append(tiles);
+        body.append(row);
       }
-      body.append(tabs);
-      const st = c.seasons[this.season]!;
-      const info = h('div', { class: 'season-info' }, h('span', {}, SEASONS[this.season]!.blurb));
-      if (!st.unlocked) info.append(h('b', { class: 'bad' }, `Locked: ${st.have} / ${st.required} medal points from earlier seasons`));
-      body.append(info);
-      const grid = h('div', { class: 'cards' });
-      const mine = c.levels.filter((l) => l.entry.season === this.season);
-      for (const l of mine) grid.append(this.card(l));
-      body.append(grid);
-      if (mine.length !== LEVELS_PER_SEASON) body.append(h('div', { class: 'note' }, 'Season incomplete'));
     } else {
-      const grid = h('div', { class: 'cards free' });
-      for (const lv of this.app.levels()) {
-        const s: LevelState | undefined = c.levels.find((x) => x.entry.levelId === lv.id);
-        grid.append(this.cardFor(lv, s?.entry.number ?? null, levelMedal(lv), null));
-      }
+      const grid = h('div', { class: 'tier-tiles training' });
+      for (const l of c.training) grid.append(this.tile(l));
       body.append(grid);
     }
-    const first = this.el.querySelector<HTMLElement>('.card:not(.locked)') ?? this.el.querySelector<HTMLElement>('.card');
+    // focus the first track still without a medal (or the first one)
+    const tiles = [...this.el.querySelectorAll<HTMLElement>('.tile:not(.locked)')];
+    const first = tiles.find((t) => t.dataset.medal === 'none') ?? tiles[0];
     first?.setAttribute('data-autofocus', '');
     first?.focus();
   }
 
-  private focusTab(): void {
-    this.el.querySelector<HTMLElement>('.tab.on')?.focus();
-  }
-
-  private card(l: LevelState): HTMLElement {
-    const id = l.entry.levelId;
-    const num = l.entry.number;
-    if (!id) {
-      return h('div', { class: 'card empty', 'aria-disabled': true }, h('div', { class: 'num' }, String(num)), h('div', { class: 'name' }, 'Coming soon'));
-    }
-    return this.cardFor(this.app.level(id)!, num, l.medal, l.unlocked ? null : (l.lockReason ?? 'Locked'));
-  }
-
-  private cardFor(lv: TrackJson, num: number | null, medal: Medal, lock: string | null): HTMLElement {
+  private tile(l: LevelState): HTMLElement {
+    const lv = this.app.level(l.entry.levelId)!;
     const img = h('img', { class: 'thumb', alt: '', draggable: false });
     this.app.thumbnail(lv.id, (url) => { if (url) img.src = url; }, () => img.isConnected);
-    const car = this.app.car(lv.car);
-    const pb = Records.get(lv.id);
+    const lock = l.unlocked ? null : l.lockReason ?? 'Locked';
     const mt = lv.medalTimes;
-    const card = h('button', {
-      class: `card${lock ? ' locked' : ''}`,
+    const pb = Records.get(lv.id);
+    const cars = levelCars(this.app, lv.id);
+    const num = String(l.entry.number).padStart(2, '0');
+    return h('button', {
+      class: `tile${lock ? ' locked' : ''}`,
       type: 'button',
-      title: lock ?? `Author ${formatTime(mt.author)} · Gold ${formatTime(mt.gold)} · Silver ${formatTime(mt.silver)} · Bronze ${formatTime(mt.bronze)}`,
+      'data-medal': l.medal,
+      title: lock ?? `${lv.name}: ${l.entry.blurb}\nAuthor ${formatTime(mt.author)} · Gold ${formatTime(mt.gold)} · Silver ${formatTime(mt.silver)} · Bronze ${formatTime(mt.bronze)}`,
       onclick: () => (lock ? this.app.toast(lock) : this.app.playLevel(lv.id)),
     },
-      h('div', { class: 'thumb-wrap' }, img, num !== null ? h('span', { class: 'num' }, String(num)) : null, h('span', { class: 'medal-slot', html: medal === 'none' ? '' : medalBadge(medal, 'lg') })),
-      h('div', { class: 'name' }, lv.name),
-      h('div', { class: 'meta' }, h('span', {}, car.label), h('span', { class: 'pb' }, pb ? pbText(lv.id) : '—')),
+      h('div', { class: 'tile-img' }, img, h('span', { class: 'tile-num' }, num), h('span', { class: 'tile-medal', html: l.medal === 'none' ? '' : medalBadge(l.medal, 'lg') })),
+      h('div', { class: 'tile-name' }, lv.name),
+      h('div', { class: 'tile-meta' }, h('span', { class: 'tile-cars' }, cars.map((c) => this.app.car(c).label).join(' › ')), h('span', { class: 'pb' }, pb ? pbText(lv.id) : '')),
       lock ? h('div', { class: 'lock' }, h('span', {}, '🔒'), h('small', {}, lock)) : null,
     );
-    return card;
   }
 
   onBack(): boolean {

@@ -2,7 +2,7 @@ import {
   BufferAttribute, BufferGeometry, CapsuleGeometry, CircleGeometry, Color, ConeGeometry, CylinderGeometry, DoubleSide, FrontSide, Group,
   IcosahedronGeometry, InstancedMesh, Material, Matrix4, MeshStandardMaterial, Quaternion, SphereGeometry, Vector3,
 } from 'three';
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
 import { Rng } from '../../core/Rng';
 import { NOISE_GLSL } from './Landscape';
 import { Prop, PropKind } from './SceneryPlan';
@@ -64,9 +64,13 @@ function crownShade(g: BufferGeometry, centre: [number, number, number], radius:
   return g;
 }
 
-/** A clump of leaves: a lumpy, shaded sphere. */
+/** Subdivision of leaf clumps for the geometry being built: 2 near the road, 1 for the far copies. */
+let clumpDetail = 2;
+
+/** A clump of leaves: a lumpy, softly shaded sphere (merged vertices, so it shades smooth, not faceted). */
 function clump(x: number, y: number, z: number, r: number, seed: number, hex = 0xffffff, sy = 0.9): BufferGeometry {
-  const g = colored(jitter(new IcosahedronGeometry(r, 1).scale(1, sy, 1).translate(x, y, z), r * 0.16, seed, false), hex);
+  const base = mergeVertices(new IcosahedronGeometry(r, clumpDetail).deleteAttribute('uv').deleteAttribute('normal'));
+  const g = colored(jitter(base.scale(1, sy, 1).translate(x, y, z), r * 0.13, seed, false), hex);
   return crownShade(g, [0, 0.62, 0], 0.5, seed);
 }
 
@@ -86,12 +90,14 @@ function branch(a: [number, number, number], b: [number, number, number], r: num
 
 /** Broadleaf tree in a unit box (height 1, crown about 0.8 wide). */
 function treeGeometry(): BufferGeometry {
-  const parts = [trunk(0.5, 0.06, 0.035), branch([0, 0.34, 0], [0.16, 0.52, 0.05], 0.02), branch([0, 0.38, 0], [-0.14, 0.55, -0.06], 0.02)];
+  // the far copy keeps the five biggest clumps and no branches (they are hidden in the crown from afar)
+  const far = clumpDetail < 2;
+  const parts = far ? [trunk(0.5, 0.06, 0.035)] : [trunk(0.5, 0.06, 0.035), branch([0, 0.34, 0], [0.16, 0.52, 0.05], 0.02), branch([0, 0.38, 0], [-0.14, 0.55, -0.06], 0.02)];
   const clumps: Array<[number, number, number, number]> = [
     [0, 0.66, 0, 0.27], [0.17, 0.56, 0.07, 0.2], [-0.16, 0.58, -0.05, 0.21], [0.05, 0.82, -0.1, 0.19],
     [-0.08, 0.83, 0.12, 0.17], [0.12, 0.46, -0.14, 0.16], [-0.11, 0.46, 0.14, 0.16], [0.2, 0.72, -0.08, 0.15],
   ];
-  clumps.forEach(([x, y, z, r], i) => parts.push(clump(x, y, z, r, 7 + i)));
+  clumps.slice(0, far ? 5 : clumps.length).forEach(([x, y, z, r], i) => parts.push(clump(x, y, z, r * (far ? 1.08 : 1), 7 + i)));
   return mergeGeometries(parts)!;
 }
 
@@ -139,7 +145,12 @@ function pineGeometry(snow: boolean): BufferGeometry {
     for (let k = 0; k < pos.count; k++) {
       const shade = 0.62 + 0.38 * ((y - 0.26) / 0.6) + 0.12 * (pos.getY(k) - y) / h;
       let cr = shade, cg = shade, cb = shade;
-      if (snow && nor.getY(k) > 0.45) { cr = 2.6; cg = 2.7; cb = 2.85; } // tinted down by the instance colour: near white
+      if (snow) {
+        // snowy pines are not tinted per instance: bake the needles' green and white snow on the upper faces
+        // snow lies on the flatter upper faces; the rest shows the needles
+        const sn = Math.min(1, Math.max(0, (nor.getY(k) - 0.62) / 0.2)) * (0.55 + 0.45 * ((pos.getX(k) * 7.3 + pos.getZ(k) * 5.1) % 1 + 1) % 1);
+        cr = 0.17 * shade + (0.93 - 0.17 * shade) * sn; cg = 0.33 * shade + (0.95 - 0.33 * shade) * sn; cb = 0.25 * shade + (0.98 - 0.25 * shade) * sn;
+      }
       col.setXYZ(k, cr, cg, cb);
     }
     parts.push(g);
@@ -315,7 +326,10 @@ function foliageMaterial(grass: boolean, time: { value: number }): MeshStandardM
   return m;
 }
 
-/** Instanced scenery: one or two InstancedMeshes per prop kind (near ones cast shadows). */
+/** Props at least this far (m) from the road use the light geometry and cast no shadow. */
+const FAR = 45;
+
+/** Instanced scenery: one or two InstancedMeshes per prop kind (near ones in full detail, casting shadows). */
 export class Scenery {
   readonly group = new Group();
   private readonly mats: Material[] = [];
@@ -346,27 +360,33 @@ export class Scenery {
     this.mats.push(...Object.values(mats));
     for (const [kind, list] of byKind) {
       const def = KINDS[kind];
+      // near the road: full detail (and shadows); further out a lighter copy, never seen up close
+      const near = list.filter((p) => p.near < FAR), far = list.filter((p) => p.near >= FAR);
       const geo = def.geo(snow);
+      clumpDetail = 1;
+      const farGeo = far.length ? def.geo(snow) : geo;
+      clumpDetail = 2;
       this.geos.push(geo);
-      const groups = def.shadow && shadows ? [list.filter((p) => p.near < 45), list.filter((p) => p.near >= 45)] : [list];
-      groups.forEach((items, gi) => {
-        if (!items.length) return;
-        const mesh = new InstancedMesh(geo, mats[def.mat], items.length);
+      if (farGeo !== geo) this.geos.push(farGeo);
+      const groups: Array<[Prop[], BufferGeometry, boolean]> = [[near, geo, !!def.shadow && shadows], [far, farGeo, false]];
+      for (const [items, g, cast] of groups) {
+        if (!items.length) continue;
+        const mesh = new InstancedMesh(g, mats[def.mat], items.length);
         items.forEach((p, i) => {
           _q.setFromAxisAngle(UP, p.rot);
           if (def.uniform) _s.set(p.sy, p.sy, p.sy);
           else _s.set(p.sx, p.sy, p.sz);
           _m.compose(_p.set(p.x, p.y, p.z), _q, _s);
           mesh.setMatrixAt(i, _m);
-          mesh.setColorAt(i, _c.setHex(def.tint === false ? 0xffffff : p.color));
+          mesh.setColorAt(i, _c.setHex(def.tint === false || (snow && kind === 'pine') ? 0xffffff : p.color));
         });
         mesh.instanceMatrix.needsUpdate = true;
         if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
         mesh.computeBoundingSphere();
-        mesh.castShadow = groups.length > 1 && gi === 0;
+        mesh.castShadow = cast;
         mesh.receiveShadow = def.mat !== 'grass';
         this.group.add(mesh);
-      });
+      }
     }
   }
 

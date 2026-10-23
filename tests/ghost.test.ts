@@ -25,7 +25,7 @@ async function record(lv: TrackJson, jitter = false): Promise<Recorded> {
   const track = buildTrack(lv);
   const def = getCar(lv.car);
   const sim = await Simulation.create(track, carParams(def.id), false, undefined, def.behavior);
-  const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, sim.vehicle.params);
+  const bot = new PathBot(track.centerline, track.centerSurface, (lv.laps ?? 1) > 1, sim.vehicle.params, track.centerFrame);
   applyBotHints(bot, lv.bot);
   const rec = new GhostRecorder();
   rec.start(sim);
@@ -58,7 +58,7 @@ const pose = (): RenderPose => ({ position: new Vector3(), quaternion: new Quate
 
 describe('ghost determinism', () => {
   it('a ghost re-simulates its recorded run EXACTLY (state, snapshots, finish time)', async () => {
-    const lv = getLevel('sprint01')!;
+    const lv = getLevel('c01')!;
     const r = await record(lv);
     const p = await player(lv, r.data);
     expect(p.mode).toBe('exact');
@@ -72,8 +72,8 @@ describe('ghost determinism', () => {
     expect(p.mode).toBe('exact');
   });
 
-  it('replays a run that included a respawn, a boost pad and a jump (the level has all three)', async () => {
-    const lv = getLevel('sprint01')!;
+  it('replays a run that included a respawn and a jump', async () => {
+    const lv = getLevel('c01')!;
     const r = await record(lv, true);
     const p = await player(lv, r.data);
     for (let i = 0; i < r.data.ticks; i++) p.step();
@@ -81,7 +81,7 @@ describe('ghost determinism', () => {
   });
 
   it('is exact for every car (behaviours included)', async () => {
-    for (const id of ['gravel01', 'frost01', 'dune01']) {
+    for (const id of ['c05', 'c02', 'c03']) {
       const lv = getLevel(id)!;
       const r = await record(lv);
       const p = await player(lv, r.data);
@@ -91,7 +91,7 @@ describe('ghost determinism', () => {
   });
 
   it('survives a save/load round trip of its serialised form', async () => {
-    const lv = getLevel('boostlab')!;
+    const lv = getLevel('t04')!;
     const r = await record(lv);
     const copy = JSON.parse(JSON.stringify(r.data)) as GhostData;
     const p = await player(lv, copy);
@@ -99,8 +99,22 @@ describe('ghost determinism', () => {
     expect(p.vehicle.stateHash()).toEqual(r.finalHash);
   });
 
+  it('is exact through car gates (the run switches car twice)', async () => {
+    const lv = getLevel('t08')!;
+    const r = await record(lv);
+    const p = await player(lv, r.data);
+    expect(p.mode).toBe('exact');
+    const cars = new Set<string>();
+    for (let i = 0; i < r.data.ticks; i++) {
+      p.step();
+      cars.add(p.carAt(i));
+    }
+    expect(cars.size).toBeGreaterThanOrEqual(3);
+    expect(p.vehicle.stateHash()).toEqual(r.finalHash);
+  });
+
   it('falls back to following the snapshots when the physics no longer matches', async () => {
-    const lv = getLevel('sprint01')!;
+    const lv = getLevel('c01')!;
     const r = await record(lv);
     const p = await player(lv, r.data, (params) => (params.mass *= 1.1)); // tuned car: fingerprint differs
     expect(p.mode).toBe('snapshot');
@@ -118,7 +132,7 @@ describe('ghost determinism', () => {
     expect(physicsFingerprint(a)).toBe(physicsFingerprint(b));
     b.springK += 1;
     expect(physicsFingerprint(a)).not.toBe(physicsFingerprint(b));
-    const lv = getLevel('sprint01')!;
+    const lv = getLevel('c01')!;
     expect(levelFingerprint(lv.blocks, lv.car, 1)).not.toBe(levelFingerprint(lv.blocks.slice(1), lv.car, 1));
   });
 });

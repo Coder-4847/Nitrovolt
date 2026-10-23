@@ -9,6 +9,8 @@ export interface Screen {
   onClose?(): void;
   /** When true the screen below stays visible through it (pause overlays). */
   readonly overlay?: boolean;
+  /** Menus over the showroom: how far right the podium car sits (0 = centred). */
+  readonly backdropShift?: number;
 }
 
 type Dir = 'up' | 'down' | 'left' | 'right';

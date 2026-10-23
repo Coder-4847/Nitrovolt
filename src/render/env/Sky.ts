@@ -27,6 +27,7 @@ export class Sky {
         uSunSize: { value: 0.6 },
         uSunGlow: { value: 0.3 },
         uClouds: { value: 0.3 },
+        uStars: { value: 0 },
         uTime: { value: 0 },
       },
       vertexShader: `
@@ -37,7 +38,7 @@ export class Sky {
         }`,
       fragmentShader: `
         uniform vec3 uZenith, uHorizon, uNadir, uSunCol, uCloudCol, uSun;
-        uniform float uSunSize, uSunGlow, uClouds, uTime;
+        uniform float uSunSize, uSunGlow, uClouds, uStars, uTime;
         varying vec3 vDir;
         float hash2(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
         float noise(vec2 p) {
@@ -55,6 +56,15 @@ export class Sky {
           col = mix(col, mix(uHorizon, vec3(1.0), 0.25), exp(-abs(h) * 28.0) * 0.5);
           col = mix(col, uNadir, smoothstep(0.0, -0.12, h));
           float s = max(dot(d, uSun), 0.0);
+          // night: a field of stars, fewer near the haze at the horizon
+          if (uStars > 0.0 && h > 0.0) {
+            vec2 sp = vec2(atan(d.z, d.x) * 180.0, asin(clamp(h, 0.0, 1.0)) * 360.0);
+            vec2 cell = floor(sp);
+            float r = hash2(cell);
+            vec2 o = fract(sp) - vec2(hash2(cell + 3.1), hash2(cell + 7.7));
+            float star = step(0.985, r) * smoothstep(0.12, 0.0, length(o)) * (0.5 + 0.5 * hash2(cell + 1.3));
+            col += vec3(0.85, 0.9, 1.0) * star * uStars * smoothstep(0.02, 0.25, h);
+          }
           // clouds: a broad soft layer and a finer one, lit toward the sun
           if (uClouds > 0.0 && h > 0.01) {
             vec2 uv = d.xz / (h + 0.1);
@@ -87,6 +97,7 @@ export class Sky {
     u.uSunSize!.value = t.sky.sunSize;
     u.uSunGlow!.value = t.sky.sunGlow;
     u.uClouds!.value = t.sky.clouds;
+    u.uStars!.value = t.sky.stars ? 1 : 0;
   }
 
   update(time: number): void {

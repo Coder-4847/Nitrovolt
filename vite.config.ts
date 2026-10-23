@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 
@@ -32,7 +32,7 @@ const base = process.env.BASE_PATH ?? '/';
 /**
  * Offline support: after the bundle is written, emit `sw.js` with the exact list of built files (source
  * maps excluded) so the whole game, including the physics WASM and every level and ghost chunk, is
- * precached on first visit. The cache name changes with the file list, so a new deploy replaces it.
+ * precached on first visit (with the menu pictures in public/art). The cache name changes with the file list, so a new deploy replaces it.
  */
 function serviceWorker(): Plugin {
   return {
@@ -40,7 +40,8 @@ function serviceWorker(): Plugin {
     apply: 'build',
     generateBundle(_opts, bundle) {
       const files = Object.keys(bundle).filter((f) => !f.endsWith('.map') && f !== 'sw.js');
-      const publicFiles = ['manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png'];
+      const art = readdirSync(new URL('./public/art', import.meta.url)).map((f) => `art/${f}`);
+      const publicFiles = ['manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png', 'icons/maskable-512.png', 'icons/apple-touch-icon.png', ...art];
       const list = ['./', ...files, ...publicFiles].sort();
       const id = createHash('sha256').update(list.join('|')).digest('hex').slice(0, 12);
       const template = readFileSync(new URL('./src/sw-template.js', import.meta.url), 'utf8');

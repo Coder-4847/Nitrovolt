@@ -12,7 +12,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errors = [];
 page.on('console', (m) => { if ((m.type() === 'error' || m.type() === 'warning') && !m.text().includes('useProgram')) errors.push(`[${m.type()}] ${m.text().slice(0, 300)}`); });
 page.on('pageerror', (e) => errors.push(`[pageerror] ${e.message}`));
-const levels = (process.env.LEVELS ?? 'sprint01:9,frost01:14,dune01:12,gravel01:16').split(',');
+const levels = (process.env.LEVELS ?? 'c01:9,c02:14,c03:12,c05:16').split(',');
 for (const spec of levels) {
   const [id, t] = spec.split(':');
   await page.goto(`http://127.0.0.1:5173/?debug=1&autodrive=1&quality=${quality}&level=${id}`);

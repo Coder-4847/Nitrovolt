@@ -225,7 +225,9 @@ export function buildTerrain(centerline: readonly Vector3[], frames: readonly Ro
           }
           if (!s.upright) continue;
           const side = lat >= 0 ? 1 : -1;
-          if (e === 0) {
+          // under the road (also in the wedge between two segments on the outside of a curve, where the point is
+          // just past both ends: it is still under the deck, not beside it)
+          if (outLat === 0 && along < 2) {
             // under the road: hidden just below the deck
             const ys = py + (ry * (lat / rh));
             const u = s.kind === 'special' ? py - Math.abs(ry) * hw - 0.8 : ys - 0.6;

@@ -1,9 +1,7 @@
-import { PerspectiveCamera, Vector3 } from 'three';
 import { AudioEngine } from '../audio/AudioEngine';
 import { CampaignState, computeCampaign, nextAvailable } from '../data/campaign';
-import { CarDef, carParams, getCar } from '../data/cars';
+import { CAR_IDS, CarDef, carParams, getCar } from '../data/cars';
 import { DEFAULT_LEVEL_ID, LEVELS, getLevel } from '../data';
-import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { GameRenderer } from '../render/GameRenderer';
 import { QualityChoice, benchmarkStep, detectQuality, isTouchDevice, loadQualityChoice, saveQuality } from '../render/Quality';
@@ -47,6 +45,7 @@ interface Bundle {
 
 const NO_META: MetaActions = { restart: false, respawn: false, camera: false, pause: false, debug: false, mouseSteerToggled: false };
 const LAST_LEVEL = 'nitrovolt.lastLevel';
+const MENU_CAR = 'nitrovolt.menuCar';
 
 /**
  * The application shell: owns the renderer, input, audio and HUD, and switches between the menu backdrop,
@@ -78,10 +77,6 @@ export class App implements AppApi {
   private thumbTimer = 0;
 
   // menu backdrop
-  private readonly bdCam = new PerspectiveCamera(55, 16 / 9, 0.5, 5000);
-  private bdPose: RenderPose | null = null;
-  private bdStart = new Vector3();
-  private bdTime = 0;
   private bdSkip = 0;
   /** Frame-time samples of the running quality benchmark (only with the 'auto' choice). */
   private bench: { ms: number[]; t: number; rounds: number } | null = null;
@@ -178,7 +173,7 @@ export class App implements AppApi {
         autodrive: q.get('autodrive') === '1',
       });
     } else {
-      app.enterMenu(first);
+      app.enterMenu();
       app.screens.set(new MainMenu(app));
       // arrivals land on the landing page; Play or Esc goes on to the menu
       app.screens.push(new LandingScreen(app));
@@ -233,6 +228,16 @@ export class App implements AppApi {
   car(id: string): CarDef {
     return getCar(id);
   }
+  menuCar(): CarDef {
+    return getCar(storage.get<string>(MENU_CAR, 'volt'));
+  }
+
+  cycleMenuCar(dir: 1 | -1): void {
+    const i = CAR_IDS.indexOf(this.menuCar().id);
+    storage.set(MENU_CAR, CAR_IDS[(i + dir + CAR_IDS.length) % CAR_IDS.length]!);
+    this.audio.tick();
+  }
+
   currentLevelId(): string | null {
     return this.session instanceof RaceSession ? this.session.levelId : null;
   }
@@ -342,21 +347,10 @@ export class App implements AppApi {
     this.syncPause();
   }
 
-  /** Show a level behind the menus: the track with the car on the grid and a slow orbiting camera. */
-  private enterMenu(b: Bundle): void {
+  /** Back to the menus: no session, the showroom behind them. */
+  private enterMenu(): void {
     this.endSession();
-    this.gfx.setTrack(b.track);
-    this.gfx.setCar(b.def, b.params, loadLivery(b.def));
-    this.audio.setVoice(b.def.voice);
-    const p = b.track.start;
-    this.bdStart.copy(p.position);
-    this.bdPose = {
-      position: p.position.clone().add(new Vector3(0, 0.6, 0)),
-      quaternion: p.quaternion.clone(),
-      springLen: Array<number>(4).fill(b.params.springLenMax * 0.75),
-      steer: [0, 0, 0, 0],
-      spin: [0, 0, 0, 0],
-    };
+    this.audio.setVoice(this.menuCar().voice);
     this.setActive('menu');
   }
 
@@ -408,7 +402,7 @@ export class App implements AppApi {
   }
 
   toMainMenu(): void {
-    this.enterMenu(this.bundle(this.continueLevel()));
+    this.enterMenu();
     this.screens.set(new MainMenu(this));
   }
 
@@ -452,7 +446,7 @@ export class App implements AppApi {
     this.gfx.setCar(b.def, b.params, loadLivery(b.def));
     this.audio.setVoice(b.def.voice);
     await this.openReplay(b, data, title, () => {
-      this.enterMenu(b);
+      this.enterMenu();
       this.screens.set(new MainMenu(this));
       this.screens.push(new LeaderboardScreen(this));
     });
@@ -586,15 +580,13 @@ export class App implements AppApi {
     this.session.exit();
   }
 
+  /** Menus: the showroom with the podium car, placed to suit the screen on top. */
   private renderBackdrop(dt: number): void {
-    if (!this.bdPose) return;
-    this.bdTime += dt;
-    const a = this.bdTime * 0.16 + 0.7;
-    const r = 15;
-    this.bdCam.position.set(this.bdStart.x + Math.sin(a) * r, this.bdStart.y + 4 + Math.sin(this.bdTime * 0.4) * 0.8, this.bdStart.z + Math.cos(a) * r);
-    this.bdCam.lookAt(this.bdStart.x, this.bdStart.y + 1, this.bdStart.z);
-    this.gfx.viewCamera = this.bdCam;
+    const def = this.menuCar();
+    const top = this.screens.top as { backdropShift?: number } | undefined;
+    const shift = top?.backdropShift ?? 0.2;
+    const narrow = window.innerWidth < 760;
     this.gfx.sightProbe = null;
-    this.gfx.render(dt, this.bdPose, new Vector3(), 0, 0);
+    this.gfx.renderShowroom(dt, def, loadLivery(def), narrow ? 0 : shift);
   }
 }

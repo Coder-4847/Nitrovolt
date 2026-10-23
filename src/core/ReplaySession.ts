@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { CarDef } from '../data/cars';
+import { CarDef, carParams } from '../data/cars';
 import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { FreeCam, OrbitCam, ViewCam } from '../render/ReplayCameras';
@@ -279,6 +279,8 @@ export class ReplaySession {
     if (!this.paused) gfx.updateFx(dt * (this.playing ? this.speed : 0), v);
     gfx.setDrive(this.scrubbing ? 0 : v.appliedInput.brake, mods.boostLevel);
     gfx.sightProbe = this.sight;
+    const car = p.carAt(p.currentTick);
+    if (gfx.ensureCar(car, p.mode === 'exact' ? v.params : carParams(car))) audio.setVoice(gfx.def.voice);
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
     audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface(), boost: v.effects.mods.boostLevel }, dt);
     hud.update(v.speed, v.params.topSpeed, Math.min(ms, total), mods.boostLevel);

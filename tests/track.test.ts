@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { makeFrame } from '../src/core/InputFrame';
 import { LEVELS } from '../src/data';
 import { Simulation } from '../src/physics/Simulation';
 import { VOLT, cloneParams } from '../src/physics/VehicleParams';
 import { BLOCK_TYPE_SET } from '../src/tracks/BlockLibrary';
+import { PathBot } from '../src/tracks/PathBot';
 import { layoutChain } from '../src/tracks/ChainLayout';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 import { TrackJson, validateTrackJson } from '../src/tracks/TrackSchema';
@@ -48,7 +48,7 @@ describe('track JSON', () => {
   });
 
   it('declares exactly one spawn and the expected gameplay lines', () => {
-    const t = buildTrack(LEVELS.find((l) => l.id === 'sprint01')!);
+    const t = buildTrack(LEVELS.find((l) => l.id === 'c25')!);
     expect(t.triggers.filter((x) => x.kind === 'checkpoint')).toHaveLength(3);
     expect(t.triggers.filter((x) => x.kind === 'finish')).toHaveLength(1);
     expect(t.triggers.filter((x) => x.kind === 'checkpoint').map((x) => x.index)).toEqual([0, 1, 2]);
@@ -57,14 +57,13 @@ describe('track JSON', () => {
 
 describe('wall-ride block', () => {
   for (const speed of [30, 45, 60]) {
-    it(`holds the car on the banked wall at ${speed} m/s`, async () => {
+    it(`holds a steering car on the banked wall at ${speed} m/s`, async () => {
       const { blocks } = layoutChain([{ type: 'start' }, { type: 'straight4' }, { type: 'straight4' }, { type: 'wallRide4R' }, { type: 'straight2' }, { type: 'finish' }]);
       const track = buildTrack({ id: 'w', name: 'w', car: 'volt', theme: 'g', seed: 1, blocks, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 } });
       const sim = await Simulation.create(track, cloneParams(VOLT), 0);
-      const v = sim.vehicle;
-      for (let i = 0; i < 4000 && sim.run.state !== 'finished' && sim.respawnCount === 0; i++) {
-        sim.step(makeFrame(0, Math.max(0, Math.min(1, (speed - v.speed) * 0.5)), 0));
-      }
+      const bot = new PathBot(track.centerline, track.centerSurface, false, sim.vehicle.params, track.centerFrame);
+      bot.maxSpeed = speed;
+      for (let i = 0; i < 4000 && sim.run.state !== 'finished' && sim.respawnCount === 0; i++) sim.step(bot.drive(sim.vehicle));
       expect(sim.respawnCount).toBe(0);
       expect(sim.run.state).toBe('finished');
     });

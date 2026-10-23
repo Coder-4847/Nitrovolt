@@ -7,7 +7,7 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
 const errors = [];
 page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
 page.on('pageerror', (e) => errors.push(e.message));
-const level = process.argv[2] ?? 'sprint01';
+const level = process.argv[2] ?? 'c01';
 for (const n of [1, 2]) {
   await page.goto(`http://127.0.0.1:5173/?debug=1&autodrive=1&level=${level}`);
   await page.waitForSelector('#boot', { state: 'detached', timeout: 60000 });

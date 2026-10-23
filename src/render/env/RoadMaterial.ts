@@ -7,7 +7,7 @@ const SURF: Record<SurfaceId, number> = { tarmac: 0, dirt: 1, grass: 2, ice: 3, 
 /** Surfaces that get painted edge lines and kerbs. */
 const PAINTED = new Set<SurfaceId>(['tarmac', 'tech', 'wood', 'plastic']);
 /** Render albedo where it differs from the physics table's identification colour (real asphalt is darker). */
-const ALBEDO: Partial<Record<SurfaceId, number>> = { tarmac: 0x6e747c, tech: 0x7e848c, plastic: 0xc05a86, dirt: 0xb8663e, snow: 0xe8eef4, ice: 0xa9d4ec };
+const ALBEDO: Partial<Record<SurfaceId, number>> = { tarmac: 0x5c6269, tech: 0x7e848c, plastic: 0xc05a86, dirt: 0xb8663e, snow: 0xe8eef4, ice: 0xa9d4ec };
 
 /** Painted markings tied to the track: the start box and logo, checkpoint lines and the chequered finish. */
 export interface RoadDecals {
@@ -102,6 +102,12 @@ export function roadMaterial(surface: SurfaceId, theme: ThemeDef, decals?: RoadD
           diffuseColor.rgb *= 0.9 + 0.1 * n2;
           float rut4 = onTop * smoothstep(0.12, 0.0, abs(centre - 0.42));
           diffuseColor.rgb = mix(diffuseColor.rgb, diffuseColor.rgb * vec3(0.82, 0.86, 0.92), rut4);
+          // painted rink lines under the snow: red near the edges, blue in between (faded where worn)
+          float lr = onTop * (1.0 - raa(0.12, abs(edge - 3.2)));
+          float lb = onTop * (1.0 - raa(0.1, abs(centre - 0.42)));
+          float fade = 0.55 + 0.35 * n2;
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.85, 0.2, 0.22), lr * fade);
+          diffuseColor.rgb = mix(diffuseColor.rgb, vec3(0.25, 0.4, 0.85), lb * fade * 0.8);
         #elif SURF == 5
           float rip = sin(dot(wp, vec2(1.7, 0.6)) + n2 * 6.0) * 0.5 + 0.5;
           diffuseColor.rgb *= 0.88 + 0.1 * rip + 0.1 * n2;
@@ -119,12 +125,15 @@ export function roadMaterial(surface: SurfaceId, theme: ThemeDef, decals?: RoadD
         #endif
         #if PAINTED == 1
           if (onTop > 0.5) {
-            float kerb = 1.0 - raa(0.8, edge);
+            float kerb = 1.0 - raa(1.1, edge);
             float kb = fract(vS / 2.0);
             float blk = mix(0.5, raa(0.5, kb) * (1.0 - raa(0.98, kb)), rdetail(vec2(vS / 2.0)));
             vec3 kc = mix(uKerbA, uKerbB, blk);
             diffuseColor.rgb = mix(diffuseColor.rgb, kc, kerb);
-            float line = raa(0.95, edge) * (1.0 - raa(1.15, edge));
+            float line = raa(1.3, edge) * (1.0 - raa(1.55, edge));
+            // faint joints where the 32 m road blocks meet
+            float joint = (1.0 - raa(0.05, abs(fract(vS / 32.0 + 0.5) - 0.5) * 32.0)) * rdetail(vec2(vS * 2.0));
+            diffuseColor.rgb *= 1.0 - 0.12 * joint;
             diffuseColor.rgb = mix(diffuseColor.rgb, uLine, line * 0.9);
             rough -= 0.3 * (line + kerb);
             // sponsor text along both edges, inside the line (reads along the road)

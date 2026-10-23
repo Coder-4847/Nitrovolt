@@ -45,11 +45,12 @@ export class HelpScreen implements Screen {
       h('tbody', {}, ...rows.map((r) => h('tr', {}, ...r.map((c) => h('td', {}, c))))),
     );
     const specials = h('div', { class: 'help-specials' }, ...SPECIALS.map(([id, text]) => h('div', { class: 'help-sp' }, h('span', { class: 'swatch', style: `background:${hex(EFFECTS[id].glow || EFFECTS[id].color)}` }), h('span', {}, text))));
-    const medals = h('div', { class: 'help-medals', html: `${medalBadge('author')} Author: the time of the track's own validation run (its ghost proves it). ${medalBadge('gold')} Gold, ${medalBadge('silver')} Silver and ${medalBadge('bronze')} Bronze give you more margin. Bronze unlocks the next track; medal points open later seasons.` });
+    const medals = h('div', { class: 'help-medals', html: `${medalBadge('author')} Author: the time of the track's own validation run (its ghost proves it). ${medalBadge('gold')} Gold, ${medalBadge('silver')} Silver and ${medalBadge('bronze')} Bronze give you more margin. Bronze on four tracks of a tier opens the next tier.` });
     this.el.replaceChildren(
       header('How to play', () => this.app.screens.back()),
       h('div', { class: 'ls-body help-body' },
         h('p', {}, 'Drive from the start through every checkpoint (in order) to the finish as fast as you can. Restarting is instant, so try again and again. Your best run becomes your ghost.'),
+        h('p', {}, 'Car gates: drive through a coloured portal and you finish that section in the car it names. A respawn puts you back in the car you had at the checkpoint.'),
         h('h4', {}, 'Controls'), table,
         h('p', { class: 'note' }, 'Keys and buttons can be changed in Settings > Controls. Mouse steering: M.'),
         h('h4', {}, 'Special blocks'), specials,
@@ -58,8 +59,9 @@ export class HelpScreen implements Screen {
         h('ul', {},
           h('li', {}, 'Tap the brake to start a drift, then counter-steer to hold it.'),
           h('li', {}, 'In the air, accelerate tilts the nose down and brake lifts it: land flat to keep your speed.'),
-          h('li', {}, 'Each car has its ground: Volt on tarmac, Gravel on dirt, Frost on snow and ice, Dune on sand.'),
-          h('li', {}, 'Watch the author ghost (Leaderboard or G in a race) to find the line.'),
+          h('li', {}, 'Each car has its ground: Stadium on tarmac, Rally on dirt, Snow on snow and ice, Desert on sand.'),
+          h('li', {}, 'Wall turns and loops need speed: stay on the gas and keep the wheel steady.'),
+          h('li', {}, 'Watch the author ghost (Records, or G in a race) to find the line.'),
         ),
       ),
     );

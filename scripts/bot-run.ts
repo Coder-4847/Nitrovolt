@@ -6,7 +6,7 @@ import { PathBot } from '../src/tracks/PathBot';
 async function main(): Promise<void> {
   const track = buildGreyboxTrack();
   const sim = await Simulation.create(track, cloneParams(VOLT));
-  const bot = new PathBot(track.centerline, track.centerSurface, false, sim.vehicle.params);
+  const bot = new PathBot(track.centerline, track.centerSurface, false, sim.vehicle.params, track.centerFrame);
   const v = sim.vehicle;
   let rs = 0;
   for (let i = 0; i < 12000 && !bot.finished; i++) {

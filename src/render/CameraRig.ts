@@ -64,7 +64,7 @@ export class CameraRig {
     const kick = this.reducedMotion ? 0.4 : 1;
     const st = this.style;
     const fovBase = this.mode === 'hood' ? st.fovBase + 6 : this.mode === 'far' ? st.fovBase - 4 : st.fovBase;
-    const fovTarget = fovBase + st.fovKick * kick * smoothstep(12, 88, speed) + 10 * kick * boost;
+    const fovTarget = fovBase + st.fovKick * kick * smoothstep(12, 88, speed) + 6 * kick * boost;
     if (!this.ready) this.fov = fovTarget;
     this.fov += (fovTarget - this.fov) * damp(5, dt);
 
@@ -107,7 +107,7 @@ export class CameraRig {
 
     if (!this.ready) this.pos.copy(desired);
     else this.pos.lerp(desired, damp(st.positionRate, dt));
-    this.look.copy(car).addScaledVector(dirP, st.lookAhead).addScaledVector(this.up, 0.7);
+    this.look.copy(car).addScaledVector(dirP, st.lookAhead).addScaledVector(this.up, 0.9);
 
     this.camera.position.copy(this.pos);
     this.camera.up.copy(this.up);

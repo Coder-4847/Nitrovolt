@@ -21,6 +21,9 @@ export interface AppApi {
   levels(): readonly TrackJson[];
   level(id: string): TrackJson | undefined;
   car(id: string): CarDef;
+  /** The car on the menu podium, and switching it. */
+  menuCar(): CarDef;
+  cycleMenuCar(dir: 1 | -1): void;
   /** Thumbnail data URL, built lazily (may be '' until the first idle slot). */
   thumbnail(id: string, done: (url: string) => void, stillWanted?: () => boolean): void;
   /** The level the "Continue" button should open. */

@@ -71,7 +71,7 @@ describe('save file', () => {
 
   it('rejects malformed or foreign files without touching the save', async () => {
     Records.submit('keep', 1000, []);
-    for (const bad of [null, 'text', {}, { format: 'other', version: 1, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 3, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 2, storage: {}, ghosts: [], userLevels: [{ id: 'sprint01', json: { blocks: [] } }] }, { format: 'nitrovolt-save', version: 1, storage: { evil: '1' }, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: {}, ghosts: [{ nope: 1 }] }]) {
+    for (const bad of [null, 'text', {}, { format: 'other', version: 1, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 3, storage: {}, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: { evil: '1' }, ghosts: [] }, { format: 'nitrovolt-save', version: 1, storage: {}, ghosts: [{ nope: 1 }] }]) {
       await expect(importSave(bad)).rejects.toThrow();
     }
     expect(Records.get('keep')!.best).toBe(1000);

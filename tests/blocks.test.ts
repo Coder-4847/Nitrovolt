@@ -1,3 +1,4 @@
+import { LEVEL_H } from '../src/tracks/TrackSchema';
 import { describe, expect, it } from 'vitest';
 import { BLOCKS, BLOCK_IDS } from '../src/tracks/BlockLibrary';
 import { blockExit, layoutChain } from '../src/tracks/ChainLayout';
@@ -48,6 +49,6 @@ describe('block library', () => {
     expect(blockExit('jumpRamp').pitchDeg).toBeGreaterThan(8);
     expect(blockExit('jumpRamp').pitchDeg).toBeLessThan(35);
     expect(Math.abs(blockExit('landing1').pitchDeg)).toBeLessThan(0.5);
-    expect(blockExit('slopeUp1').dy).toBeCloseTo(4, 2);
+    expect(blockExit('slopeUp1').dy).toBeCloseTo(LEVEL_H, 2);
   });
 });

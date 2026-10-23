@@ -207,14 +207,12 @@
   }
  ],
  "medalTimes": {
-  "author": 39166,
-  "gold": 42299,
-  "silver": 48958,
-  "bronze": 60707
+  "author": 32068,
+  "gold": 34633,
+  "silver": 40085,
+  "bronze": 49705
  },
  "bot": {
-  "maxSpeed": 51,
-  "lateralBudget": 13,
-  "lookTime": 0.6
+  "maxSpeed": 75
  }
 }
