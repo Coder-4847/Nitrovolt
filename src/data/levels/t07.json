@@ -1,0 +1,202 @@
+{
+ "id": "t07",
+ "name": "Dunes",
+ "car": "dune",
+ "theme": "desert",
+ "seed": 19002,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    0,
+    0,
+    -8
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -11
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    -2,
+    -13
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    3,
+    -2,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    5,
+    -2,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    7,
+    0,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    8,
+    0,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    10,
+    0,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    12,
+    0,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    15,
+    -2,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    17,
+    -2,
+    -15
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    18,
+    -2,
+    -17
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    18,
+    -2,
+    -19
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    18,
+    -2,
+    -20
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    18,
+    -2,
+    -21
+   ],
+   "rot": 0,
+   "surface": "sand"
+  }
+ ],
+ "medalTimes": {
+  "author": 29790,
+  "gold": 32769,
+  "silver": 38727,
+  "bronze": 47664
+ },
+ "bot": {
+  "maxSpeed": 62,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12
+ }
+}

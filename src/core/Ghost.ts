@@ -7,6 +7,8 @@ import { TrackData } from '../tracks/TrackTypes';
 import { PHYSICS_DT } from './FixedLoop';
 import { InputFrame } from './InputFrame';
 import { InputRecorder } from './InputRecorder';
+import { CARS } from '../data/cars';
+import { crossedForward } from './Run';
 
 /** A snapshot is stored this many ticks apart (0.5 s). */
 export const SNAPSHOT_INTERVAL = 50;
@@ -64,9 +66,11 @@ export function levelFingerprint(blocks: unknown, car: string, laps: number): st
   return fnv1a(JSON.stringify({ blocks, car, laps }));
 }
 
-/** Fingerprint of the physics a run was recorded with (parameters + engine version). */
+let allCars = '';
+/** Fingerprint of the physics a run was recorded with (engine version, the start car's parameters, and every car a gate can switch to). */
 export function physicsFingerprint(params: VehicleParams): string {
-  return fnv1a(PHYSICS_VERSION + JSON.stringify(params));
+  allCars ||= fnv1a(JSON.stringify(Object.values(CARS).map((c) => c.params)));
+  return fnv1a(PHYSICS_VERSION + JSON.stringify(params) + allCars);
 }
 
 // ------------------------------------------------------------------ recording
@@ -111,7 +115,7 @@ export class GhostRecorder {
       time: sim.run.finishTime ?? 0,
       ticks: this.input.ticks,
       levelHash: meta.levelHash,
-      physicsHash: physicsFingerprint(sim.vehicle.params),
+      physicsHash: physicsFingerprint(sim.startParams),
       input: toBase64(this.input.toBytes()),
       snaps: toBase64(new Uint8Array(f32.buffer)),
     };
@@ -149,6 +153,31 @@ export class GhostPlayer {
     this.snaps = new Float32Array(bytes.buffer, bytes.byteOffset, Math.floor(bytes.byteLength / 4));
     this.mode = exact ? 'exact' : 'snapshot';
     this.nominalSpring = sim.vehicle.params.springLenMax * 0.75;
+    // car gates crossed along the recorded path (snapshot playback has no simulation to tell it)
+    const gates = sim.track.triggers.filter((t) => t.kind === 'car' && t.car);
+    const n = Math.floor(this.snaps.length / STRIDE);
+    let car = data.carId;
+    const a = new Vector3(), b = new Vector3();
+    for (let i = 1; i < n && gates.length; i++) {
+      a.fromArray(this.snaps, (i - 1) * STRIDE);
+      b.fromArray(this.snaps, i * STRIDE);
+      for (const g of gates) {
+        if (g.car !== car && crossedForward(g, a, b) !== null) {
+          car = g.car!;
+          this.carSwitches.push([i * SNAPSHOT_INTERVAL, car]);
+        }
+      }
+    }
+  }
+
+  private readonly carSwitches: Array<[tick: number, car: string]> = [];
+
+  /** The car the ghost drives at a (fractional) tick. */
+  carAt(tickF: number): string {
+    if (this.mode === 'exact') return this.sim.carId;
+    let car = this.data.carId;
+    for (const [t, c] of this.carSwitches) if (t <= tickF) car = c;
+    return car;
   }
 
   static async create(
@@ -158,7 +187,7 @@ export class GhostPlayer {
     data: GhostData,
     levelHash: string,
   ): Promise<GhostPlayer> {
-    const sim = await Simulation.create(track, params, true, undefined, behavior);
+    const sim = await Simulation.create(track, params, true, undefined, behavior, data.carId);
     const exact = data.levelHash === levelHash && data.physicsHash === physicsFingerprint(params);
     return new GhostPlayer(data, sim, exact);
   }

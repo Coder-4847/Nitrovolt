@@ -1,0 +1,181 @@
+{
+ "id": "t03",
+ "name": "Wall Ride",
+ "car": "volt",
+ "theme": "sunset",
+ "seed": 8526,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurn90R",
+   "gridPos": [
+    0,
+    0,
+    -6
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    3,
+    0,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    5,
+    0,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "wallTurnL",
+   "gridPos": [
+    6,
+    0,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    5,
+    0,
+    -11
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    0,
+    -11
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    2,
+    0,
+    -11
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    1,
+    0,
+    -11
+   ],
+   "rot": 1
+  },
+  {
+   "type": "wallTurn90R",
+   "gridPos": [
+    0,
+    0,
+    -11
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -2,
+    0,
+    -14
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurnR",
+   "gridPos": [
+    -2,
+    0,
+    -18
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    1,
+    0,
+    -17
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    1,
+    0,
+    -15
+   ],
+   "rot": 2
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    1,
+    0,
+    -14
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    1,
+    0,
+    -13
+   ],
+   "rot": 2
+  }
+ ],
+ "medalTimes": {
+  "author": 28678,
+  "gold": 31546,
+  "silver": 37281,
+  "bronze": 45885
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

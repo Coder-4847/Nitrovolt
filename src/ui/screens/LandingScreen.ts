@@ -2,7 +2,6 @@ import { CAR_IDS, CARS } from '../../data/cars';
 import { CAMPAIGN, SEASONS } from '../../data/campaign';
 import { btn, h } from '../dom';
 import { AppApi } from './AppApi';
-import { MyLevelsScreen } from './MyLevelsScreen';
 import { Screen } from './ScreenManager';
 
 /** Display-only ratings for the car cards (0..5). */
@@ -47,10 +46,6 @@ export class LandingScreen implements Screen {
       h('div', { class: 'ld-cta' },
         btn('Play now', () => this.app.playLevel(cont), 'primary big ld-play'),
         btn('Main menu', () => this.app.screens.pop(), 'big'),
-        btn('Track editor', () => {
-          this.app.screens.pop();
-          this.app.screens.push(new MyLevelsScreen(this.app));
-        }, 'big ghost'),
       ),
       h('div', { class: 'ld-scroll' }, 'Scroll for more ↓'),
     );

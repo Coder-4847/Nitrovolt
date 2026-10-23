@@ -1,12 +1,13 @@
 import { SurfaceSpec, isEffect, isSurface } from '../physics/Surface';
 import { WallSide } from './TrackBuilder';
 
-/** Grid: horizontal cell and vertical level sizes in metres. Cell centres sit on multiples of CELL. */
-export const CELL = 16;
-export const LEVEL_H = 4;
+/** Grid: horizontal block and vertical level sizes in metres. Block centres sit on multiples of CELL. */
+export const CELL = 32;
+export const LEVEL_H = 8;
 
 export type Variant = 'std' | 'wide' | 'narrow';
-export const VARIANT_WIDTH: Record<Variant, number> = { std: 12, wide: 16, narrow: 8 };
+/** Drivable road width per variant (m): a normal road is about ten car widths. */
+export const VARIANT_WIDTH: Record<Variant, number> = { std: 24, wide: 32, narrow: 16 };
 
 export interface BlockJson {
   type: string;

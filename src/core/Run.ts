@@ -25,6 +25,24 @@ function toLocal(t: TrackTrigger, pos: Vector3, out: Vector3): Vector3 {
 }
 
 /**
+ * Fraction (0..1] through a tick at which a car moving `prev` -> `curr` crossed a trigger plane forward
+ * (from behind to ahead, inside its width and height), or null.
+ */
+export function crossedForward(t: TrackTrigger, prev: Vector3, curr: Vector3): number | null {
+  const a = toLocal(t, prev, _p);
+  const z0 = a.z;
+  const b = toLocal(t, curr, _b);
+  const z1 = b.z;
+  if (!(z0 > 0 && z1 <= 0)) return null; // must go from behind to ahead
+  const alpha = z0 / (z0 - z1);
+  const x = a.x + (b.x - a.x) * alpha;
+  const y = a.y + (b.y - a.y) * alpha;
+  if (Math.abs(x) > t.halfWidth || y < -TRIGGER_BELOW || y > t.halfHeight) return null;
+  return alpha;
+}
+const _b = new Vector3();
+
+/**
  * Race rules: countdown, ordered checkpoints, laps and the finish. All times are integer
  * milliseconds measured from GO, and crossing times are interpolated inside the physics tick so
  * they are millisecond-accurate (and exactly reproducible).
@@ -134,16 +152,7 @@ export class RunLogic {
 
   /** Fraction (0..1] through this tick at which the car crossed the trigger plane forward, or null. */
   private crossing(t: TrackTrigger, prev: Vector3, curr: Vector3): number | null {
-    const a = toLocal(t, prev, _p);
-    const z0 = a.z;
-    const b = toLocal(t, curr, new Vector3());
-    const z1 = b.z;
-    if (!(z0 > 0 && z1 <= 0)) return null; // must go from behind to ahead
-    const alpha = z0 / (z0 - z1);
-    const x = a.x + (b.x - a.x) * alpha;
-    const y = a.y + (b.y - a.y) * alpha;
-    if (Math.abs(x) > t.halfWidth || y < -TRIGGER_BELOW || y > t.halfHeight) return null;
-    return alpha;
+    return crossedForward(t, prev, curr);
   }
 
   private msAt(tickStart: number, alpha: number): number {

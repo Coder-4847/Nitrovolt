@@ -118,14 +118,14 @@ export class RaceSession {
     this.instant = !!opts.instant;
     this.levelHash = source.json ? levelFingerprint(source.json.blocks, source.json.car, source.json.laps ?? 1) : '';
     this.recordId = source.recordId ?? source.track.id;
-    this.bot = opts.autodrive ? new PathBot(this.track.centerline, this.track.centerSurface, this.track.laps > 1, source.params) : null;
+    this.bot = opts.autodrive ? new PathBot(this.track.centerline, this.track.centerSurface, this.track.laps > 1, source.params, this.track.centerFrame) : null;
     if (this.bot) applyBotHints(this.bot, opts.hints);
   }
 
   private readonly instant: boolean;
 
   static async create(ctx: SessionCtx, source: RaceSource, opts: RaceOptions = {}): Promise<RaceSession> {
-    const sim = await Simulation.create(source.track, source.params, true, undefined, source.def.behavior);
+    const sim = await Simulation.create(source.track, source.params, true, undefined, source.def.behavior, source.def.id);
     const s = new RaceSession(ctx, source, sim, opts);
     await s.loadGhosts();
     s.restart(false);

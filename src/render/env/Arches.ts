@@ -32,11 +32,11 @@ export class Arches {
   constructor(triggers: readonly TrackTrigger[], start: Pose, theme: ThemeDef) {
     const body = new MeshStandardMaterial({ color: 0x252a32, roughness: 0.45, metalness: 0.5 });
     this.mats.push(body);
-    const gates: Array<{ pose: Pose; hw: number; kind: 'start' | 'checkpoint' | 'finish' }> = triggers.map((t) => ({
+    const gates: Array<{ pose: Pose; hw: number; kind: 'start' | 'checkpoint' | 'finish' }> = triggers.flatMap((t) => (t.kind === 'car' ? [] : [{
       pose: { position: t.position, quaternion: t.quaternion },
       hw: t.halfWidth,
       kind: t.kind,
-    }));
+    }]));
     // a lap track's start line is also its finish: one arch is enough there
     const finishAtStart = triggers.some((t) => t.kind === 'finish' && t.position.distanceTo(start.position) < 24);
     if (!finishAtStart) {

@@ -1,0 +1,167 @@
+[
+ {
+  "id": "c01",
+  "tier": 0,
+  "blurb": "A flowing first lap: one jump, one banked turn, full throttle."
+ },
+ {
+  "id": "c02",
+  "tier": 0,
+  "blurb": "Through the pines on packed snow. Brake early, the snow car is heavy."
+ },
+ {
+  "id": "c03",
+  "tier": 0,
+  "blurb": "Wide sand, long sweepers and a big jump over the ravine."
+ },
+ {
+  "id": "c04",
+  "tier": 0,
+  "blurb": "Your first wall turn at sunset. Commit and keep it pinned."
+ },
+ {
+  "id": "c05",
+  "tier": 0,
+  "blurb": "Gravel road through the woods. Slide it, do not fight it."
+ },
+ {
+  "id": "c06",
+  "tier": 1,
+  "blurb": "Under the floodlights: a loop, a wall and a loop again."
+ },
+ {
+  "id": "c07",
+  "tier": 1,
+  "blurb": "Stadium car on tarmac, rally car through the dirt, and back."
+ },
+ {
+  "id": "c08",
+  "tier": 1,
+  "blurb": "Glide across the frozen lake. On ice, less steering is more."
+ },
+ {
+  "id": "c09",
+  "tier": 1,
+  "blurb": "Three ravines in a row and a climb between them."
+ },
+ {
+  "id": "c10",
+  "tier": 1,
+  "blurb": "Drop into the half-pipe, then tip over onto the tilted straight."
+ },
+ {
+  "id": "c11",
+  "tier": 2,
+  "blurb": "Stadium car to the snow gate, snow car over the pass, stadium car home."
+ },
+ {
+  "id": "c12",
+  "tier": 2,
+  "blurb": "Climb to the top of the hill, then corkscrew back down."
+ },
+ {
+  "id": "c13",
+  "tier": 2,
+  "blurb": "Desert car on the dunes, rally car through the canyon dirt."
+ },
+ {
+  "id": "c14",
+  "tier": 2,
+  "blurb": "Reactor boost, cruise control and a wall turn under the lights."
+ },
+ {
+  "id": "c15",
+  "tier": 2,
+  "blurb": "Stadium, rally, snow, desert: one track, four cars."
+ },
+ {
+  "id": "c16",
+  "tier": 3,
+  "blurb": "Narrow road high above the field. No-steer pads before the jumps."
+ },
+ {
+  "id": "c17",
+  "tier": 3,
+  "blurb": "Down the mountain on ice, rally car through the slush, snow car to finish."
+ },
+ {
+  "id": "c18",
+  "tier": 3,
+  "blurb": "Big air on sand, then the stadium car and two wall turns."
+ },
+ {
+  "id": "c19",
+  "tier": 3,
+  "blurb": "Loop, tilt, loop, wall. And a slow-motion pad where you least want it."
+ },
+ {
+  "id": "c20",
+  "tier": 3,
+  "blurb": "Two laps: tarmac, a rally sector through the trees, tarmac again."
+ },
+ {
+  "id": "c21",
+  "tier": 4,
+  "blurb": "Every pad in the book between two wall turns and a loop."
+ },
+ {
+  "id": "c22",
+  "tier": 4,
+  "blurb": "Narrow ice lanes, a frozen spiral and the engine cut on the climb."
+ },
+ {
+  "id": "c23",
+  "tier": 4,
+  "blurb": "Huge jumps on sand, then the stadium car over the last ravine."
+ },
+ {
+  "id": "c24",
+  "tier": 4,
+  "blurb": "Wall, loop, spiral, wall: the stadium car at full stretch."
+ },
+ {
+  "id": "c25",
+  "tier": 4,
+  "blurb": "The whole game in one run: four cars, walls, loops and the big ravine."
+ },
+ {
+  "id": "t01",
+  "tier": "training",
+  "blurb": "Throttle, brake, steer. Brake before the corner, not in it."
+ },
+ {
+  "id": "t02",
+  "tier": "training",
+  "blurb": "Hit the ramps flat out and land on the slope."
+ },
+ {
+  "id": "t03",
+  "tier": "training",
+  "blurb": "Keep your speed up and the wall holds you."
+ },
+ {
+  "id": "t04",
+  "tier": "training",
+  "blurb": "Full speed into the loop; let the car follow it round."
+ },
+ {
+  "id": "t05",
+  "tier": "training",
+  "blurb": "The rally car slides on dirt: turn in early and power out."
+ },
+ {
+  "id": "t06",
+  "tier": "training",
+  "blurb": "Snow grips, ice does not. Smooth hands."
+ },
+ {
+  "id": "t07",
+  "tier": "training",
+  "blurb": "Light and bouncy: the desert car flies off every crest."
+ },
+ {
+  "id": "t08",
+  "tier": "training",
+  "blurb": "Drive through a gate and you change car on the spot."
+ }
+]

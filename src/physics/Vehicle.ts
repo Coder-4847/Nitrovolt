@@ -31,6 +31,8 @@ export interface WheelState {
   surface: SurfaceId;
   /** Special-block effect under this wheel, if any. */
   effect: EffectId | undefined;
+  /** On the landscape beside the road (not on a road block). */
+  offroad: boolean;
   colliderHandle: number;
   /** Tyre slip angle (rad). */
   slipAngle: number;
@@ -61,6 +63,7 @@ const newWheel = (): WheelState => ({
   load: 0,
   surface: 'tarmac',
   effect: undefined,
+  offroad: false,
   colliderHandle: -1,
   slipAngle: 0,
   gripUse: 0,
@@ -91,6 +94,10 @@ const _f = new Vector3();
 const _t = new Vector3();
 const _qi = new Quaternion();
 const _lv = new Vector3();
+
+/** Off the road (the landscape): grip multiplier and extra rolling resistance (fraction of load). */
+const OFFROAD_GRIP = 0.8;
+const OFFROAD_ROLLING = 0.14;
 
 /** Minimum forward speed (m/s) used in slip-angle maths so the tyre stays well-behaved near standstill. */
 const SLIP_MIN_SPEED = 3.0;
@@ -193,6 +200,16 @@ export class Vehicle {
     this.mountLocal[WHEEL_FR]!.set(p.halfTrackFront, p.mountY, p.frontAxleZ);
     this.mountLocal[WHEEL_RL]!.set(-p.halfTrackRear, p.mountY, p.rearAxleZ);
     this.mountLocal[WHEEL_RR]!.set(p.halfTrackRear, p.mountY, p.rearAxleZ);
+  }
+
+  /**
+   * Swap to another car mid-run (car gates): new parameters and behaviour, same body, pose and velocity.
+   * Deterministic: it happens on a physics tick boundary and touches nothing else.
+   */
+  setCar(params: VehicleParams, behavior?: CarBehavior): void {
+    this.params = params;
+    this.behavior = behavior;
+    this.refreshParams();
   }
 
   /** Call after changing mass/inertia/geometry params at runtime (tuning panel). */
@@ -373,6 +390,8 @@ export class Vehicle {
     // ---------- tyres ----------
     this.applyTyres(eff, dt, inertia);
 
+    this.applyYawStability(inertia);
+
     // ---------- aero ----------
     this.applyAero();
     this.applyGroundAlign(inertia);
@@ -453,6 +472,7 @@ export class Vehicle {
           const info = this.physics.infoOf(hit.collider.handle);
           w.surface = info.surface;
           w.effect = info.effect;
+          w.offroad = !!info.offroad;
           w.colliderHandle = hit.collider.handle;
           if (info.effect) this.touching.push(info.effect);
           this.wheelsOnGround++;
@@ -460,6 +480,7 @@ export class Vehicle {
       }
       if (!w.contact) {
         w.effect = undefined;
+        w.offroad = false;
         w.springLen = p.springLenMax;
         w.load = 0;
         w.slipAngle = 0;
@@ -569,7 +590,7 @@ export class Vehicle {
       const vl = _v.dot(wrC);
 
       // friction budget
-      const mu0 = (front ? p.gripFront : p.gripRear) * surfProps.grip * p.surfaceGrip[w.surface];
+      const mu0 = (front ? p.gripFront : p.gripRear) * surfProps.grip * p.surfaceGrip[w.surface] * (w.offroad ? OFFROAD_GRIP : 1);
       // per-surface tyre model: loose ground peaks later and gently, ice falls off a cliff
       const peakSlip = p.peakSlipAngle * surfProps.peakSlip;
       const slideKeep = Math.min(1, p.slideRatio * surfProps.slideKeep);
@@ -585,8 +606,10 @@ export class Vehicle {
       const meffLong = this.effectiveMass(_r, wf, inertia);
       // braking opposes motion, never reverses it within a tick
       const brakeShare = front ? p.brakeFrontBias : 1 - p.brakeFrontBias;
-      const brakeAbs = Math.min((brakeTotal * brakeShare) / 2 + (engineBrake * driveShare) / 2, (absSpeed < 0.01 ? 0 : Math.abs(vf)) * meffLong * share / dt);
-      const rolling = Math.min(surfProps.rolling * p.surfaceRolling[w.surface] * w.load, Math.abs(vf) * meffLong * share / dt);
+      // anti-lock: the service brakes never use more than brakeGripUse of the tyre's longitudinal grip
+      const service = Math.min((brakeTotal * brakeShare) / 2, fmaxLong * p.brakeGripUse);
+      const brakeAbs = Math.min(service + (engineBrake * driveShare) / 2, (absSpeed < 0.01 ? 0 : Math.abs(vf)) * meffLong * share / dt);
+      const rolling = Math.min((surfProps.rolling * p.surfaceRolling[w.surface] + (w.offroad ? OFFROAD_ROLLING : 0)) * w.load, Math.abs(vf) * meffLong * share / dt);
       fx -= sign(vf) * (brakeAbs + rolling);
       // hold the car on slopes when completely idle
       if (accel === 0 && brake === 0 && absSpeed < 1.0) {
@@ -628,6 +651,31 @@ export class Vehicle {
       const extra = w.slipping ? sign(fxCmd) * Math.min(25, (Math.abs(fxCmd) / fmaxLong - 1) * 40 + 4) : 0;
       w.spin += ((vf + extra) / p.wheelRadius) * dt;
     }
+  }
+
+  /**
+   * Stability assist: when the car rotates faster than the steering asks for (oversteer: a lift, a brake tap,
+   * a crest mid-corner) a yaw torque bleeds the excess off, so the car slides wide instead of spinning.
+   * Wanted slides (counter-steer, a car's own power-slide behaviour) stay possible: only the excess beyond
+   * a margin is damped.
+   */
+  private applyYawStability(inertia: Vector3): void {
+    const p = this.params;
+    if (p.yawStability <= 0 || this.wheelsOnGround < 3 || this.forwardSpeed < 8) return;
+    const wheelbase = p.rearAxleZ - p.frontAxleZ;
+    const v = this.forwardSpeed;
+    // kinematic yaw rate for the current steering angle, limited by what the tyres can hold (+ = left)
+    const kin = (-v * Math.tan(this.steerAngle)) / wheelbase;
+    const cap = (p.gripRear * this.gravity * 1.6) / v;
+    const want = clamp(kin, -cap, cap);
+    const r = this.angvel.dot(this.up);
+    const excess = r - want;
+    const margin = 0.12;
+    // only damp rotation beyond the request in the same direction (or any rotation against it)
+    if (Math.abs(excess) <= margin || (Math.sign(excess) !== Math.sign(r) && Math.abs(r) > 0.05)) return;
+    const e = excess - Math.sign(excess) * margin;
+    const alpha = -p.yawStability * 7 * e;
+    this.torque.addScaledVector(this.up, alpha * inertia.y);
   }
 
   /**

@@ -1,0 +1,187 @@
+{
+ "id": "c20",
+ "name": "Endurance",
+ "car": "volt",
+ "theme": "sunset",
+ "seed": 22544,
+ "laps": 2,
+ "blocks": [
+  {
+   "type": "lapFinish",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0
+  },
+  {
+   "type": "gateGravel",
+   "gridPos": [
+    3,
+    0,
+    -6
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    4,
+    0,
+    -6
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    6,
+    2,
+    -6
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    7,
+    2,
+    -6
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    8,
+    2,
+    -6
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    10,
+    2,
+    -3
+   ],
+   "rot": 2,
+   "surface": "dirt"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    10,
+    2,
+    -1
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    10,
+    2,
+    0
+   ],
+   "rot": 2
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    10,
+    2,
+    1
+   ],
+   "rot": 2
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    7,
+    2,
+    3
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    5,
+    0,
+    3
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    4,
+    0,
+    3
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    0,
+    3
+   ],
+   "rot": 1
+  },
+  {
+   "type": "bank3R",
+   "gridPos": [
+    2,
+    0,
+    3
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 59442,
+  "gold": 62414,
+  "silver": 70142,
+  "bronze": 83219
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

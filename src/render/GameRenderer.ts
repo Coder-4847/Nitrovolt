@@ -10,6 +10,8 @@ import { CameraRig } from './CameraRig';
 import { CarView } from './CarView';
 import { Arena } from './env/Arena';
 import { Ground } from './env/Ground';
+import { Landscape } from './env/Landscape';
+import { ARENA_INSET } from '../tracks/Terrain';
 import { buildPillars } from './env/Pillars';
 import { Scenery } from './env/Scenery';
 import { planScenery } from './env/SceneryPlan';
@@ -62,6 +64,7 @@ export class GameRenderer {
   private readonly pmrem: PMREMGenerator;
   private envRT: WebGLRenderTarget | null = null;
   private scenery: Scenery | null = null;
+  private landscape: Landscape | null = null;
   private arena: Arena | null = null;
   private pillars: InstancedMesh | null = null;
   private skid: SkidMarks;
@@ -189,7 +192,8 @@ export class GameRenderer {
     this.scene.add(this.trackView.group);
     let minY = Infinity;
     for (const p of track.centerline) minY = Math.min(minY, p.y);
-    this.ground.mesh.position.y = Math.min(minY, track.killY + 30) - 12;
+    // the far ground continues the landscape at its edge; dev pads without terrain get it just below the road
+    this.ground.mesh.position.y = track.terrain ? track.terrain.base - 0.4 : minY - 1.5;
     this.buildScenery();
     this.skid.clear();
     this.sparks.clear();
@@ -203,6 +207,11 @@ export class GameRenderer {
       this.scenery.dispose();
       this.scenery = null;
     }
+    if (this.landscape) {
+      this.scene.remove(this.landscape.mesh);
+      this.landscape.dispose();
+      this.landscape = null;
+    }
     if (this.arena) {
       this.scene.remove(this.arena.group);
       this.arena.dispose();
@@ -214,13 +223,17 @@ export class GameRenderer {
       (this.pillars.material as Material).dispose();
       this.pillars = null;
     }
-    if (!this.track || !this.sceneryOn) return;
-    const groundY = this.ground.mesh.position.y;
+    const terrain = this.track?.terrain;
+    if (!this.track || !terrain) return;
+    this.landscape = new Landscape(terrain, this.theme);
+    this.scene.add(this.landscape.mesh);
+    if (!this.sceneryOn) return;
     const seed = (this.track.seed ^ idHash(this.track.id)) >>> 0;
-    const props = planScenery({ centerline: this.track.centerline, seed, groundY }, this.theme.scenery, QUALITY[this.quality].scenery);
-    this.scenery = new Scenery(props, this.theme);
-    this.arena = new Arena(this.track.centerline, groundY, this.theme.arena, seed);
-    this.pillars = buildPillars(this.track.centerline, groundY);
+    const q = QUALITY[this.quality];
+    const props = planScenery(terrain, this.theme.scenery, q.scenery, seed);
+    this.scenery = new Scenery(props, this.theme, q.shadows && q.shadowMapSize >= 2048);
+    this.arena = new Arena(terrain.bounds, ARENA_INSET, terrain.base, this.theme.arena, seed);
+    this.pillars = buildPillars(this.track.centerline, this.track.centerFrame, terrain);
     this.scene.add(this.scenery.group, this.arena.group);
     if (this.pillars) this.scene.add(this.pillars);
   }
@@ -421,6 +434,7 @@ export class GameRenderer {
     this.envRT?.dispose();
     this.pmrem.dispose();
     this.scenery?.dispose();
+    this.landscape?.dispose();
     this.arena?.dispose();
     this.renderer.dispose();
     this.renderer.domElement.remove();

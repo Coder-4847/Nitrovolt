@@ -4,7 +4,7 @@ import { Simulation } from '../physics/Simulation';
 import { SurfaceId } from '../physics/Surface';
 import { blockCells } from './Footprint';
 import { PathBot, applyBotHints } from './PathBot';
-import { BotHints, TrackJson } from './TrackSchema';
+import { BotHints, CELL, TrackJson } from './TrackSchema';
 import { buildTrack } from './TrackGenerator';
 
 export interface BotRun {
@@ -29,6 +29,8 @@ export interface BotRun {
   overshoots: number;
   hardLandings: number;
   wallHits: number;
+  /** Seconds with a wheel off the road (on the landscape). */
+  offroad: number;
   /** Share of driving time per surface. */
   surfaces: Partial<Record<SurfaceId, number>>;
   hints: BotHints;
@@ -63,12 +65,12 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
   const track = buildTrack(json);
   const def = getCar(json.car);
   const sim = await Simulation.create(track, carParams(def.id), false, undefined, def.behavior);
-  const bot = new PathBot(track.centerline, track.centerSurface, (json.laps ?? 1) > 1, sim.vehicle.params);
+  const bot = new PathBot(track.centerline, track.centerSurface, (json.laps ?? 1) > 1, sim.vehicle.params, track.centerFrame);
   applyBotHints(bot, hints);
   const rec = new GhostRecorder();
   rec.start(sim);
   const surf: Partial<Record<SurfaceId, number>> = {};
-  let ticks = 0, air = 0, maxV = 0, sumV = 0, jumps = 0, hard = 0, walls = 0;
+  let ticks = 0, air = 0, maxV = 0, sumV = 0, jumps = 0, hard = 0, walls = 0, off = 0;
   let failure: string | null = null;
   let bestProgress = 0, lastGain = 0;
   let wasAir = false;
@@ -81,9 +83,9 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
   };
   const rampCells = [...cellsOf((t) => t === 'kicker' || t.startsWith('jumpRamp'))].map((k) => k.split(',').map(Number) as [number, number]);
   // take-off happens at the lip, right at the edge of the ramp's last cell
-  const nearRamp = (x: number, z: number): boolean => rampCells.some(([cx, cz]) => Math.hypot(x - cx * 16, z - cz * 16) < 14);
+  const nearRamp = (x: number, z: number): boolean => rampCells.some(([cx, cz]) => Math.hypot(x - cx * CELL, z - cz * CELL) < 26);
   const landingCells = cellsOf((t) => t.startsWith('landing'));
-  const cellKey = (x: number, z: number): string => `${Math.round(x / 16)},${Math.round(z / 16)}`;
+  const cellKey = (x: number, z: number): string => `${Math.round(x / CELL)},${Math.round(z / CELL)}`;
   let takeoffOnRamp = false, flightTicks = 0, overshoots = 0;
   let lastSpeed = 0;
   const lastPos: [number, number, number] = [0, 0, 0];
@@ -101,6 +103,9 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
     }
     maxV = Math.max(maxV, v.speed);
     sumV += v.speed;
+    if (v.wheels.some((w) => w.contact && w.offroad)) off++;
+    // a valid run stays on the road: leaving it means the layout throws cars off somewhere
+    if (off > 60 && !failure) { failure = 'left the road'; break; }
     const inAir = v.wheelsOnGround === 0;
     if (inAir) air++;
     if (inAir && !wasAir) {
@@ -154,6 +159,7 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
     airTime: air / 100,
     jumps,
     overshoots,
+    offroad: off / 100,
     hardLandings: hard,
     wallHits: walls,
     surfaces: shares,

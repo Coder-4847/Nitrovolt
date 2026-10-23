@@ -1,0 +1,220 @@
+{
+ "id": "c04",
+ "name": "Golden Hour",
+ "car": "volt",
+ "theme": "sunset",
+ "seed": 5622,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    0,
+    0,
+    -6
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    1,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurnL",
+   "gridPos": [
+    1,
+    0,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -2,
+    0,
+    -10
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -2,
+    0,
+    -8
+   ],
+   "rot": 2
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -2,
+    0,
+    -7
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -2,
+    0,
+    -6
+   ],
+   "rot": 2
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -2,
+    0,
+    -5
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    -6,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -7,
+    0,
+    -2
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    0,
+    0
+   ],
+   "rot": 2,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -7,
+    0,
+    1
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    0,
+    3
+   ],
+   "rot": 2
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    -7,
+    0,
+    4
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    0,
+    6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -2,
+    0,
+    6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -1,
+    0,
+    6
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    6
+   ],
+   "rot": 3
+  }
+ ],
+ "medalTimes": {
+  "author": 39166,
+  "gold": 42299,
+  "silver": 48958,
+  "bronze": 60707
+ },
+ "bot": {
+  "maxSpeed": 51,
+  "lateralBudget": 13,
+  "lookTime": 0.6
+ }
+}

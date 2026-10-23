@@ -1,0 +1,295 @@
+{
+ "id": "c21",
+ "name": "Gauntlet",
+ "car": "volt",
+ "theme": "night",
+ "seed": 163,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "surface": "turbo2"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -6
+   ],
+   "rot": 0,
+   "surface": "engineOff"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -7
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurnL",
+   "gridPos": [
+    0,
+    0,
+    -8
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -7
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -6
+   ],
+   "rot": 2,
+   "surface": "reactor"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -3,
+    0,
+    -5
+   ],
+   "rot": 2
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -3,
+    0,
+    -3
+   ],
+   "rot": 2
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -3,
+    0,
+    -2
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -6,
+    0,
+    0
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -7,
+    0,
+    0
+   ],
+   "rot": 1,
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    0,
+    0
+   ],
+   "rot": 1
+  },
+  {
+   "type": "loop",
+   "gridPos": [
+    -10,
+    0,
+    0
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -12,
+    0,
+    -1
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    0,
+    -1
+   ],
+   "rot": 1,
+   "surface": "noBrake"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -14,
+    0,
+    -1
+   ],
+   "rot": 1
+  },
+  {
+   "type": "wallTurnR",
+   "gridPos": [
+    -15,
+    0,
+    -1
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -14,
+    0,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -13,
+    0,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -12,
+    0,
+    -4
+   ],
+   "rot": 3,
+   "surface": "gravity"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    -11,
+    0,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -9,
+    0,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -6,
+    -2,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    -5,
+    -2,
+    -4
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -3,
+    -2,
+    -7
+   ],
+   "rot": 0
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -3,
+    -2,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    -2,
+    -10
+   ],
+   "rot": 0
+  }
+ ],
+ "medalTimes": {
+  "author": 34804,
+  "gold": 36370,
+  "silver": 40025,
+  "bronze": 46985
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

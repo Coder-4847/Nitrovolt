@@ -1,7 +1,11 @@
 import { Rng } from '../../core/Rng';
+import { ARENA_INSET, fbm, terrainHeight } from '../../tracks/Terrain';
+import { TerrainData } from '../../tracks/TrackTypes';
 import { SceneryKit } from './Theme';
 
-export type PropKind = 'tree' | 'pine' | 'rock' | 'mountain' | 'mesa' | 'cactus' | 'terrace' | 'hill';
+export type PropKind =
+  | 'tree' | 'poplar' | 'blossom' | 'pine' | 'bush' | 'rock' | 'cactus' | 'barrel' | 'shrub' | 'tuft' | 'flowers'
+  | 'mesa' | 'mountain' | 'lamp';
 
 /** One scenery instance: position of its base centre, yaw, size (m) and colour. */
 export interface Prop {
@@ -14,166 +18,119 @@ export interface Prop {
   sy: number;
   sz: number;
   color: number;
+  /** Distance to the nearest road edge (m): near props cast shadows. */
+  near: number;
 }
 
-export interface SceneryInput {
-  /** Driving line (x, y, z). */
-  centerline: ReadonlyArray<{ x: number; y: number; z: number }>;
-  seed: number;
-  /** Height of the ground plane under the track. */
-  groundY: number;
-}
-
-/** Nothing (except far silhouettes) is placed closer than this to the driving line, in plan view. */
-export const CLEARANCE = 20;
-/** Tall props keep more room so they never loom over the road. */
-export const CLEARANCE_TALL = 30;
-
-/** Uniform-grid index over the centerline (XZ) for fast nearest-distance queries. */
-class LineIndex {
-  private readonly cells = new Map<string, Array<[number, number]>>();
-  constructor(points: ReadonlyArray<{ x: number; z: number }>, private readonly size = 32) {
-    for (const p of points) {
-      const k = `${Math.floor(p.x / size)},${Math.floor(p.z / size)}`;
-      let c = this.cells.get(k);
-      if (!c) this.cells.set(k, (c = []));
-      c.push([p.x, p.z]);
-    }
-  }
-  /** Distance to the nearest centerline point, capped at `max`. */
-  distance(x: number, z: number, max: number): number {
-    const r = Math.ceil(max / this.size);
-    const cx = Math.floor(x / this.size), cz = Math.floor(z / this.size);
-    let best = max * max;
-    for (let i = -r; i <= r; i++) {
-      for (let j = -r; j <= r; j++) {
-        const c = this.cells.get(`${cx + i},${cz + j}`);
-        if (!c) continue;
-        for (const [px, pz] of c) {
-          const d = (px - x) ** 2 + (pz - z) ** 2;
-          if (d < best) best = d;
-        }
-      }
-    }
-    return Math.sqrt(best);
-  }
-  /** Direction (yaw) from (x, z) toward the nearest centerline point within `max`. */
-  nearestYaw(x: number, z: number, max: number): number {
-    const r = Math.ceil(max / this.size);
-    const cx = Math.floor(x / this.size), cz = Math.floor(z / this.size);
-    let best = Infinity, bx = x, bz = z - 1;
-    for (let i = -r; i <= r; i++) {
-      for (let j = -r; j <= r; j++) {
-        for (const [px, pz] of this.cells.get(`${cx + i},${cz + j}`) ?? []) {
-          const d = (px - x) ** 2 + (pz - z) ** 2;
-          if (d < best) { best = d; bx = px; bz = pz; }
-        }
-      }
-    }
-    return Math.atan2(bx - x, bz - z);
-  }
-}
+/** Minimum distance from a road edge (m) per prop kind: tufts line the verge, trees stand back a little. */
+export const CLEARANCE: Record<PropKind, number> = {
+  tree: 8, poplar: 7, blossom: 8, pine: 6.5, bush: 3.5, rock: 4, cactus: 5, barrel: 3, shrub: 3, tuft: 1.4, flowers: 1.8,
+  mesa: 60, mountain: 60, lamp: 4,
+};
 
 const pick = <T>(r: Rng, list: readonly T[]): T => list[Math.floor(r.next() * list.length)]!;
 
-/** Smooth 2D value noise in [0, 1] from a seed (clumps forests, districts). */
-function valueNoise(seed: number): (x: number, z: number) => number {
-  const h = (i: number, j: number): number => {
-    let n = (Math.imul(i, 374761393) + Math.imul(j, 668265263) + Math.imul(seed, 2147483647)) | 0;
-    n = Math.imul(n ^ (n >>> 13), 1274126177);
-    return ((n ^ (n >>> 16)) >>> 0) / 4294967296;
-  };
-  return (x, z) => {
-    const i = Math.floor(x), j = Math.floor(z);
-    const fx = x - i, fz = z - j;
-    const u = fx * fx * (3 - 2 * fx), v = fz * fz * (3 - 2 * fz);
-    const a = h(i, j), b = h(i + 1, j), c = h(i, j + 1), d = h(i + 1, j + 1);
-    return a + (b - a) * u + (c - a) * v + (a - b - c + d) * u * v;
-  };
+/** Distance to the road (m) at a point, from the terrain's per-vertex record (nearest grid point). */
+export function roadDistance(t: TerrainData, x: number, z: number): number {
+  const i = Math.round((x - t.x0) / t.step), j = Math.round((z - t.z0) / t.step);
+  if (i < 0 || j < 0 || i >= t.nx || j >= t.nz) return 255;
+  // the grid stores distances at its points: the worst case inside a cell is half a diagonal closer
+  return Math.max(0, t.near[j * t.nx + i]! - t.step * 0.71);
 }
 
-/** Distance (m) outside the track's bounding box where the arena's grandstands stand; props keep clear of it. */
-export const ARENA_BAND: [number, number] = [34, 100];
+/** Ground slope (rise per metre) at a point. */
+function slopeAt(t: TerrainData, x: number, z: number): number {
+  const d = t.step;
+  const hx = terrainHeight(t, x + d, z) - terrainHeight(t, x - d, z);
+  const hz = terrainHeight(t, x, z + d) - terrainHeight(t, x, z - d);
+  return Math.hypot(hx, hz) / (2 * d);
+}
+
+const KIT_SEED: Record<SceneryKit, number> = { forest: 11, snow: 23, desert: 37, sunset: 41, night: 53 };
 
 /**
- * Where the scenery goes. Deterministic for a (track, kit, density), never inside the clearance corridor
- * around the driving line and never in the arena's grandstand band: small props (trees, rocks, cacti)
- * between the track and the stands, big ones (hills, terraces, mountains, mesas) outside them.
+ * Where the scenery goes, deterministic for a (terrain, kit, density): grass tufts and flowers along the
+ * verges, bushes and rocks a little further out, woods and copses (or cactus fields) framing the road, all
+ * standing on the terrain; mountains or mesas far behind the stadium.
  */
-export function planScenery(input: SceneryInput, kit: SceneryKit, density: number): Prop[] {
-  const pts = input.centerline;
+export function planScenery(t: TerrainData, kit: SceneryKit, density: number, seed: number): Prop[] {
   const out: Prop[] = [];
-  if (pts.length < 2 || density <= 0) return out;
-  const kitSeed = [...kit].reduce((a, c) => Math.imul(a ^ c.charCodeAt(0), 16777619), 2166136261) >>> 0;
-  const rng = new Rng((input.seed ^ kitSeed) >>> 0);
-  const noise = valueNoise((input.seed ^ 0x5bd1e995) | 0);
-  const idx = new LineIndex(pts);
-  const gy = input.groundY;
-
-  let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-  for (const p of pts) {
-    minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-    minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
-  }
-  const cx = (minX + maxX) / 2, cz = (minZ + maxZ) / 2;
-  const radius = Math.hypot(maxX - minX, maxZ - minZ) / 2;
-  /** How far outside the track's bounding box a point is (0 inside). */
-  const outside = (x: number, z: number): number => Math.max(minX - x, x - maxX, minZ - z, z - maxZ, 0);
-
-  const step = (kit === 'winter' ? 14 : kit === 'canyon' ? 22 : 20) / Math.sqrt(Math.max(0.15, density));
-  const cap = Math.round(2400 * density);
-  const m = ARENA_BAND[0];
-  const add = (p: Prop): void => {
-    if (out.length < cap * 1.4) out.push(p);
+  if (density <= 0) return out;
+  const rng = new Rng((seed ^ (KIT_SEED[kit] * 2654435761)) >>> 0);
+  const [bx0, bz0, bx1, bz1] = t.bounds;
+  const inner = ARENA_INSET - 22;
+  const box = (x: number, z: number): number => Math.max(bx0 - x, x - bx1, bz0 - z, z - bz1, 0);
+  const groundAt = (x: number, z: number): number => terrainHeight(t, x, z);
+  const place = (kind: PropKind, x: number, z: number, h: number, w: number, color: number, nd: number, sink = 0.25): void => {
+    out.push({ kind, x, y: groundAt(x, z) - sink, z, rot: rng.range(0, Math.PI * 2), sx: w, sy: h, sz: w * rng.range(0.85, 1.15), color, near: nd });
   };
-  const greens = [0x4f7a3a, 0x5b8441, 0x46703a, 0x648a48];
-  const pines = kit === 'winter' ? [0x2e5a44, 0x335f48, 0x294f3e] : [0x2b5a3a, 0x30623f, 0x264f34];
+  const greens = kit === 'sunset' ? [0x5d7a34, 0x6a8a3a, 0x4f6e30, 0x7a8a3c] : kit === 'night' ? [0x2f5a2c, 0x35602f, 0x2a502a] : [0x4f8a3a, 0x5b9441, 0x467a36, 0x68984a];
+  const pines = kit === 'snow' ? [0x2e5a44, 0x335f48, 0x294f3e] : [0x2b5a3a, 0x30623f, 0x264f34];
+  const blossoms = [0xf2b6c8, 0xeaa2b8, 0xf6c6d4, 0xe896b0];
+  const rocks = kit === 'desert' ? [0xa86a44, 0xbf8656, 0x9a5e3c] : kit === 'snow' ? [0x7b8594, 0x6b7280, 0x8a93a0] : [0x8a8478, 0x7a7468, 0x969084];
+  const tuftCol = kit === 'desert' ? [0xb8a060, 0xa8905a, 0xc4ae70] : kit === 'snow' ? [0x8a9a7a] : kit === 'sunset' ? [0x6a8a3c, 0x7a9440] : [0x5c9a3c, 0x6aa844, 0x4e8a36];
+  const flowerCol = [0xffd23a, 0xffffff, 0xf26a8c, 0x9a7aff, 0xff8a3a];
 
-  // ---- inside the arena: a jittered grid between the track and the stands
-  let near = 0;
-  for (let x = minX - m; x <= maxX + m; x += step) {
-    for (let z = minZ - m; z <= maxZ + m; z += step) {
-      if (near >= cap) break;
-      const px = x + rng.range(-0.45, 0.45) * step;
-      const pz = z + rng.range(-0.45, 0.45) * step;
+  // ---- the band inside the stadium: a jittered grid, denser near the road
+  const step = 7 / Math.sqrt(Math.max(0.2, density));
+  for (let x = bx0 - inner; x <= bx1 + inner; x += step) {
+    for (let z = bz0 - inner; z <= bz1 + inner; z += step) {
+      const px = x + rng.range(-0.5, 0.5) * step, pz = z + rng.range(-0.5, 0.5) * step;
+      if (box(px, pz) > inner) continue;
+      const nd = roadDistance(t, px, pz);
+      if (nd < 1.2) continue;
       const roll = rng.next();
-      if (outside(px, pz) >= ARENA_BAND[0] - 4) continue;
-      const d = idx.distance(px, pz, 80);
-      if (d < CLEARANCE) continue;
-      const n = noise(px / 80, pz / 80);
-      near++;
+      const wood = fbm(px / 110, pz / 110, seed + 3); // woods and clearings
+      const slope = slopeAt(t, px, pz);
+      const pit = groundAt(px, pz) < t.base - 3;
+      // near-road framing: more detail within 40 m of the road
+      const framing = nd < 45 ? 1 : nd < 90 ? 0.55 : 0.3;
       switch (kit) {
-        case 'stadium':
-        case 'sunset': {
-          if (n > 0.55 && roll < 0.5) {
-            const th = rng.range(7, 12);
-            add({ kind: 'tree', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: th * 0.62, sy: th, sz: th * 0.62, color: pick(rng, greens) });
+        case 'forest':
+        case 'sunset':
+        case 'night': {
+          const treeP = (wood > 0.55 ? 0.55 : wood > 0.45 ? 0.2 : 0.04) * framing;
+          if (!pit && nd >= CLEARANCE.tree && roll < treeP) {
+            const hgt = rng.range(9, 16);
+            if (kit === 'sunset' && rng.next() < 0.45) place('blossom', px, pz, hgt * 0.75, hgt * 0.85, pick(rng, blossoms), nd);
+            else if (rng.next() < 0.18) place('poplar', px, pz, hgt * 1.3, hgt * 0.32, pick(rng, greens), nd);
+            else if (kit !== 'sunset' && rng.next() < 0.22) place('pine', px, pz, hgt * 1.1, hgt * 0.42, pick(rng, pines), nd);
+            else place('tree', px, pz, hgt, hgt * 0.75, pick(rng, greens), nd);
+          } else if (nd >= CLEARANCE.bush && roll < treeP + 0.05 * framing) {
+            place('bush', px, pz, rng.range(1.2, 2.6), rng.range(1.8, 3.6), pick(rng, greens), nd, 0.3);
+          } else if (nd >= CLEARANCE.rock && roll < treeP + 0.07 * framing && (slope > 0.3 || rng.next() < 0.3)) {
+            const s = rng.range(1, 3.2);
+            place('rock', px, pz, s * 0.7, s, pick(rng, rocks), nd, s * 0.2);
+          } else if (kit === 'night' && nd >= CLEARANCE.lamp && nd < 7 && roll > 0.985) {
+            place('lamp', px, pz, 11, 1, 0xffffff, nd, 0);
           }
           break;
         }
-        case 'winter': {
-          if (roll < (n > 0.4 ? 0.7 : 0.18)) {
-            const h = rng.range(8, 16);
-            add({ kind: 'pine', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: h * 0.4, sy: h, sz: h * 0.4, color: pick(rng, pines) });
-          } else if (roll < 0.78) {
-            const sz = rng.range(2, 5);
-            add({ kind: 'rock', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: sz, sy: sz * 0.6, sz: sz, color: pick(rng, [0x7b8594, 0x6b7280]) });
+        case 'snow': {
+          const treeP = (wood > 0.5 ? 0.62 : wood > 0.4 ? 0.25 : 0.06) * framing;
+          if (!pit && nd >= CLEARANCE.pine && roll < treeP) {
+            const hgt = rng.range(8, 18);
+            place('pine', px, pz, hgt, hgt * 0.42, pick(rng, pines), nd);
+          } else if (nd >= CLEARANCE.rock && roll < treeP + 0.06 * framing) {
+            const s = rng.range(1.2, 3.6);
+            place('rock', px, pz, s * 0.7, s, pick(rng, rocks), nd, s * 0.25);
+          } else if (nd >= CLEARANCE.bush && roll < treeP + 0.09 * framing) {
+            place('bush', px, pz, rng.range(0.8, 1.6), rng.range(1.4, 2.6), 0x55705a, nd, 0.3);
           }
           break;
         }
-        case 'canyon': {
-          const r = rng.range(18, 34);
-          if (d > CLEARANCE + r * 0.56 + 2 && roll < 0.14) {
-            add({ kind: 'terrace', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: r, sy: rng.range(6, 14), sz: r * rng.range(0.7, 1.1), color: pick(rng, [0xc89a6a, 0xbd8d5e, 0xd0a474]) });
-          } else if (roll < 0.34 && n > 0.45) {
-            const h = rng.range(9, 15);
-            add({ kind: 'pine', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: h * 0.38, sy: h, sz: h * 0.38, color: pick(rng, pines) });
-          } else if (roll < 0.46) {
-            const h = rng.range(3, 6.5);
-            add({ kind: 'cactus', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: h * 0.16, sy: h, sz: h * 0.16, color: 0x4a7a3a });
-          } else if (roll < 0.56) {
-            const sz = rng.range(1.5, 5);
-            add({ kind: 'rock', x: px, y: gy, z: pz, rot: rng.range(0, 6.28), sx: sz, sy: sz * 0.7, sz: sz, color: pick(rng, [0xa86a44, 0xbf8656]) });
+        case 'desert': {
+          const fieldP = (wood > 0.5 ? 0.18 : 0.06) * framing;
+          if (!pit && nd >= CLEARANCE.cactus && roll < fieldP) {
+            const hgt = rng.range(4, 9);
+            place('cactus', px, pz, hgt, hgt * 0.17, pick(rng, [0x4c7a3a, 0x557f40, 0x46703a]), nd, 0.1);
+          } else if (nd >= CLEARANCE.barrel && roll < fieldP + 0.05 * framing) {
+            place('barrel', px, pz, rng.range(0.6, 1.2), rng.range(0.7, 1.2), pick(rng, [0x5a8a44, 0x4e7c3c]), nd, 0.05);
+          } else if (nd >= CLEARANCE.shrub && roll < fieldP + 0.12 * framing) {
+            place('shrub', px, pz, rng.range(0.8, 1.6), rng.range(1.4, 2.8), pick(rng, [0x8a8a4a, 0x7a7444, 0x9a8a54]), nd, 0.2);
+          } else if (nd >= CLEARANCE.rock && roll < fieldP + 0.18 * framing) {
+            const s = rng.range(1.2, 4.5);
+            place('rock', px, pz, s * 0.75, s, pick(rng, rocks), nd, s * 0.2);
           }
           break;
         }
@@ -181,39 +138,50 @@ export function planScenery(input: SceneryInput, kit: SceneryKit, density: numbe
     }
   }
 
-  // ---- outside the arena: a ring of big landscape forms
-  const ringR = Math.max(radius + ARENA_BAND[1] + 140, 420);
-  const ringCount = Math.round((kit === 'winter' ? 34 : kit === 'canyon' ? 32 : 26) * Math.max(0.5, density));
-  for (let i = 0; i < ringCount; i++) {
-    const a = (i / ringCount) * Math.PI * 2 + rng.range(-0.04, 0.04);
-    const r = ringR + rng.range(0, 240);
-    const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
-    if (outside(x, z) < ARENA_BAND[1] + 20) continue;
-    switch (kit) {
-      case 'winter':
-        add({ kind: 'mountain', x, y: gy, z, rot: rng.range(0, 6.28), sx: rng.range(150, 280), sy: rng.range(170, 340), sz: rng.range(150, 280), color: 0x5a6578 });
-        break;
-      case 'canyon':
-        add({ kind: 'mesa', x, y: gy, z, rot: rng.range(0, 6.28), sx: rng.range(70, 160), sy: rng.range(50, 130), sz: rng.range(60, 140), color: pick(rng, [0xb4643c, 0xa65a36, 0xc8784a]) });
-        break;
-      default:
-        add({ kind: 'hill', x, y: gy, z, rot: rng.range(0, 6.28), sx: rng.range(140, 260), sy: rng.range(30, 70), sz: rng.range(120, 220), color: pick(rng, kit === 'sunset' ? [0x3c5a34, 0x46643a] : [0x4c7a3e, 0x5a8646]) });
+  // ---- verge detail: grass tufts and flowers right beside the road
+  if (kit !== 'snow') {
+    const vstep = 2.6 / Math.sqrt(Math.max(0.2, density));
+    for (let x = bx0 - 40; x <= bx1 + 40; x += vstep) {
+      for (let z = bz0 - 40; z <= bz1 + 40; z += vstep) {
+        const px = x + rng.range(-0.5, 0.5) * vstep, pz = z + rng.range(-0.5, 0.5) * vstep;
+        const nd = roadDistance(t, px, pz);
+        if (nd < CLEARANCE.tuft || nd > 14) continue;
+        const k = 1 - nd / 14;
+        const roll = rng.next();
+        if (roll > 0.55 * k + 0.08) continue;
+        if (kit !== 'desert' && nd > CLEARANCE.flowers && rng.next() < 0.12) place('flowers', px, pz, rng.range(0.35, 0.6), rng.range(0.6, 1.1), pick(rng, flowerCol), nd, 0.05);
+        else place('tuft', px, pz, rng.range(0.4, 0.9), rng.range(0.6, 1.2), pick(rng, tuftCol), nd, 0.05);
+      }
     }
   }
-  // a belt of trees just outside the stands
-  if (kit !== 'canyon') {
-    const belt = Math.round(90 * density);
-    for (let i = 0; i < belt; i++) {
-      const a = rng.range(0, Math.PI * 2);
-      const r = Math.max(maxX - minX, maxZ - minZ) / 2 + ARENA_BAND[1] + rng.range(20, 80);
+
+  // ---- far landscape behind the stadium
+  const cx = (bx0 + bx1) / 2, cz = (bz0 + bz1) / 2;
+  const half = Math.max(bx1 - bx0, bz1 - bz0) / 2;
+  if (kit === 'snow' || kit === 'desert') {
+    const n = Math.round(30 * Math.max(0.5, density));
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + rng.range(-0.05, 0.05);
+      const r = half + ARENA_INSET + 260 + rng.range(0, 320);
       const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
-      if (outside(x, z) < ARENA_BAND[1] + 6) continue;
-      const h = rng.range(10, 18);
-      if (kit === 'winter') add({ kind: 'pine', x, y: gy, z, rot: rng.range(0, 6.28), sx: h * 0.4, sy: h, sz: h * 0.4, color: pick(rng, pines) });
-      else add({ kind: 'tree', x, y: gy, z, rot: rng.range(0, 6.28), sx: h * 0.62, sy: h, sz: h * 0.62, color: pick(rng, greens) });
+      if (box(x, z) < ARENA_INSET + 120) continue;
+      if (kit === 'snow') out.push({ kind: 'mountain', x, y: t.base - 2, z, rot: rng.range(0, 6.28), sx: rng.range(200, 360), sy: rng.range(160, 320), sz: rng.range(200, 360), color: 0x5a6578, near: 999 });
+      else out.push({ kind: 'mesa', x, y: t.base - 2, z, rot: rng.range(0, 6.28), sx: rng.range(90, 200), sy: rng.range(60, 150), sz: rng.range(80, 180), color: pick(rng, [0xb4643c, 0xa65a36, 0xc8784a]), near: 999 });
+    }
+  }
+  // tree belt beyond the stands
+  if (kit !== 'desert') {
+    const n = Math.round(160 * density);
+    for (let i = 0; i < n; i++) {
+      const a = rng.range(0, Math.PI * 2);
+      const r = half + ARENA_INSET + rng.range(70, 150);
+      const x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
+      if (box(x, z) < ARENA_INSET + 55) continue;
+      const hgt = rng.range(12, 22);
+      const y = t.base - 0.3;
+      if (kit === 'snow') out.push({ kind: 'pine', x, y, z, rot: rng.range(0, 6.28), sx: hgt * 0.42, sy: hgt, sz: hgt * 0.42, color: pick(rng, pines), near: 999 });
+      else out.push({ kind: 'tree', x, y, z, rot: rng.range(0, 6.28), sx: hgt * 0.75, sy: hgt, sz: hgt * 0.75, color: pick(rng, greens), near: 999 });
     }
   }
   return out;
 }
-
-export { LineIndex };

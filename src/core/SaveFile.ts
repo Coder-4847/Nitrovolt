@@ -1,7 +1,6 @@
 import { GhostData } from './Ghost';
 import { GhostStore } from './GhostStore';
 import { Settings } from './Settings';
-import { UserLevel, UserLevels } from '../editor/UserLevels';
 
 const PREFIX = 'nitrovolt.';
 export const SAVE_FORMAT = 'nitrovolt-save';
@@ -15,8 +14,8 @@ export interface SaveFile {
   storage: Record<string, string>;
   /** Personal-best ghosts. */
   ghosts: GhostData[];
-  /** Tracks made in the editor (version 2). */
-  userLevels?: UserLevel[];
+  /** Tracks made in the old editor (version 2 saves; ignored since 1.3). */
+  userLevels?: unknown[];
 }
 
 /** Everything the game saved, as one JSON-able object. */
@@ -30,7 +29,7 @@ export async function exportSave(): Promise<SaveFile> {
   } catch {
     /* storage unavailable */
   }
-  return { format: SAVE_FORMAT, version: 2, exportedAt: new Date().toISOString(), storage: data, ghosts: await GhostStore.all(), userLevels: await UserLevels.list() };
+  return { format: SAVE_FORMAT, version: 2, exportedAt: new Date().toISOString(), storage: data, ghosts: await GhostStore.all() };
 }
 
 /** Validate an untrusted save file; returns problems (empty = ok). */
@@ -40,10 +39,7 @@ export function validateSave(x: unknown): string[] {
   if (!s || typeof s !== 'object') return ['not a JSON object'];
   if (s.format !== SAVE_FORMAT) errs.push('not a Nitrovolt save file');
   if (s.version !== 1 && s.version !== 2) errs.push('unsupported save version');
-  if (s.userLevels !== undefined) {
-    if (!Array.isArray(s.userLevels)) errs.push('bad track list');
-    else for (const l of s.userLevels) if (!l || typeof l.id !== 'string' || !l.id.startsWith('u-') || !l.json || !Array.isArray(l.json.blocks)) errs.push('bad track entry');
-  }
+  if (s.userLevels !== undefined && !Array.isArray(s.userLevels)) errs.push('bad track list');
   if (!s.storage || typeof s.storage !== 'object') errs.push('missing storage block');
   else {
     for (const [k, v] of Object.entries(s.storage)) {
@@ -75,6 +71,5 @@ export async function importSave(x: unknown): Promise<void> {
   await GhostStore.clear();
   for (const g of s.ghosts) await GhostStore.save(g);
   // player tracks are merged (an import never deletes a track you made on this device)
-  for (const l of s.userLevels ?? []) await UserLevels.save(l);
   Settings.reload();
 }

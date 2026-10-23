@@ -26,19 +26,23 @@ export interface BlockDef {
 
 const ro = (o: BlockOptions, extra: RoadOpts = {}): RoadOpts => ({ width: o.width, surface: o.surface, effect: o.effect, walls: o.walls, ...extra });
 
-// Gantry tints (start / checkpoint / finish / lap). The renderer draws its own arches there and hides the
-// gantry boxes by these exact values, so scenery blocks use nearby but different tints.
-export const GANTRY_TINTS = [0x28ff7a, 0x18e0ff, 0xff3b2f, 0xffd21f, 0xff3a14];
+// Gantry tints (start / checkpoint / finish / lap, then the four car gates). The renderer draws its own
+// arches there and hides the gantry boxes by these exact values, so scenery blocks use different tints.
+export const GANTRY_TINTS = [0x28ff7a, 0x18e0ff, 0xff3b2f, 0xffd21f, 0xff3a14, 0x20c0ff, 0xff8020, 0x80e0ff, 0xffd060];
 const GREEN = 0x28ff7a;
 const CYAN = 0x18e0ff;
 const RED = 0xff3b2f;
 const GOLD = 0xffd21f;
+/** Car-gate tint per car id (matches GANTRY_TINTS[5..8]). */
+export const GATE_TINT: Record<string, number> = { volt: 0x20c0ff, gravel: 0xff8020, frost: 0x80e0ff, dune: 0xffd060 };
 
 type BuildFn = BlockDef['build'];
 const defs: BlockDef[] = [];
 const add = (id: string, label: string, category: BlockCategory, build: BuildFn, extra: Partial<BlockDef> = {}): void => {
   defs.push({ id, label, category, chain: category !== 'scenery', walls: 'none', build, ...extra });
 };
+
+// One cell is 32 m and one level 8 m; every block below is sized so its exit lands back on the grid.
 
 // ---------------------------------------------------------------- straights
 add('straight1', 'Straight 1', 'straight', (t, o) => t.straight(CELL, ro(o)));
@@ -48,11 +52,11 @@ add('straight4', 'Straight 4', 'straight', (t, o) => t.straight(CELL * 4, ro(o))
 // ---------------------------------------------------------------- gameplay lines
 add('start', 'Start', 'gameplay', (t, o) => {
   const r = ro(o);
-  t.straight(4, r);
+  t.straight(8, r);
   t.setSpawn();
-  t.straight(6, r);
+  t.straight(12, r);
   t.gantry(o.width, GREEN);
-  t.straight(6, r);
+  t.straight(12, r);
 });
 const lineBlock = (kind: 'checkpoint' | 'finish', tint: number): BuildFn => (t, o) => {
   const r = ro(o);
@@ -65,100 +69,121 @@ add('checkpoint', 'Checkpoint', 'gameplay', lineBlock('checkpoint', CYAN));
 add('finish', 'Finish', 'gameplay', lineBlock('finish', RED));
 add('lapFinish', 'Lap line (start/finish)', 'gameplay', (t, o) => {
   const r = ro(o);
-  t.straight(4, r);
+  t.straight(8, r);
   t.setSpawn();
-  t.straight(4, r);
+  t.straight(8, r);
   t.trigger('finish', o.width);
   t.gantry(o.width, GOLD);
-  t.straight(8, r);
+  t.straight(16, r);
 });
+// car gates: drive through and the next section is driven with another car
+for (const [car, label] of [['volt', 'Stadium'], ['gravel', 'Rally'], ['frost', 'Snow'], ['dune', 'Desert']] as const) {
+  add(`gate${car[0]!.toUpperCase()}${car.slice(1)}`, `${label} car gate`, 'gameplay', (t, o) => {
+    const r = ro(o);
+    t.straight(CELL / 2, r);
+    t.trigger('car', o.width, undefined, car);
+    t.gantry(o.width, GATE_TINT[car]!);
+    t.straight(CELL / 2, r);
+  });
+}
 
-// ---------------------------------------------------------------- curves (R = 8, 24, 40 keep the exit on the grid)
-for (const [n, R] of [[1, 8], [2, 24], [3, 40]] as const) {
+// ---------------------------------------------------------------- curves (R = 16, 48, 80 keep the exit on the grid)
+for (const [n, R] of [[1, 16], [2, 48], [3, 80]] as const) {
   add(`curve${n}L`, `Curve ${n} left`, 'curve', (t, o) => t.arc(R, 90, 0, ro(o)));
   add(`curve${n}R`, `Curve ${n} right`, 'curve', (t, o) => t.arc(R, -90, 0, ro(o)));
 }
-for (const [n, R] of [[2, 24], [3, 40]] as const) {
-  add(`bank${n}L`, `Banked curve ${n} left`, 'bank', (t, o) => t.arc(R, 90, 30, ro(o)), { walls: 'both' });
-  add(`bank${n}R`, `Banked curve ${n} right`, 'bank', (t, o) => t.arc(R, -90, 30, ro(o)), { walls: 'both' });
+// banked turns roll about their inner edge: the inside stays on the ground, the outside rises
+for (const [n, R] of [[2, 48], [3, 80]] as const) {
+  add(`bank${n}L`, `Banked curve ${n} left`, 'bank', (t, o) => t.arc(R, 90, 28, ro(o), true), { walls: 'both' });
+  add(`bank${n}R`, `Banked curve ${n} right`, 'bank', (t, o) => t.arc(R, -90, 28, ro(o), true), { walls: 'both' });
 }
+// wall turns: the road climbs onto a near-vertical wall through the middle of the turn (speed holds you on it)
+// (the roll eases in over half the turn: a car cannot roll onto a wall much faster than that)
+add('wallTurnL', 'Wall turn left (U)', 'special', (t, o) => t.arc(48, 180, 78, ro(o, { step: 1.5 }), true, 0.5), { walls: 'both' });
+add('wallTurnR', 'Wall turn right (U)', 'special', (t, o) => t.arc(48, -180, 78, ro(o, { step: 1.5 }), true, 0.5), { walls: 'both' });
+add('wallTurn90L', 'Wall turn left', 'special', (t, o) => t.arc(80, 90, 72, ro(o, { step: 1.5 }), true, 0.5), { walls: 'both' });
+add('wallTurn90R', 'Wall turn right', 'special', (t, o) => t.arc(80, -90, 72, ro(o, { step: 1.5 }), true, 0.5), { walls: 'both' });
 
 // ---------------------------------------------------------------- chicanes (S-shifts)
-/** tan(theta/2) = shift / forward-ish: R = 40 gives 3 cells x 1 cell and 4 cells x 2 cells exactly. */
+/** tan(theta/2) = shift / forward-ish: R = 80 gives 3 cells x 1 cell and 4 cells x 2 cells exactly. */
 const chicane = (dir: 1 | -1, angle: number): BuildFn => (t, o) => {
-  t.arc(40, dir * angle, 0, ro(o));
-  t.arc(40, -dir * angle, 0, ro(o));
+  t.arc(80, dir * angle, 0, ro(o));
+  t.arc(80, -dir * angle, 0, ro(o));
 };
-const A1 = (Math.atan(1 / 3) * 2 * 180) / Math.PI; // 36.87 deg: 48 m forward, 16 m sideways
-const A2 = (Math.atan(1 / 2) * 2 * 180) / Math.PI; // 53.13 deg: 64 m forward, 32 m sideways
+const A1 = (Math.atan(1 / 3) * 2 * 180) / Math.PI; // 36.87 deg: 96 m forward, 32 m sideways
+const A2 = (Math.atan(1 / 2) * 2 * 180) / Math.PI; // 53.13 deg: 128 m forward, 64 m sideways
 add('chicaneL', 'Chicane left', 'chicane', chicane(1, A1));
 add('chicaneR', 'Chicane right', 'chicane', chicane(-1, A1));
 add('chicaneWideL', 'Wide chicane left', 'chicane', chicane(1, A2));
 add('chicaneWideR', 'Wide chicane right', 'chicane', chicane(-1, A2));
 
-// ---------------------------------------------------------------- slopes (rise is whole levels of 4 m)
-add('slopeUp1', 'Slope up 1', 'slope', (t, o) => t.slope(CELL, 4, 12, 2, ro(o)));
-add('slopeDown1', 'Slope down 1', 'slope', (t, o) => t.slope(CELL, -4, 12, 2, ro(o)));
-add('slopeUp2', 'Slope up 2', 'slope', (t, o) => t.slope(CELL * 2, 8, 30, 2, ro(o)));
-add('slopeDown2', 'Slope down 2', 'slope', (t, o) => t.slope(CELL * 2, -8, 30, 2, ro(o)));
-add('steepUp', 'Steep climb', 'slope', (t, o) => t.slope(CELL * 2, 16, 16, 2, ro(o)));
-add('steepDown', 'Steep descent', 'slope', (t, o) => t.slope(CELL * 2, -16, 16, 2, ro(o)));
+// ---------------------------------------------------------------- slopes (rise is whole levels of 8 m)
+add('slopeUp1', 'Slope up 1', 'slope', (t, o) => t.slope(CELL, 8, 24, 2, ro(o)));
+add('slopeDown1', 'Slope down 1', 'slope', (t, o) => t.slope(CELL, -8, 24, 2, ro(o)));
+add('slopeUp2', 'Slope up 2', 'slope', (t, o) => t.slope(CELL * 2, 16, 60, 2, ro(o)));
+add('slopeDown2', 'Slope down 2', 'slope', (t, o) => t.slope(CELL * 2, -16, 60, 2, ro(o)));
+add('steepUp', 'Steep climb', 'slope', (t, o) => t.slope(CELL * 2, 32, 32, 2, ro(o)));
+add('steepDown', 'Steep descent', 'slope', (t, o) => t.slope(CELL * 2, -32, 32, 2, ro(o)));
 
 // ---------------------------------------------------------------- jumps: ramps leave pitched up, landings enter pitched down
-// Jump ramps are shallow (lips of about 5, 9 and 12 degrees) so flight grows gently with speed and a landing
-// sized for the approach speed still catches a flat-out run; the generator picks the flattest one that
-// clears the gap. They end below the grid level above them; the chain layout treats that level as their
-// exit (a gap always follows a ramp).
-add('kicker', 'Kicker', 'jump', (t, o) => t.slope(CELL * 2, 2.2, 140, 1, ro(o)));
-add('jumpRamp', 'Jump ramp', 'jump', (t, o) => t.slope(CELL, 2.0, 40, 1, ro(o)));
+// Jump ramps are shallow (lips of about 5, 9 and 10 degrees) so flight grows gently with speed and a landing
+// sized for the approach speed still catches a flat-out run. They end below the grid level above them; the
+// chain layout treats that level as their exit (a gap always follows a ramp). The big ramp (about 16
+// degrees) throws a car high and far over a ravine.
+add('kicker', 'Kicker', 'jump', (t, o) => t.slope(CELL * 2, 4.4, 280, 1, ro(o)));
+add('jumpRamp', 'Jump ramp', 'jump', (t, o) => t.slope(CELL, 4.0, 80, 1, ro(o)));
 add('jumpRampLong', 'Long jump ramp', 'jump', (t, o) => {
   t.straight(CELL / 2, ro(o));
-  t.slope(CELL * 1.5, 3.6, 36, 1, ro(o));
+  t.slope(CELL * 1.5, 7.2, 72, 1, ro(o));
+});
+add('jumpRampBig', 'Big ramp', 'jump', (t, o) => {
+  t.straight(CELL / 2, ro(o));
+  t.slope(CELL * 1.5, 7.6, 130, 1, ro(o));
 });
 // Landings are S-curves: they start level (no edge to clip), steepen to meet the falling car, and round out
 // flat at the bottom, so a car comes down on the slope across a wide band of speeds.
-add('landing1', 'Landing', 'jump', (t, o) => t.slope(CELL, -4, 16, 2, ro(o)));
-add('landingLong', 'Long landing', 'jump', (t, o) => t.slope(CELL * 2, -8, 32, 2, ro(o)));
-add('landingXL', 'Extra-long landing', 'jump', (t, o) => t.slope(CELL * 3, -8, 60, 2, ro(o)));
+add('landing1', 'Landing', 'jump', (t, o) => t.slope(CELL, -8, 32, 2, ro(o)));
+add('landingLong', 'Long landing', 'jump', (t, o) => t.slope(CELL * 2, -16, 64, 2, ro(o)));
+add('landingXL', 'Extra-long landing', 'jump', (t, o) => t.slope(CELL * 3, -16, 120, 2, ro(o)));
 
 // ---------------------------------------------------------------- platforms
 add('platform', 'Platform', 'platform', (t, o) => t.straight(CELL, ro(o, { width: 32, thickness: 1.5 })), { fixedWidth: 32 });
-add('platformBig', 'Big platform', 'platform', (t, o) => t.straight(CELL * 3, ro(o, { width: 48, thickness: 1.5, step: 12 })), { fixedWidth: 48 });
+add('platformBig', 'Big platform', 'platform', (t, o) => t.straight(CELL * 3, ro(o, { width: 96, thickness: 1.5, step: 12 })), { fixedWidth: 96 });
 
 // ---------------------------------------------------------------- special geometry
 add('loop', 'Loop', 'special', (t, o) => {
   const r = ro(o, { walls: 'both', wallHeight: 1.0 });
   t.straight(CELL, r);
-  t.loop(24, CELL, r);
+  t.loop(24, CELL, { ...r, special: true });
   t.straight(CELL, r);
 }, { walls: 'both' });
-add('halfpipe2', 'Half-pipe', 'special', (t, o) => t.halfpipe(CELL * 2, 8.5, 150, ro(o)), { fixedWidth: 16 });
-add('wallRide4L', 'Wall-ride left', 'special', (t, o) => t.straightBanked(CELL * 4, -45, ro(o, { walls: 'both', wallHeight: 2.6 }), 0.42), { walls: 'both' });
-add('wallRide4R', 'Wall-ride right', 'special', (t, o) => t.straightBanked(CELL * 4, 45, ro(o, { walls: 'both', wallHeight: 2.6 }), 0.42), { walls: 'both' });
+add('halfpipe2', 'Half-pipe', 'special', (t, o) => t.halfpipe(CELL * 2, 16, 150, ro(o)), { fixedWidth: 32 });
+add('wallRide4L', 'Tilted straight left', 'special', (t, o) => t.straightBanked(CELL * 4, -45, ro(o, { walls: 'both', wallHeight: 2.6 }), 0.42, true), { walls: 'both' });
+add('wallRide4R', 'Tilted straight right', 'special', (t, o) => t.straightBanked(CELL * 4, 45, ro(o, { walls: 'both', wallHeight: 2.6 }), 0.42, true), { walls: 'both' });
 add('spiralDownL', 'Spiral descent left', 'spiral', (t, o) => {
   const r = ro(o, { walls: 'both' });
-  t.spiral(24, 360, 12, 24, r);
+  t.spiral(48, 360, 16, 22, { ...r, special: true });
   t.straight(CELL, r);
 }, { walls: 'both' });
 add('spiralDownR', 'Spiral descent right', 'spiral', (t, o) => {
   const r = ro(o, { walls: 'both' });
-  t.spiral(24, -360, 12, 24, r);
+  t.spiral(48, -360, 16, 22, { ...r, special: true });
   t.straight(CELL, r);
 }, { walls: 'both' });
 
 // ---------------------------------------------------------------- scenery (not part of the driving line)
 add('pylon', 'Pylon', 'scenery', (t) => {
-  t.decoBox(CELL / 2, 0, 0, 1.6, 26, 1.6, 0x18e0fe);
-  t.decoBox(CELL / 2, 0, 26, 3.4, 1.0, 3.4, 0xffffff);
+  t.decoBox(CELL / 2, 0, 0, 2.4, 38, 2.4, 0x18e0fe);
+  t.decoBox(CELL / 2, 0, 38, 5, 1.4, 5, 0xffffff);
 });
 add('arch', 'Arch', 'scenery', (t) => {
-  t.decoBox(CELL / 2, -9, 0, 1.4, 12, 1.4, 0xff3b2e);
-  t.decoBox(CELL / 2, 9, 0, 1.4, 12, 1.4, 0xff3b2e);
-  t.decoBox(CELL / 2, 0, 11.4, 20, 1.4, 1.4, 0xff3b2e);
+  t.decoBox(CELL / 2, -16, 0, 2, 16, 2, 0xff3b2e);
+  t.decoBox(CELL / 2, 16, 0, 2, 16, 2, 0xff3b2e);
+  t.decoBox(CELL / 2, 0, 15, 34, 2, 2, 0xff3b2e);
 });
 add('tower', 'Tower', 'scenery', (t) => {
-  t.decoBox(CELL / 2, 0, 0, 6, 40, 6, 0x2a3350);
-  t.decoBox(CELL / 2, 0, 38, 7, 2, 7, 0xff8a1f);
+  t.decoBox(CELL / 2, 0, 0, 9, 60, 9, 0x2a3350);
+  t.decoBox(CELL / 2, 0, 57, 10, 3, 10, 0xff8a1f);
 });
 
 export const BLOCKS: Readonly<Record<string, BlockDef>> = Object.fromEntries(defs.map((d) => [d.id, d]));

@@ -39,6 +39,8 @@ export interface ColliderInfo {
   surface: SurfaceId;
   effect?: EffectId;
   blockId: number;
+  /** The landscape off the road: slow going for every car. */
+  offroad?: boolean;
 }
 
 const DEFAULT_INFO: ColliderInfo = { surface: 'tarmac', blockId: -1 };
@@ -75,6 +77,22 @@ export class RapierWorld {
     const col = this.world.createCollider(desc);
     this.info.set(col.handle, { surface: mesh.surface, effect: mesh.effect, blockId: mesh.blockId });
     return col.handle;
+  }
+
+  /**
+   * The landscape as a heightfield collider. Our grid is row-major with x fastest; Rapier wants a
+   * column-major (rows = z, columns = x) matrix centred on the collider, so it is transposed here.
+   */
+  addHeightfield(t: { x0: number; z0: number; step: number; nx: number; nz: number; heights: Float32Array; surface: SurfaceId }): void {
+    const h = new Float32Array(t.nx * t.nz);
+    for (let j = 0; j < t.nz; j++) for (let i = 0; i < t.nx; i++) h[i * t.nz + j] = t.heights[j * t.nx + i]!;
+    const sx = (t.nx - 1) * t.step, sz = (t.nz - 1) * t.step;
+    const desc = RAPIER.ColliderDesc.heightfield(t.nz - 1, t.nx - 1, h, { x: sx, y: 1, z: sz })
+      .setTranslation(t.x0 + sx / 2, 0, t.z0 + sz / 2)
+      .setFriction(0.0)
+      .setRestitution(0.0);
+    const col = this.world.createCollider(desc);
+    this.info.set(col.handle, { surface: t.surface, blockId: -1, offroad: true });
   }
 
   infoOf(colliderHandle: number): ColliderInfo {

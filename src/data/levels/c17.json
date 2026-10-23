@@ -1,0 +1,253 @@
+{
+ "id": "c17",
+ "name": "Avalanche",
+ "car": "frost",
+ "theme": "snow",
+ "seed": 17002,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "steepUp",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -5
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    4,
+    -6
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    4,
+    -8
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "spiralDownR",
+   "gridPos": [
+    4,
+    4,
+    -8
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    5,
+    2,
+    -8
+   ],
+   "rot": 3,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    6,
+    2,
+    -8
+   ],
+   "rot": 3,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    8,
+    2,
+    -11
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "gateGravel",
+   "gridPos": [
+    8,
+    2,
+    -12
+   ],
+   "rot": 0,
+   "surface": "dirt",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    8,
+    2,
+    -13
+   ],
+   "rot": 0,
+   "surface": "dirt",
+   "walls": "both"
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    8,
+    2,
+    -15
+   ],
+   "rot": 0,
+   "surface": "dirt",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    7,
+    2,
+    -18
+   ],
+   "rot": 0,
+   "surface": "dirt",
+   "walls": "both"
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    7,
+    2,
+    -20
+   ],
+   "rot": 0,
+   "surface": "dirt",
+   "walls": "both"
+  },
+  {
+   "type": "gateFrost",
+   "gridPos": [
+    7,
+    0,
+    -22
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    7,
+    0,
+    -23
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    7,
+    0,
+    -25
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    4,
+    0,
+    -27
+   ],
+   "rot": 1,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    2,
+    0,
+    -27
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    1,
+    0,
+    -27
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  }
+ ],
+ "medalTimes": {
+  "author": 58476,
+  "gold": 61400,
+  "silver": 69002,
+  "bronze": 81866
+ },
+ "bot": {
+  "maxSpeed": 50,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12
+ }
+}

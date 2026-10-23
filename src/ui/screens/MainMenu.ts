@@ -4,7 +4,6 @@ import { Screen } from './ScreenManager';
 import { SettingsScreen } from './SettingsScreen';
 import { LevelSelectScreen } from './LevelSelectScreen';
 import { LeaderboardScreen } from './LeaderboardScreen';
-import { MyLevelsScreen } from './MyLevelsScreen';
 import { HelpScreen } from './HelpScreen';
 import { AboutScreen } from './AboutScreen';
 import { LandingScreen } from './LandingScreen';
@@ -30,7 +29,6 @@ export class MainMenu implements Screen {
       item('Play', cont ? `Continue · ${cont.name}` : 'Start the campaign', () => this.app.playLevel(contId), 'primary'),
       item('Campaign', '100 tracks · 4 seasons', () => this.app.screens.push(new LevelSelectScreen(this.app, 'campaign'))),
       item('Free play', 'Any unlocked track, any car', () => this.app.screens.push(new LevelSelectScreen(this.app, 'free'))),
-      item('Track editor', 'Build, test, share', () => this.app.screens.push(new MyLevelsScreen(this.app))),
       item('Records', 'Times, medals, ghosts', () => this.app.screens.push(new LeaderboardScreen(this.app))),
       item('Settings', 'Controls, graphics, sound, garage', () => this.app.screens.push(new SettingsScreen(this.app))),
       h('div', { class: 'mm-small' },

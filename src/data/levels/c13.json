@@ -1,0 +1,262 @@
+{
+ "id": "c13",
+ "name": "Sand Rally",
+ "car": "dune",
+ "theme": "desert",
+ "seed": 6526,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    0,
+    0,
+    -8
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -11
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    0,
+    -2,
+    -12
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    -2,
+    -14
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "gateGravel",
+   "gridPos": [
+    -4,
+    -2,
+    -14
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -5,
+    -2,
+    -14
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -7,
+    -2,
+    -14
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -8,
+    -2,
+    -16
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    -8,
+    -2,
+    -17
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -7,
+    -2,
+    -20
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    -2,
+    -21
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    -7,
+    -2,
+    -22
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "gateDune",
+   "gridPos": [
+    -10,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -11,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "jumpRampLong",
+   "gridPos": [
+    -14,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -17,
+    -2,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -20,
+    -4,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -22,
+    -4,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -23,
+    -4,
+    -23
+   ],
+   "rot": 1,
+   "surface": "sand"
+  }
+ ],
+ "medalTimes": {
+  "author": 36224,
+  "gold": 38397,
+  "silver": 43469,
+  "bronze": 52525
+ },
+ "bot": {
+  "maxSpeed": 62,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12
+ }
+}

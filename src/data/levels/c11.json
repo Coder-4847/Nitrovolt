@@ -1,0 +1,239 @@
+{
+ "id": "c11",
+ "name": "Snow Patrol",
+ "car": "volt",
+ "theme": "snow",
+ "seed": 51288,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurn90R",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    3,
+    0,
+    -7
+   ],
+   "rot": 3
+  },
+  {
+   "type": "gateFrost",
+   "gridPos": [
+    5,
+    0,
+    -7
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    6,
+    0,
+    -7
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    8,
+    0,
+    -7
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    9,
+    0,
+    -9
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    9,
+    0,
+    -10
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    9,
+    2,
+    -12
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    9,
+    2,
+    -13
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    6,
+    2,
+    -15
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    5,
+    2,
+    -15
+   ],
+   "rot": 1,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    3,
+    2,
+    -15
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    1,
+    0,
+    -15
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    0,
+    0,
+    -15
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -1,
+    0,
+    -15
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -15
+   ],
+   "rot": 1
+  },
+  {
+   "type": "wallTurnR",
+   "gridPos": [
+    -4,
+    0,
+    -15
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -3,
+    0,
+    -18
+   ],
+   "rot": 3
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    1,
+    0,
+    -18
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    0,
+    -18
+   ],
+   "rot": 3
+  }
+ ],
+ "medalTimes": {
+  "author": 44358,
+  "gold": 47019,
+  "silver": 53230,
+  "bronze": 64319
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

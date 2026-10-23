@@ -40,9 +40,28 @@ export class PathBot {
     private readonly surfaces: SurfaceId[] = [],
     /** Closed circuit: wrap around to the start instead of finishing (multi-lap tracks). */
     private readonly closed = false,
-    /** The car being driven: grip per surface sets corner speeds and braking. */
-    private readonly carParams?: VehicleParams,
-  ) {}
+    /** The car being driven: grip per surface sets corner speeds and braking (follows car gates). */
+    private carParams?: VehicleParams,
+    /** Cross-section frames of the path: steeply banked stretches (wall turns) are taken flat out. */
+    frames?: ReadonlyArray<{ u: { y: number } }>,
+  ) {
+    this.banked = (frames ?? []).map((f) => f.u.y < 0.8);
+  }
+
+  /** Per path point: banked steeply enough that speed holds the car on (no corner limit; never brake into it). */
+  private readonly banked: boolean[];
+
+  /** A steep wall within `ahead` metres of the bot (or under it). */
+  private wallAhead(from: number, ahead: number): boolean {
+    if (!this.banked.length) return false;
+    const n = this.path.length;
+    let d = 0;
+    for (let i = from; i < Math.min(n - 1, from + 200) && d < ahead; i++) {
+      if (this.banked[i % n]) return true;
+      d += this.path[i % n]!.distanceTo(this.path[(i + 1) % n]!);
+    }
+    return false;
+  }
 
   get progress(): number {
     return this.idx / (this.path.length - 1);
@@ -91,7 +110,7 @@ export class PathBot {
       minMu = Math.min(minMu, mu);
       const brakeDecel = Math.min(16, 0.55 * minMu * 19.6);
       const budget = Math.min(this.lateralBudget, 0.5 * mu * 19.6);
-      if (!(l1 > 12 || l2 > 12 || l1 < 0.05 || l2 < 0.05)) {
+      if (!(l1 > 12 || l2 > 12 || l1 < 0.05 || l2 < 0.05) && !this.banked[i % n] && !this.banked[(i + 1) % n]) {
         const v1 = b.clone().sub(a).normalize();
         const v2 = c.clone().sub(b).normalize();
         // near-vertical stretches (loops, steep ramps) are not "corners"
@@ -109,6 +128,7 @@ export class PathBot {
   }
 
   drive(v: Vehicle): InputFrame {
+    if (this.carParams) this.carParams = v.params;
     // advance the nearest-point index (monotonic, windowed search)
     let best = this.idx;
     let bestD = Infinity;
@@ -154,7 +174,9 @@ export class PathBot {
     steer = this.lastSteer + Math.max(-this.steerSlew, Math.min(this.steerSlew, steer - this.lastSteer));
     this.lastSteer = steer;
 
-    const vTarget = this.targetSpeed(this.idx);
+    let vTarget = this.targetSpeed(this.idx);
+    // wall turns need speed to stay on: carry at least 45 m/s into and through them
+    if (this.wallAhead(this.idx, 90)) vTarget = Math.max(vTarget, Math.min(this.maxSpeed, 48));
     const err = vTarget - v.speed;
     const accel = Math.max(0, Math.min(1, err * 0.5 + 0.3));
     // trail-brake gently: hard braking while steering or sliding just spins the car

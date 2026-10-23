@@ -1,7 +1,7 @@
 import { Matrix4, Quaternion, Vector3 } from 'three';
 import { EffectId, SurfaceId } from '../physics/Surface';
 import { Frame, MeshBuilder, Profile } from './MeshBuilder';
-import { Pose, TrackData, TrackMesh, TrackTrigger, TriggerKind } from './TrackTypes';
+import { Pose, RoadSample, SampleKind, TrackData, TrackMesh, TrackTrigger, TriggerKind } from './TrackTypes';
 
 export type WallSide = 'none' | 'left' | 'right' | 'both';
 
@@ -15,6 +15,8 @@ export interface RoadOpts {
   thickness?: number;
   /** Max distance between frames. */
   step?: number;
+  /** Loops, half-pipes, spirals: the terrain keeps clear underneath instead of supporting the road. */
+  special?: boolean;
 }
 
 type ResolvedOpts = Required<Omit<RoadOpts, 'effect'>> & { effect: EffectId | undefined };
@@ -36,17 +38,19 @@ export class TrackBuilder {
   private builders = new Map<string, MeshBuilder>();
   readonly centerline: Vector3[] = [];
   readonly centerSurface: SurfaceId[] = [];
+  readonly centerFrame: RoadSample[] = [];
   readonly triggers: TrackTrigger[] = [];
   /** Unique id for the block being built (fragile blocks break per block). */
   blockId = 0;
   private readonly defaults: Required<Omit<RoadOpts, 'effect'>> & { effect: EffectId | undefined } = {
-    width: 14,
+    width: 24,
     surface: 'tarmac',
     effect: undefined,
     walls: 'none',
-    wallHeight: 1.1,
-    thickness: 0.9,
-    step: 2.5,
+    wallHeight: 1.3,
+    thickness: 1.0,
+    step: 3,
+    special: false,
   };
 
   setDefaults(o: RoadOpts): void {
@@ -92,13 +96,29 @@ export class TrackBuilder {
     this.s += ds;
   }
 
-  private frame(bank = 0): Frame {
+  /**
+   * Cross-section at the turtle. `bank` rolls it about the forward axis (+ = right side down); `pivot` is
+   * the lateral offset (m, + = right) of the line it rolls about, so a wall turn can keep its inner edge on
+   * the ground and lift the rest of the road up the wall.
+   */
+  private frame(bank = 0, pivot = 0): Frame {
     let u = this.u.clone();
+    const p = this.p.clone();
     if (bank !== 0) {
       const r = this.right;
       u = u.multiplyScalar(Math.cos(bank)).addScaledVector(r, Math.sin(bank)).normalize();
+      if (pivot !== 0) {
+        const r2 = new Vector3().crossVectors(this.f, u).normalize();
+        p.addScaledVector(r, pivot).addScaledVector(r2, -pivot);
+      }
     }
-    return { p: this.p.clone(), f: this.f.clone(), u, s: this.s };
+    return { p, f: this.f.clone(), u, s: this.s };
+  }
+
+  private sample(fr: Frame, hw: number, kind: SampleKind, surface: SurfaceId): void {
+    this.centerline.push(fr.p.clone());
+    this.centerSurface.push(surface);
+    this.centerFrame.push({ r: new Vector3().crossVectors(fr.f, fr.u).normalize(), u: fr.u.clone(), hw, kind });
   }
 
   /** Teleport forward without any geometry (a jump gap), optionally dropping/rising and re-pitching. */
@@ -115,8 +135,7 @@ export class TrackBuilder {
       const r = new Vector3().crossVectors(this.f, new Vector3(0, 1, 0)).normalize();
       this.u.crossVectors(r, this.f).normalize();
     }
-    this.centerline.push(this.p.clone());
-    this.centerSurface.push('tarmac');
+    this.sample(this.frame(), 0, 'gap', 'tarmac');
   }
 
   // ---------------------------------------------------------------- road emission
@@ -143,10 +162,7 @@ export class TrackBuilder {
       if (o.walls === 'left' || o.walls === 'both') mk(-1);
       if (o.walls === 'right' || o.walls === 'both') mk(1);
     }
-    for (const fr of frames) {
-      this.centerline.push(fr.p.clone());
-      this.centerSurface.push(o.surface);
-    }
+    for (const fr of frames) this.sample(fr, o.width / 2, o.special ? 'special' : 'road', o.surface);
   }
 
   private opts(o?: RoadOpts): ResolvedOpts {
@@ -164,11 +180,15 @@ export class TrackBuilder {
     this.emit(frames, o);
   }
 
-  /** Flat (or slope-following) arc. angleDeg > 0 turns left. `bankDeg` is tilt toward the inside. */
-  arc(radius: number, angleDeg: number, bankDeg = 0, opts?: RoadOpts): void {
+  /**
+   * Flat (or slope-following) arc. angleDeg > 0 turns left. `bankDeg` is tilt toward the inside; with
+   * `wall` the road rolls about its inner edge (a wall turn: the inner edge stays on the ground) and the
+   * bank eases in and out over `ease` of the turn.
+   */
+  arc(radius: number, angleDeg: number, bankDeg = 0, opts?: RoadOpts, wall = false, ease = 0.25): void {
     const o = this.opts(opts);
     const total = Math.abs(angleDeg) * DEG * radius;
-    const n = Math.max(2, Math.ceil(total / Math.min(bankDeg > 0 ? Math.min(o.step, 1.2) : o.step, radius * 0.12)));
+    const n = Math.max(2, Math.ceil(total / Math.min(bankDeg > 0 ? Math.min(o.step, 1.5) : o.step, radius * 0.12)));
     const dir = Math.sign(angleDeg);
     const yawPer = (dir * total) / radius / n;
     const ds = total / n;
@@ -176,11 +196,12 @@ export class TrackBuilder {
     for (let i = 1; i <= n; i++) {
       this.advance(ds, yawPer, 0);
       const t = i / n;
-      // ease the bank in over the first 25% and out over the last 25%
-      const e = Math.min(smooth(Math.min(1, t / 0.25)), smooth(Math.min(1, (1 - t) / 0.25)));
+      // ease the bank in over the first part of the turn and out over the last
+      const e = Math.min(smooth(Math.min(1, t / ease)), smooth(Math.min(1, (1 - t) / ease)));
       // positive roll about forward tilts the right side down => right turns bank positive
-      frames.push(this.frame(-dir * bankDeg * DEG * e));
+      frames.push(this.frame(-dir * bankDeg * DEG * e, wall ? -dir * (o.width / 2) : 0));
     }
+    if (wall) trueTangents(frames);
     this.emit(frames, o);
   }
 
@@ -270,16 +291,19 @@ export class TrackBuilder {
   }
 
   /** Straight whose cross-section rolls to `bankDeg` (toward the right when positive) and back. */
-  straightBanked(length: number, bankDeg: number, opts?: RoadOpts, ramp = 0.3): void {
+  straightBanked(length: number, bankDeg: number, opts?: RoadOpts, ramp = 0.3, edge = false): void {
     const o = this.opts(opts);
-    const n = Math.max(2, Math.ceil(length / Math.min(o.step, 1.0)));
+    const n = Math.max(2, Math.ceil(length / Math.min(o.step, 1.5)));
     const frames: Frame[] = [this.frame(0)];
+    // with `edge` the road rolls about its lower edge, which stays on the ground
+    const pivot = edge ? Math.sign(bankDeg) * (o.width / 2) : 0;
     for (let i = 1; i <= n; i++) {
       this.advance(length / n, 0, 0);
       const t = i / n;
       const e = Math.min(smooth(Math.min(1, t / ramp)), smooth(Math.min(1, (1 - t) / ramp)));
-      frames.push(this.frame(bankDeg * DEG * e));
+      frames.push(this.frame(bankDeg * DEG * e, pivot));
     }
+    if (pivot !== 0) trueTangents(frames);
     this.emit(frames, o);
   }
 
@@ -342,19 +366,18 @@ export class TrackBuilder {
       const under0 = pt(a0, pipeRadius + th), under1 = pt(a1, pipeRadius + th);
       b.sweep(frames, [outerTop0, outerTop1, under1, under0]);
     }
-    for (const fr of frames) {
-      this.centerline.push(fr.p.clone());
-      this.centerSurface.push(o.surface);
-    }
+    for (const fr of frames) this.sample(fr, pipeRadius * Math.sin(half), 'special', o.surface);
   }
 
   // ---------------------------------------------------------------- misc
 
   /** Record a gameplay line across the road at the current turtle pose. */
-  trigger(kind: TriggerKind, roadWidth = 14, index?: number): void {
+  trigger(kind: TriggerKind, roadWidth = 24, index?: number, car?: string): void {
     const pose = this.pose(0);
     const idx = kind === 'checkpoint' ? (index ?? this.triggers.filter((t) => t.kind === 'checkpoint').length) : 0;
-    this.triggers.push({ kind, index: idx, position: pose.position, quaternion: pose.quaternion, halfWidth: roadWidth / 2 + 3, halfHeight: 10 });
+    const t: TrackTrigger = { kind, index: idx, position: pose.position, quaternion: pose.quaternion, halfWidth: roadWidth / 2 + 3, halfHeight: 10 };
+    if (car) t.car = car;
+    this.triggers.push(t);
   }
 
   /** Turtle pose, lifted by `lift` metres along the surface normal (cars spawn slightly above the road). */
@@ -402,16 +425,33 @@ export class TrackBuilder {
     this.spawn = this.pose(0.75);
   }
 
-  finish(id: string, name: string, start: Pose, killY: number, meta: Partial<Omit<TrackData, 'meshes' | 'start' | 'killY' | 'centerline' | 'centerSurface' | 'triggers'>> = {}): TrackData {
+  finish(id: string, name: string, start: Pose, killY: number, meta: Partial<Omit<TrackData, 'meshes' | 'start' | 'killY' | 'centerline' | 'centerSurface' | 'centerFrame' | 'triggers'>> = {}): TrackData {
     const meshes: TrackMesh[] = [];
     for (const b of this.builders.values()) meshes.push(b.build());
     return {
-      id, name, car: 'volt', theme: 'grey', seed: 0, laps: 1,
+      id, name, car: 'volt', theme: 'grey', seed: 0, laps: 1, terrain: null,
       medals: { author: 0, gold: 0, silver: 0, bronze: 0 },
       ...meta,
-      meshes, start, killY, triggers: this.triggers, centerline: this.centerline, centerSurface: this.centerSurface,
+      meshes, start, killY, triggers: this.triggers, centerline: this.centerline, centerSurface: this.centerSurface, centerFrame: this.centerFrame,
     };
   }
+}
+
+/**
+ * A road rolled about one edge rises and moves sideways as it banks, so the turtle's level heading is no
+ * longer the direction the road runs in. Point each frame along the path it actually traces and keep its
+ * normal square to that, or the swept surface twists away from the normals the cars see.
+ */
+function trueTangents(frames: Frame[]): void {
+  const n = frames.length;
+  const tangents = frames.map((_, i) => frames[Math.min(n - 1, i + 1)]!.p.clone().sub(frames[Math.max(0, i - 1)]!.p).normalize());
+  frames.forEach((fr, i) => {
+    const f = tangents[i]!;
+    // keep the ends exactly on the neighbouring blocks' frames
+    if (i === 0 || i === n - 1) return;
+    fr.f.copy(f);
+    fr.u.addScaledVector(f, -fr.u.dot(f)).normalize();
+  });
 }
 
 /** Solve ramp geometry: `arcs` pitch arcs of `radius` plus a straight cover `forward` metres and `rise` metres. */

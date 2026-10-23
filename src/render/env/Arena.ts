@@ -24,7 +24,7 @@ interface RingSample { x: number; z: number; nx: number; nz: number; curv: numbe
 /** Segment width along the ring and stand depth, in the segment's local units (scaled by SCALE in the world). */
 const SEG = 16;
 /** World scale of the stands (a big bowl that reads from the raised road). */
-const SCALE = 1.6;
+const SCALE = 2.4;
 const DEPTH = 18;
 const H0 = 4; // podium wall height
 const TIERS = 16;
@@ -213,16 +213,12 @@ export class Arena {
   private led: MeshBasicMaterial | null = null;
   private flag: MeshStandardMaterial | null = null;
 
-  constructor(centerline: ReadonlyArray<{ x: number; z: number }>, groundY: number, style: ArenaStyle, seed: number) {
-    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-    for (const p of centerline) {
-      minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x);
-      minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z);
-    }
+  /** `bounds` (x0, z0, x1, z1) is the driving line's bounding box; the stands' front stands `margin` outside it. */
+  constructor(bounds: readonly [number, number, number, number], margin: number, groundY: number, style: ArenaStyle, seed: number) {
+    let [minX, minZ, maxX, maxZ] = bounds;
     if (!Number.isFinite(minX)) return;
-    const margin = 46;
     minX -= margin; maxX += margin; minZ -= margin; maxZ += margin;
-    const radius = Math.min(70, (maxX - minX) / 2 - 1, (maxZ - minZ) / 2 - 1);
+    const radius = Math.min(180, (maxX - minX) / 2 - 1, (maxZ - minZ) / 2 - 1);
     const ring = ringSamples(minX, maxX, minZ, maxZ, radius);
     const rng = new Rng(seed);
 

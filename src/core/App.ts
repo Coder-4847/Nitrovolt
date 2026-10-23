@@ -32,17 +32,6 @@ import { InputManager, MetaActions } from './input/InputManager';
 import { loadLivery } from './Livery';
 import { medalRank } from './Medals';
 import { RaceSession, SessionCtx } from './RaceSession';
-import { EditorModel, emptyLevel, medalTimesFor } from '../editor/EditorModel';
-import type { EditorCamera } from '../editor/EditorCamera';
-// the editor UI is loaded on demand (its own chunk)
-import type { EditorHost, EditorSession } from '../editor/EditorSession';
-import { checkLevel } from '../editor/Checks';
-import { assertSafeLevel, decodeLevel, encodeLevel } from '../editor/ShareCode';
-import { UserLevel, UserLevels, newLevelId } from '../editor/UserLevels';
-import { EditorMenuScreen } from '../ui/screens/EditorMenuScreen';
-import { MyLevelsScreen } from '../ui/screens/MyLevelsScreen';
-import { ShareScreen } from '../ui/screens/ShareScreen';
-import { levelFingerprint } from './Ghost';
 import { Records } from './Records';
 import { ReplaySession } from './ReplaySession';
 import { Settings, SettingsData } from './Settings';
@@ -55,11 +44,6 @@ interface Bundle {
   params: VehicleParams;
   recordId?: string;
 }
-
-const isEditor = (s: unknown): s is EditorSession => !!s && (s as { kind?: string }).kind === 'editor';
-
-const ZERO_MEDALS = { author: 0, gold: 0, silver: 0, bronze: 0 };
-const hashOf = (j: TrackJson): string => levelFingerprint(j.blocks, j.car, j.laps ?? 1);
 
 const NO_META: MetaActions = { restart: false, respawn: false, camera: false, pause: false, debug: false, mouseSteerToggled: false };
 const LAST_LEVEL = 'nitrovolt.lastLevel';
@@ -74,18 +58,14 @@ export class App implements AppApi {
   readonly audio: AudioEngine;
   readonly hud: Hud;
   readonly screens: ScreenManager;
-  mode: 'menu' | 'race' | 'replay' | 'editor' = 'menu';
-  /** A test drive started from the editor is running. */
-  testDriving = false;
-  /** The track open in the editor (kept through test drives). */
-  private editing: { level: UserLevel; model: EditorModel; cam?: ReturnType<EditorCamera['snapshot']> } | null = null;
+  mode: 'menu' | 'race' | 'replay' = 'menu';
 
   private readonly loop: FixedLoop;
   private readonly debug: DebugOverlay;
   private readonly debugOn: boolean;
   private readonly query = new URLSearchParams(location.search);
   private readonly ctx: SessionCtx;
-  private session: RaceSession | ReplaySession | EditorSession | null = null;
+  private session: RaceSession | ReplaySession | null = null;
   /** The race kept alive underneath a replay of its last run. */
   private suspended: RaceSession | null = null;
   private tuning: TuningPanel | null = null;
@@ -191,20 +171,8 @@ export class App implements AppApi {
     if (q.get('debug') === '1') (window as unknown as { __nv: App }).__nv = app;
 
     const direct = dev === 'flat' || dev === 'greybox' || q.has('level') || q.get('autodrive') === '1';
-    if (direct || location.hash.includes('track=')) status('loading physics…');
-    const shared = location.hash.includes('track=') ? location.hash : null;
-    if (shared && !direct) {
-      history.replaceState(null, '', location.pathname + location.search);
-      try {
-        const id = await app.importTrack(shared);
-        await app.playUserLevel(id, true);
-        app.toast('Shared track added to My tracks');
-      } catch (e) {
-        app.enterMenu(first);
-        app.screens.set(new MainMenu(app));
-        app.toast(`Could not open the shared track: ${(e as Error).message}`);
-      }
-    } else if (direct) {
+    if (direct) status('loading physics…');
+    if (direct) {
       await app.startRace(dev === 'flat' || dev === 'greybox' ? `dev:${dev}` : getLevel(wanted) ? wanted : DEFAULT_LEVEL_ID, {
         instant: !!dev || q.get('autodrive') === '1',
         autodrive: q.get('autodrive') === '1',
@@ -227,9 +195,6 @@ export class App implements AppApi {
   }
   get renderer(): GameRenderer {
     return this.gfx;
-  }
-  get editor(): EditorSession | null {
-    return isEditor(this.session) ? this.session : null;
   }
   get race(): RaceSession | null {
     return this.session instanceof RaceSession ? this.session : null;
@@ -275,7 +240,6 @@ export class App implements AppApi {
   campaign(): CampaignState {
     return computeCampaign((id) => Records.medal(id, getLevel(id)?.medalTimes ?? { author: 0, gold: 0, silver: 0, bronze: 0 }), {
       unlockAll: Settings.get().unlockAll,
-      names: (id) => getLevel(id)?.name ?? id,
     });
   }
 
@@ -337,7 +301,6 @@ export class App implements AppApi {
   private setActive(mode: App['mode']): void {
     this.mode = mode;
     document.body.classList.toggle('mode-menu', mode === 'menu');
-    document.body.classList.toggle('mode-editor', mode === 'editor');
     this.hud.setVisible(mode === 'race' || mode === 'replay');
     this.syncPause();
   }
@@ -398,7 +361,6 @@ export class App implements AppApi {
   }
 
   async startRace(id: string, opts: { instant?: boolean; autodrive?: boolean } = {}): Promise<void> {
-    this.testDriving = false;
     return this.startBundle(this.bundle(id), opts);
   }
 
@@ -530,20 +492,6 @@ export class App implements AppApi {
 
   private finishActions(race: RaceSession): FinishAction[] {
     const k = this.input.bindings.keyboard.restart[0];
-    if (this.testDriving) {
-      const acts: FinishAction[] = [{ label: 'Retry', key: k === 'Enter' ? 'Enter' : undefined, primary: true, onClick: () => race.restart() }];
-      if (race.lastRun && this.editing && race.lastRun.levelHash === hashOf(this.editing.model.json)) {
-        const run = race.lastRun;
-        acts.push({ label: 'Keep as author time', onClick: () => {
-          this.setAuthor(run, 'player');
-          this.toast('Author time set from your run');
-          this.hud.hideFinish();
-          race.restart();
-        } });
-      }
-      acts.push({ label: 'Back to editor', key: 'Esc', onClick: () => this.backToEditor() });
-      return acts;
-    }
     const acts: FinishAction[] = [{ label: 'Retry', key: k === 'Enter' ? 'Enter' : undefined, primary: true, onClick: () => race.restart() }];
     const next = nextAvailable(race.levelId);
     if (next?.levelId && this.campaign().levels.find((l) => l.entry.levelId === next.levelId)?.unlocked) {
@@ -557,224 +505,7 @@ export class App implements AppApi {
 
   private openPause(): void {
     if (this.screens.depth > 0 || this.mode === 'menu') return;
-    if (this.mode === 'editor') this.screens.push(new EditorMenuScreen(this));
-    // in a test drive, Esc after the finish goes straight back to the editor
-    else if (this.testDriving && this.hud.finishVisible) this.backToEditor();
-    else this.screens.push(new PauseScreen(this));
-  }
-
-  // ---- editor / my tracks ----
-  userLevels(): Promise<UserLevel[]> {
-    return UserLevels.list();
-  }
-
-  thumbnailOf(json: TrackJson): string {
-    return levelThumbnail(buildTrack(json));
-  }
-
-  /** Medal times only count while the author run matches the current layout. */
-  private playable(l: UserLevel): TrackJson {
-    const json = structuredClone(l.json);
-    if (!l.author || l.author.levelHash !== hashOf(json)) json.medalTimes = { ...ZERO_MEDALS };
-    return json;
-  }
-
-  private userBundle(json: TrackJson): Bundle {
-    const def = getCar(this.query.get('car') ?? json.car);
-    return { json, track: buildTrack(json), def, params: carParams(def.id), recordId: `${json.id}#${hashOf(json)}` };
-  }
-
-  async newUserLevel(copyOf?: TrackJson): Promise<void> {
-    const level = this.makeUserLevel(copyOf);
-    await UserLevels.save(level);
-    await this.openEditor(level);
-  }
-
-  private makeUserLevel(copyOf?: TrackJson): UserLevel {
-    const id = newLevelId();
-    let json: TrackJson;
-    if (copyOf) {
-      json = structuredClone(copyOf);
-      json.id = id;
-      json.name = `${copyOf.name} (copy)`.slice(0, 40);
-      json.medalTimes = { ...ZERO_MEDALS };
-      delete json.bot;
-      delete json.thumbnail;
-    } else json = emptyLevel(id, 'New track');
-    return { id, json, updated: Date.now() };
-  }
-
-  async editUserLevel(id: string): Promise<void> {
-    const level = await UserLevels.get(id);
-    if (level) await this.openEditor(level);
-  }
-
-  async playUserLevel(id: string, instant = false): Promise<void> {
-    const level = await UserLevels.get(id);
-    if (!level) return;
-    const c = checkLevel(level.json);
-    if (c.errors.length) {
-      this.toast(`Not drivable yet: ${c.errors[0]}`);
-      return;
-    }
-    this.testDriving = false;
-    this.editing = null;
-    await this.startBundle(this.userBundle(this.playable(level)), { instant });
-  }
-
-  async deleteUserLevel(id: string): Promise<void> {
-    await UserLevels.remove(id);
-    this.toast('Track deleted');
-  }
-
-  async duplicateUserLevel(id: string): Promise<void> {
-    const level = await UserLevels.get(id);
-    if (!level) return;
-    const copy = this.makeUserLevel(level.json);
-    await UserLevels.save(copy);
-    this.toast(`Copied as ${copy.json.name}`);
-  }
-
-  private download(json: TrackJson): void {
-    const clean: TrackJson = { ...json };
-    delete clean.thumbnail;
-    const url = URL.createObjectURL(new Blob([JSON.stringify(clean, null, 1)], { type: 'application/json' }));
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${json.name.replace(/[^a-z0-9]+/gi, '-').toLowerCase() || 'track'}.nitrovolt.json`;
-    document.body.append(a);
-    a.click();
-    a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-  }
-
-  async exportUserLevel(id: string): Promise<void> {
-    const level = await UserLevels.get(id);
-    if (level) this.download(level.json);
-  }
-
-  async shareLink(json: TrackJson): Promise<string> {
-    return `${location.origin}${location.pathname}#track=${await encodeLevel(json)}`;
-  }
-
-  /** Import from a .json file's text, a share link or a bare code. Returns the id it was stored under. */
-  async importTrack(text: string): Promise<string> {
-    const t = text.trim();
-    let json: TrackJson;
-    if (t.startsWith('{')) {
-      try {
-        json = JSON.parse(t) as TrackJson;
-      } catch {
-        throw new Error('not a JSON file');
-      }
-      assertSafeLevel(json);
-    } else {
-      const at = t.indexOf('track=');
-      json = await decodeLevel(at >= 0 ? t.slice(at + 6) : t);
-    }
-    let id = json.id?.startsWith('u-') ? json.id : newLevelId();
-    const existing = await UserLevels.get(id);
-    if (existing && JSON.stringify(existing.json.blocks) === JSON.stringify(json.blocks)) return id;
-    if (existing) id = newLevelId();
-    json = { ...json, id, medalTimes: { ...ZERO_MEDALS } };
-    delete json.bot;
-    await UserLevels.save({ id, json, updated: Date.now() });
-    return id;
-  }
-
-  private editorHost(): EditorHost {
-    return {
-      gfx: this.gfx,
-      audio: this.audio,
-      toast: (m) => this.toast(m),
-      testDrive: (json) => void this.testDrive(json),
-      save: (json) => void this.saveDraft(json),
-      author: () => this.editing?.level.author,
-      setAuthor: (g, by) => this.setAuthor(g, by),
-      openMenu: () => this.screens.push(new EditorMenuScreen(this)),
-      modalOpen: () => this.screens.depth > 0,
-    };
-  }
-
-  private async openEditor(level: UserLevel, cam?: ReturnType<EditorCamera['snapshot']>): Promise<void> {
-    const token = ++this.startToken;
-    const { EditorSession } = await import('../editor/EditorSession');
-    if (token !== this.startToken) return;
-    this.endSession();
-    this.startToken = token;
-    this.testDriving = false;
-    const model = this.editing?.level.id === level.id ? this.editing.model : new EditorModel(level.json);
-    this.editing = { level, model, cam };
-    const def = getCar(level.json.car);
-    this.gfx.setCar(def, carParams(def.id), loadLivery(def));
-    this.session = new EditorSession(this.editorHost(), model, cam);
-    this.screens.closeAll();
-    this.setActive('editor');
-  }
-
-  private async saveDraft(json: TrackJson): Promise<void> {
-    const e = this.editing;
-    if (!e) return;
-    e.level.json = structuredClone(json);
-    e.level.updated = Date.now();
-    await UserLevels.save(e.level);
-  }
-
-  private setAuthor(ghost: GhostData, by: 'bot' | 'player'): void {
-    const e = this.editing;
-    if (!e) return;
-    e.level.author = ghost;
-    e.level.authorBy = by;
-    e.model.json.medalTimes = medalTimesFor(ghost.time);
-    e.model.revision++;
-    void this.saveDraft(e.model.json);
-  }
-
-  private async testDrive(json: TrackJson): Promise<void> {
-    const e = this.editing;
-    if (!e) return;
-    const c = checkLevel(json);
-    if (c.errors.length) {
-      this.toast(`Cannot drive yet: ${c.errors[0]}`);
-      return;
-    }
-    if (isEditor(this.session)) e.cam = this.session.snapshot();
-    await this.saveDraft(json);
-    const play = this.playable(e.level);
-    await this.startBundle(this.userBundle(play), {});
-    this.testDriving = true;
-  }
-
-  backToEditor(): void {
-    if (!this.editing) return this.toMainMenu();
-    void this.openEditor(this.editing.level, this.editing.cam);
-  }
-
-  editorAction(a: 'test' | 'validate' | 'share' | 'export' | 'exit'): void {
-    const ed = isEditor(this.session) ? this.session : null;
-    const e = this.editing;
-    if (!ed || !e) return;
-    switch (a) {
-      case 'test':
-        void this.testDrive(e.model.json);
-        break;
-      case 'validate':
-        this.resume();
-        void ed.validate();
-        break;
-      case 'share':
-        void this.shareLink(e.model.json).then((url) => this.screens.push(new ShareScreen(this, e.model.json.name, url)));
-        break;
-      case 'export':
-        this.download(e.model.json);
-        break;
-      case 'exit':
-        this.endSession();
-        this.editing = null;
-        this.toMainMenu();
-        this.screens.push(new MyLevelsScreen(this));
-        break;
-    }
+    this.screens.push(new PauseScreen(this));
   }
 
   // ---- settings ----
@@ -822,10 +553,7 @@ export class App implements AppApi {
     }
     if (meta.pause && !this.screens.handledEscape && this.mode !== 'menu') {
       if (this.mode === 'replay') this.exitReplay();
-      else if (this.mode === 'editor') {
-        if (!inScreens) this.screens.push(new EditorMenuScreen(this));
-        else if (this.screens.top instanceof EditorMenuScreen) this.resume();
-      } else if (!inScreens) this.openPause();
+      else if (!inScreens) this.openPause();
       else if (this.screens.top instanceof PauseScreen) this.resume();
     }
     this.screens.handledEscape = false;

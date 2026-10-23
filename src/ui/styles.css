@@ -273,52 +273,6 @@ body.has-replay .hud-speed { bottom: calc(150px + var(--sab)); }
   .mm-buttons { gap: 6px; }
 }
 
-/* ---- Phase 7: track editor ---- */
-body.mode-editor #touch, body.mode-editor .hud { display: none !important; }
-.editor-ui { position: absolute; inset: 0; pointer-events: none; z-index: 20; font-size: 13px; }
-.editor-ui .panel, .editor-ui .ed-top, .editor-ui .ed-fold { pointer-events: auto; }
-.ed-top { position: absolute; top: calc(8px + var(--sat)); left: calc(8px + var(--sal)); right: calc(8px + var(--sar)); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; padding: 6px 8px; border-radius: 12px; background: var(--panel); border: 1px solid var(--panel-border); backdrop-filter: blur(10px); }
-.ed-tools { display: flex; gap: 4px; align-items: center; }
-.ed-tools.right { margin-left: auto; }
-.ed-top .btn { padding: 5px 10px; font-size: 13px; }
-.ed-top .btn.on, .ed-block.on { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
-.ed-level { min-width: 68px; text-align: center; font-weight: 700; font-variant-numeric: tabular-nums; }
-.ed-palette { top: calc(64px + var(--sat)); left: calc(8px + var(--sal)); bottom: calc(36px + var(--sab)); width: 248px; padding: 8px; display: flex; flex-direction: column; gap: 8px; overflow: hidden; }
-.ed-tabs { display: flex; flex-wrap: wrap; gap: 4px; }
-.ed-tabs .tab { padding: 4px 8px; font-size: 12px; }
-.ed-blocks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; overflow-y: auto; touch-action: pan-y; padding-right: 2px; }
-.ed-block { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; border-radius: 8px; border: 1px solid var(--panel-border); background: rgba(255,255,255,.05); color: var(--text); font: inherit; font-size: 10px; cursor: pointer; line-height: 1.15; text-align: center; }
-.ed-block img { width: 56px; height: 56px; border-radius: 6px; display: block; }
-.ed-block:hover { background: rgba(255,255,255,.12); }
-.ed-side { top: calc(64px + var(--sat)); right: calc(8px + var(--sar)); bottom: calc(36px + var(--sab)); width: 270px; padding: 4px 12px 12px; overflow-y: auto; touch-action: pan-y; }
-.ed-side h4 { margin: 12px 0 4px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--dim); }
-.ed-side .line { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 3px 0; }
-.ed-side select, .ed-side input[type=text] { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--panel-border); border-radius: 6px; padding: 4px 6px; font: inherit; max-width: 160px; }
-.ed-status > div { padding: 3px 0; line-height: 1.35; }
-.warn { color: #ffb347; }
-.ed-help { position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(8px + var(--sab)); font-size: 11px; color: var(--dim); text-shadow: 0 1px 3px #000; white-space: nowrap; max-width: calc(100% - 560px); overflow: hidden; text-overflow: ellipsis; }
-.ed-fold { position: absolute; bottom: calc(8px + var(--sab)); right: calc(8px + var(--sar)); display: none; }
-.editor-ui.folded .ed-palette, .editor-ui.folded .ed-side { display: none; }
-@media (max-width: 900px), (max-height: 560px) {
-  .ed-palette { width: 196px; }
-  .ed-blocks { grid-template-columns: repeat(2, 1fr); }
-  .ed-side { width: 220px; }
-  .ed-help { display: none; }
-  .ed-fold { display: block; }
-  .ed-top { gap: 4px; padding: 4px; }
-  .ed-top .btn { padding: 6px 8px; font-size: 12px; }
-  /* the tool bar wraps to two rows here */
-  .ed-palette, .ed-side { top: calc(92px + var(--sat)); }
-}
-.ml-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; flex: none; }
-.code-input { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--panel-border); border-radius: 8px; padding: 6px 10px; font: inherit; min-width: 220px; }
-.code-input.wide { width: 100%; }
-.copy-sel { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--panel-border); border-radius: 8px; padding: 6px; font: inherit; }
-.ml-cards { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
-.ml-card { cursor: default; }
-.ml-acts { display: flex; flex-wrap: wrap; gap: 4px; }
-.share-box { max-width: min(560px, 92vw); }
-
 /* ---- Phase 8 ---- */
 .mm-small { display: flex; gap: 8px; justify-content: center; }
 .mm-small .btn { font-size: 13px; padding: 6px 14px; background: rgba(255,255,255,.06); }

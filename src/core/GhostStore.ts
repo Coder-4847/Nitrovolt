@@ -1,5 +1,4 @@
 import { GhostData } from './Ghost';
-import { UserLevels, isUserLevel } from '../editor/UserLevels';
 
 /**
  * Personal-best ghosts live in IndexedDB (they are tens of KB each and there can be 100+); where it is not
@@ -73,7 +72,6 @@ export const GhostStore = {
 const authorModules = import.meta.glob<GhostData>('../data/ghosts/*.json', { import: 'default' });
 
 export async function authorGhost(trackId: string): Promise<GhostData | null> {
-  if (isUserLevel(trackId)) return (await UserLevels.get(trackId))?.author ?? null;
   const loader = authorModules[`../data/ghosts/${trackId}.json`];
   return loader ? await loader() : null;
 }

@@ -1,0 +1,253 @@
+{
+ "id": "c16",
+ "name": "Skyline",
+ "car": "volt",
+ "theme": "night",
+ "seed": 94621,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    2,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    4,
+    -7
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    0,
+    4,
+    -9
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    4,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    4,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "surface": "noSteer",
+   "walls": "both"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    -5,
+    4,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -7,
+    4,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -10,
+    2,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -11,
+    2,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -12,
+    2,
+    -11
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -14,
+    2,
+    -14
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "jumpRampLong",
+   "gridPos": [
+    -14,
+    2,
+    -16
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -14,
+    2,
+    -19
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -14,
+    0,
+    -22
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "walls": "both"
+  },
+  {
+   "type": "bank3R",
+   "gridPos": [
+    -14,
+    0,
+    -23
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -11,
+    0,
+    -25
+   ],
+   "rot": 3
+  },
+  {
+   "type": "wallTurnL",
+   "gridPos": [
+    -9,
+    0,
+    -25
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -10,
+    0,
+    -28
+   ],
+   "rot": 1
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -12,
+    0,
+    -28
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    0,
+    -28
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 35463,
+  "gold": 37236,
+  "silver": 41846,
+  "bronze": 49648
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

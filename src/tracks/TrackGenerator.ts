@@ -3,6 +3,7 @@ import { parseSurface } from '../physics/Surface';
 import { BLOCKS } from './BlockLibrary';
 import { TrackBuilder } from './TrackBuilder';
 import { BlockJson, CELL, LEVEL_H, TrackJson, VARIANT_WIDTH } from './TrackSchema';
+import { buildTerrain, terrainStyleFor } from './Terrain';
 import { TrackData } from './TrackTypes';
 
 /** World-space entry point (south-edge centre of the anchor cell, rotated by `rot`). */
@@ -34,11 +35,14 @@ export function buildTrack(json: TrackJson): TrackData {
   });
 
   const spawn = t.spawn ?? { position: new Vector3(0, 1, 0), quaternion: new Quaternion() };
+  const terrain = buildTerrain(t.centerline, t.centerFrame, terrainStyleFor(json.theme), json.seed);
   let minY = Infinity;
+  for (const h of terrain.heights) minY = Math.min(minY, h);
   for (const p of t.centerline) minY = Math.min(minY, p.y);
   if (!isFinite(minY)) minY = 0;
   const m = json.medalTimes;
-  return t.finish(json.id, json.name, spawn, minY - 45, {
+  return t.finish(json.id, json.name, spawn, minY - 25, {
+    terrain,
     car: json.car,
     theme: json.theme,
     seed: json.seed,

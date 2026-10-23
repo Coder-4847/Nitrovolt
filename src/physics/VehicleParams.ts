@@ -54,6 +54,13 @@ export interface VehicleParams {
   slideRange: number;
   /** Fraction of rear lateral grip lost at full brake (brake-drift initiation). */
   brakeRearSlide: number;
+  /**
+   * Anti-lock limit: a wheel brakes with at most this fraction of its longitudinal grip, so some cornering
+   * grip always remains and a brake tap mid-corner tightens the line instead of spinning the car.
+   */
+  brakeGripUse: number;
+  /** Yaw-stability assist (0 off): damps yaw rate beyond what the steering asks for while sliding. */
+  yawStability: number;
   /** Longitudinal friction coefficient relative to lateral. */
   longGripScale: number;
   /** Friction-envelope exponent: 2 = ellipse (drive/brake steals lateral grip quickly), higher = more forgiving. */
@@ -143,14 +150,16 @@ export const VOLT: VehicleParams = {
   bumpStopK: 420000,
   forceApplyY: -0.12,
 
-  gripFront: 2.15,
-  gripRear: 2.05,
+  gripFront: 2.45,
+  gripRear: 2.4,
   nominalLoad: 5400,
   loadSensitivity: 0.12,
   peakSlipAngle: 0.16,
-  slideRatio: 0.93,
+  slideRatio: 0.95,
   slideRange: 2.5,
-  brakeRearSlide: 0.3,
+  brakeRearSlide: 0.04,
+  brakeGripUse: 0.7,
+  yawStability: 0.6,
   longGripScale: 1.0,
   ellipseExp: 3.0,
   // a stadium car: laser on tarmac, noticeably out of its depth on loose ground
@@ -234,6 +243,8 @@ export const PARAM_DESCRIPTORS: ParamDescriptor[] = [
   d('Tyres', 'slideRange', 'slide range', 0.2, 5, 0.1),
   d('Tyres', 'ellipseExp', 'ellipse exp', 1.5, 6, 0.1),
   d('Tyres', 'brakeRearSlide', 'brake rear slide', 0, 0.9, 0.01),
+  d('Tyres', 'brakeGripUse', 'ABS grip use', 0.3, 1, 0.01),
+  d('Steering', 'yawStability', 'yaw stability', 0, 2, 0.05),
   d('Steering', 'steerMax', 'lock low spd', 0.2, 0.9, 0.01),
   d('Steering', 'steerMin', 'lock high spd', 0.02, 0.4, 0.005),
   d('Steering', 'steerRefSpeed', 'ref speed', 5, 80, 1),
