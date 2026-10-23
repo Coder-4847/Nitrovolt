@@ -4,6 +4,7 @@ import { InputRecorder } from '../src/core/InputRecorder';
 import { GhostData, GhostPlayer, GhostRecorder, SNAPSHOT_INTERVAL, levelFingerprint, physicsFingerprint } from '../src/core/Ghost';
 import { authorGhost } from '../src/core/GhostStore';
 import { LEVELS, getLevel } from '../src/data';
+import { SAMPLE } from './sample';
 import { carParams, getCar } from '../src/data/cars';
 import { RenderPose } from '../src/physics/Vehicle';
 import { Simulation } from '../src/physics/Simulation';
@@ -123,7 +124,16 @@ describe('ghost determinism', () => {
 });
 
 describe('bundled author ghosts', () => {
-  for (const lv of LEVELS) {
+  it('every level has a current author ghost (time = author medal, fingerprints match)', async () => {
+    for (const lv of LEVELS) {
+      const g = await authorGhost(lv.id);
+      expect(g, `${lv.id}: missing author ghost; run \`npm run campaign\``).not.toBeNull();
+      expect(g!.time, lv.id).toBe(lv.medalTimes.author);
+      expect(g!.levelHash, `${lv.id}: level changed since its ghost was recorded`).toBe(levelFingerprint(lv.blocks, lv.car, lv.laps ?? 1));
+      expect(g!.physicsHash, `${lv.id}: physics changed since its ghost was recorded`).toBe(physicsFingerprint(carParams(getCar(lv.car).id)));
+    }
+  });
+  for (const lv of SAMPLE) {
     it(`${lv.id}: loads, is current, replays exactly to the author time`, async () => {
       const g = await authorGhost(lv.id);
       expect(g, 'missing author ghost; run `npm run levels`').not.toBeNull();

@@ -64,6 +64,40 @@ export interface ChainResult {
 const mod4 = (n: number): 0 | 1 | 2 | 3 => (((n % 4) + 4) % 4) as 0 | 1 | 2 | 3;
 
 /**
+ * Place one chain item at `anchor`: returns the block and the anchor the next block takes.
+ * Throws if the block's exit is off the grid.
+ */
+export function placeItem(anchor: ChainStart, item: ChainItem, index = 0): { block: BlockJson; next: ChainStart } {
+  const def = BLOCKS[item.type];
+  if (!def) throw new Error(`unknown block ${item.type}`);
+  const [gx, gy, gz] = anchor.gridPos;
+  // apply gap / dy by moving the anchor before placing
+  const heading = new Vector3(0, 0, -1).applyAxisAngle(new Vector3(0, 1, 0), (anchor.rot * Math.PI) / 2);
+  const gx2 = gx + Math.round(heading.x) * (item.gap ?? 0);
+  const gz2 = gz + Math.round(heading.z) * (item.gap ?? 0);
+  const gy2 = gy + (item.dy ?? 0);
+  const block: BlockJson = { type: item.type, gridPos: [gx2, gy2, gz2], rot: anchor.rot };
+  if (item.variant) block.variant = item.variant;
+  if (item.surface) block.surface = item.surface;
+  if (item.walls) block.walls = item.walls;
+  // scenery does not move the cursor
+  if (!def.chain) return { block, next: { gridPos: [gx, gy, gz], rot: anchor.rot } };
+  const ex = blockExit(item.type, item.variant ?? 'std');
+  const { position: entry } = blockEntry(block);
+  const rotRad = (block.rot * Math.PI) / 2;
+  const off = new Vector3(ex.dx, ex.dy, ex.dz).applyAxisAngle(new Vector3(0, 1, 0), rotRad);
+  const exitWorld = entry.clone().add(off);
+  const newRot = mod4(block.rot + Math.round(ex.dyawDeg / 90));
+  const dir = new Vector3(0, 0, -1).applyAxisAngle(new Vector3(0, 1, 0), (newRot * Math.PI) / 2);
+  const next = exitWorld.clone().addScaledVector(dir, CELL / 2);
+  const cx = next.x / CELL, cz = next.z / CELL, cy = next.y / LEVEL_H;
+  if (Math.abs(cx - Math.round(cx)) > 0.02 || Math.abs(cz - Math.round(cz)) > 0.02 || Math.abs(cy - Math.round(cy)) > 0.02) {
+    throw new Error(`block ${index} (${item.type}) exits off-grid: cell (${cx.toFixed(3)}, ${cy.toFixed(3)}, ${cz.toFixed(3)})`);
+  }
+  return { block, next: { gridPos: [Math.round(cx), Math.round(cy), Math.round(cz)], rot: newRot } };
+}
+
+/**
  * Place blocks end-to-end: each block's anchor cell is found from the previous block's measured exit,
  * so authors (and the level generator) only list block types. Throws if an exit is off the grid.
  */
@@ -71,38 +105,9 @@ export function layoutChain(items: ChainItem[], start: ChainStart = { gridPos: [
   const blocks: BlockJson[] = [];
   let anchor: ChainStart = { gridPos: [...start.gridPos], rot: start.rot };
   for (const [i, item] of items.entries()) {
-    const def = BLOCKS[item.type];
-    if (!def) throw new Error(`unknown block ${item.type}`);
-    const [gx, gy, gz] = anchor.gridPos;
-    // apply gap / dy by moving the anchor before placing
-    const heading = new Vector3(0, 0, -1).applyAxisAngle(new Vector3(0, 1, 0), (anchor.rot * Math.PI) / 2);
-    const gx2 = gx + Math.round(heading.x) * (item.gap ?? 0);
-    const gz2 = gz + Math.round(heading.z) * (item.gap ?? 0);
-    const gy2 = gy + (item.dy ?? 0);
-    const block: BlockJson = { type: item.type, gridPos: [gx2, gy2, gz2], rot: anchor.rot };
-    if (item.variant) block.variant = item.variant;
-    if (item.surface) block.surface = item.surface;
-    if (item.walls) block.walls = item.walls;
-    blocks.push(block);
-    if (!def.chain) {
-      // scenery does not move the cursor
-      anchor = { gridPos: [gx, gy, gz], rot: anchor.rot };
-      continue;
-    }
-    // world exit point
-    const ex = blockExit(item.type, item.variant ?? 'std');
-    const { position: entry } = blockEntry(block);
-    const rotRad = (block.rot * Math.PI) / 2;
-    const off = new Vector3(ex.dx, ex.dy, ex.dz).applyAxisAngle(new Vector3(0, 1, 0), rotRad);
-    const exitWorld = entry.clone().add(off);
-    const newRot = mod4(block.rot + Math.round(ex.dyawDeg / 90));
-    const dir = new Vector3(0, 0, -1).applyAxisAngle(new Vector3(0, 1, 0), (newRot * Math.PI) / 2);
-    const next = exitWorld.clone().addScaledVector(dir, CELL / 2);
-    const cx = next.x / CELL, cz = next.z / CELL, cy = next.y / LEVEL_H;
-    if (Math.abs(cx - Math.round(cx)) > 0.02 || Math.abs(cz - Math.round(cz)) > 0.02 || Math.abs(cy - Math.round(cy)) > 0.02) {
-      throw new Error(`block ${i} (${item.type}) exits off-grid: cell (${cx.toFixed(3)}, ${cy.toFixed(3)}, ${cz.toFixed(3)})`);
-    }
-    anchor = { gridPos: [Math.round(cx), Math.round(cy), Math.round(cz)], rot: newRot };
+    const r = placeItem(anchor, item, i);
+    blocks.push(r.block);
+    anchor = r.next;
   }
   return { blocks, next: anchor };
 }

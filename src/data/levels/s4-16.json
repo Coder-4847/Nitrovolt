@@ -1,0 +1,209 @@
+{
+ "id": "s4-16",
+ "name": "Turbine Ring",
+ "car": "volt",
+ "theme": "coast",
+ "seed": 844131512,
+ "laps": 3,
+ "blocks": [
+  {
+   "type": "lapFinish",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "bank2L",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -2,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    -4,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -5,
+    1,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeDown1",
+   "gridPos": [
+    -6,
+    1,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -7,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -11,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "bank2L",
+   "gridPos": [
+    -15,
+    0,
+    -4
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -16,
+    0,
+    -2
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -16,
+    0,
+    0
+   ],
+   "rot": 2
+  },
+  {
+   "type": "bank2L",
+   "gridPos": [
+    -16,
+    0,
+    1
+   ],
+   "rot": 2
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -14,
+    0,
+    2
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    0,
+    2
+   ],
+   "rot": 3,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -12,
+    0,
+    2
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -8,
+    0,
+    2
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    0,
+    2
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -2,
+    0,
+    2
+   ],
+   "rot": 3
+  },
+  {
+   "type": "bank2L",
+   "gridPos": [
+    -1,
+    0,
+    2
+   ],
+   "rot": 3
+  }
+ ],
+ "medalTimes": {
+  "author": 61287,
+  "gold": 64964,
+  "silver": 69867,
+  "bronze": 79673
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

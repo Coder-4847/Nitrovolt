@@ -1,0 +1,449 @@
+{
+ "id": "s4-15",
+ "name": "Container Gauntlet",
+ "car": "gravel",
+ "theme": "coast",
+ "seed": 3378278282,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    2,
+    -5
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    2,
+    -6
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    2,
+    -8
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    2,
+    -9
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    2,
+    -13
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    2,
+    -17
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    0,
+    2,
+    -19
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -3,
+    2,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeDown1",
+   "gridPos": [
+    -4,
+    2,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -5,
+    1,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "steepUp",
+   "gridPos": [
+    -6,
+    1,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -8,
+    5,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    -9,
+    5,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -10,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -11,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -15,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -19,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -23,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -27,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -28,
+    6,
+    -21
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -30,
+    6,
+    -24
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    -30,
+    6,
+    -25
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -30,
+    6,
+    -27
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -30,
+    4,
+    -29
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -30,
+    4,
+    -31
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -30,
+    4,
+    -32
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -30,
+    4,
+    -33
+   ],
+   "rot": 0,
+   "surface": "noBrake"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -30,
+    4,
+    -34
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -30,
+    4,
+    -36
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -30,
+    4,
+    -40
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -30,
+    4,
+    -42
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -30,
+    4,
+    -46
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -30,
+    4,
+    -50
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -30,
+    4,
+    -54
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    -30,
+    4,
+    -55
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -29,
+    4,
+    -58
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -29,
+    4,
+    -59
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -29,
+    4,
+    -60
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  }
+ ],
+ "medalTimes": {
+  "author": 44635,
+  "gold": 47313,
+  "silver": 50884,
+  "bronze": 58026
+ },
+ "bot": {
+  "maxSpeed": 45,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 9.600000000000001
+ }
+}

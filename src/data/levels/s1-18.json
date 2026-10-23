@@ -1,0 +1,341 @@
+{
+ "id": "s1-18",
+ "name": "Laser Drift",
+ "car": "volt",
+ "theme": "neon",
+ "seed": 2999491241,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    4,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    7,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    9,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    11,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    12,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    13,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    14,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    16,
+    -2,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    17,
+    -2,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    18,
+    -2,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    20,
+    -2,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    22,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    24,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    28,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    29,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    30,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    31,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    32,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    33,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    34,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    35,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    39,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    43,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    47,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    49,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    50,
+    0,
+    -13
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    50,
+    0,
+    -14
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    50,
+    0,
+    -15
+   ],
+   "rot": 0,
+   "variant": "wide"
+  }
+ ],
+ "medalTimes": {
+  "author": 22287,
+  "gold": 24516,
+  "silver": 27859,
+  "bronze": 33431
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

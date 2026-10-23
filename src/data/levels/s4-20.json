@@ -1,0 +1,502 @@
+{
+ "id": "s4-20",
+ "name": "Gantry Overdrive",
+ "car": "gravel",
+ "theme": "coast",
+ "seed": 1843975681,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    0,
+    0,
+    -7
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -9
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -11
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -12
+   ],
+   "rot": 0,
+   "surface": "grass"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    -2,
+    -14
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -15
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -19
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -23
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -27
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    -2,
+    -28
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    3,
+    -2,
+    -30
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    4,
+    -2,
+    -30
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    6,
+    -2,
+    -30
+   ],
+   "rot": 3
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    7,
+    -2,
+    -30
+   ],
+   "rot": 3
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    10,
+    -2,
+    -30
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    12,
+    -4,
+    -30
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    14,
+    -4,
+    -30
+   ],
+   "rot": 3
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    15,
+    -4,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    16,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    17,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    21,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    22,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    23,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    27,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    31,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    35,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    37,
+    -3,
+    -30
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    38,
+    -3,
+    -32
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "steepUp",
+   "gridPos": [
+    38,
+    -3,
+    -33
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    38,
+    1,
+    -35
+   ],
+   "rot": 0,
+   "variant": "narrow",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    38,
+    1,
+    -36
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    38,
+    1,
+    -38
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    38,
+    1,
+    -39
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    38,
+    1,
+    -43
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    38,
+    1,
+    -47
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    38,
+    1,
+    -49
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    40,
+    1,
+    -50
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    41,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    42,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "noSteer"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    44,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    45,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    46,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    47,
+    1,
+    -50
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  }
+ ],
+ "medalTimes": {
+  "author": 46518,
+  "gold": 49309,
+  "silver": 53031,
+  "bronze": 60473
+ },
+ "bot": {
+  "maxSpeed": 55,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12
+ }
+}

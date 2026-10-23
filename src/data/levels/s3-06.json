@@ -1,0 +1,437 @@
+{
+ "id": "s3-06",
+ "name": "Canyon Raceway",
+ "car": "dune",
+ "theme": "desert",
+ "seed": 1105666202,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    0,
+    0,
+    -7
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -9
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -11
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -12
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -14
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -15
+   ],
+   "rot": 0,
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -16
+   ],
+   "rot": 0,
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -17
+   ],
+   "rot": 0,
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -18
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    -2,
+    -19
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -20
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -22
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -26
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -30
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -34
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    0,
+    -2,
+    -36
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    -2,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    4,
+    -2,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    6,
+    -2,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    8,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    10,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    11,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    12,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    16,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    18,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "bank3R",
+   "gridPos": [
+    19,
+    -4,
+    -38
+   ],
+   "rot": 3,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    21,
+    -4,
+    -35
+   ],
+   "rot": 2,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    21,
+    -4,
+    -34
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    21,
+    -4,
+    -32
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    18,
+    -4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    17,
+    -4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    15,
+    -4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    14,
+    -4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    13,
+    -4,
+    -28
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    13,
+    -4,
+    -27
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    13,
+    -4,
+    -26
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "sand"
+  }
+ ],
+ "medalTimes": {
+  "author": 40594,
+  "gold": 43436,
+  "silver": 47495,
+  "bronze": 55208
+ },
+ "bot": {
+  "maxSpeed": 51,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 9.600000000000001
+ }
+}

@@ -1,5 +1,6 @@
 import { Medal, medalRank } from '../core/Medals';
 import { LEVELS } from './index';
+import placement from './campaign.json';
 
 export const SEASON_COUNT = 4;
 export const LEVELS_PER_SEASON = 25;
@@ -30,19 +31,8 @@ export interface CampaignLevel {
   levelId: string | null;
 }
 
-/**
- * Where the built-in levels sit in the 4 x 25 campaign. Slots without a level are placeholders until the
- * Phase 6 generator fills them; the unlock rules below already work for all 100.
- */
-const PLACED: Array<[season: number, slot: number, id: string]> = [
-  [0, 0, 'sprint01'],
-  [0, 1, 'circuit01'],
-  [0, 2, 'boostlab'],
-  [0, 3, 'stunt01'],
-  [1, 0, 'frost01'],
-  [2, 0, 'dune01'],
-  [3, 0, 'gravel01'],
-];
+/** Where every built-in level sits in the 4 x 25 campaign (written by `npm run campaign`). */
+const PLACED = placement as Array<[season: number, slot: number, id: string]>;
 
 export function buildCampaign(placed: ReadonlyArray<[number, number, string]> = PLACED): CampaignLevel[] {
   const known = new Set(LEVELS.map((l) => l.id));

@@ -1,0 +1,393 @@
+{
+ "id": "s4-02",
+ "name": "Turbine Causeway",
+ "car": "volt",
+ "theme": "coast",
+ "seed": 4130370546,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -2,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -5,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "surface": "tech"
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    -8,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "surface": "tech"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -9,
+    0,
+    -8
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    -9,
+    0,
+    -10
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -6,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "surface": "tech"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    -5,
+    0,
+    -11
+   ],
+   "rot": 3,
+   "surface": "tech"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -3,
+    0,
+    -14
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    2,
+    -16
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -3,
+    2,
+    -17
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -3,
+    2,
+    -18
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    4,
+    -20
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -3,
+    4,
+    -21
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    4,
+    -25
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -3,
+    4,
+    -26
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -3,
+    4,
+    -30
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -3,
+    4,
+    -34
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    4,
+    -36
+   ],
+   "rot": 0
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    -3,
+    4,
+    -37
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -4,
+    4,
+    -40
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    4,
+    -41
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    4,
+    -43
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    -4,
+    4,
+    -44
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    2,
+    -46
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -4,
+    2,
+    -47
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -4,
+    2,
+    -51
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -4,
+    2,
+    -55
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -4,
+    2,
+    -56
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    2,
+    -60
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -4,
+    2,
+    -61
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    2,
+    -62
+   ],
+   "rot": 0,
+   "variant": "wide"
+  }
+ ],
+ "medalTimes": {
+  "author": 32499,
+  "gold": 34449,
+  "silver": 37049,
+  "bronze": 42249
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

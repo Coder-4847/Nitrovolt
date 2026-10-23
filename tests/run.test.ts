@@ -11,6 +11,7 @@ import { buildTrack } from '../src/tracks/TrackGenerator';
 import { TrackJson } from '../src/tracks/TrackSchema';
 import { ChainItem } from '../src/tracks/ChainLayout';
 import { LEVELS } from '../src/data';
+import { SAMPLE } from './sample';
 
 const medals = { author: 0, gold: 0, silver: 0, bronze: 0 };
 function level(items: ChainItem[], laps = 1): TrackJson {
@@ -150,7 +151,7 @@ describe('run logic', () => {
 });
 
 describe('built-in levels', () => {
-  for (const lv of LEVELS) {
+  for (const lv of SAMPLE) {
     it(`${lv.id} (${lv.car}) is finishable by the path bot with no respawns`, async () => {
       const track = buildTrack(lv);
       const def = getCar(lv.car);

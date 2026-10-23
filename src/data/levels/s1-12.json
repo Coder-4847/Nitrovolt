@@ -1,0 +1,279 @@
+{
+ "id": "s1-12",
+ "name": "Pulse Avenue",
+ "car": "volt",
+ "theme": "neon",
+ "seed": 1023559323,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0,
+   "surface": "tech"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -2,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "tech"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -4,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    -6,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -9,
+    0,
+    -7
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -10,
+    0,
+    -7
+   ],
+   "rot": 1
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -11,
+    0,
+    -7
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    0,
+    -10
+   ],
+   "rot": 0
+  },
+  {
+   "type": "halfpipe2",
+   "gridPos": [
+    -13,
+    0,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    0,
+    -13
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -13,
+    0,
+    -14
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -13,
+    0,
+    -18
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -10,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    0,
+    -20
+   ],
+   "rot": 3,
+   "surface": "cruise"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -8,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -6,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -5,
+    0,
+    -20
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -20
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -2,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    2,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    6,
+    0,
+    -20
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    9,
+    0,
+    -19
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    10,
+    0,
+    -19
+   ],
+   "rot": 3
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    11,
+    0,
+    -19
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    12,
+    0,
+    -19
+   ],
+   "rot": 3
+  }
+ ],
+ "medalTimes": {
+  "author": 25531,
+  "gold": 28084,
+  "silver": 31914,
+  "bronze": 38297
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

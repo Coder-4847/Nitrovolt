@@ -1,0 +1,361 @@
+{
+ "id": "s1-14",
+ "name": "Midnight Express",
+ "car": "volt",
+ "theme": "neon",
+ "seed": 1185520413,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    0,
+    0,
+    -7
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -9
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    -2,
+    -11
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    -2,
+    -12
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -14
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -18
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    0,
+    -2,
+    -22
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -4,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -7,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -9,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -11,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -12,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -13,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -14,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -16,
+    -4,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -17,
+    -4,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -19,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "tech"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -20,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -24,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -26,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "surface": "cruise"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -27,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -29,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -30,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -31,
+    -2,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -33,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -34,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -36,
+    -2,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -38,
+    0,
+    -24
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -40,
+    0,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -41,
+    0,
+    -24
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -42,
+    0,
+    -24
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 23937,
+  "gold": 26331,
+  "silver": 29921,
+  "bronze": 35906
+ },
+ "bot": {
+  "maxSpeed": 61,
+  "lateralBudget": 16
+ }
+}

@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "levels": "tsx scripts/make-levels.ts"
+    "levels": "tsx scripts/make-levels.ts",
+    "campaign": "tsx scripts/make-campaign.ts"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

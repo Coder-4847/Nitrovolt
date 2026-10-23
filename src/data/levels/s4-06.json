@@ -1,0 +1,414 @@
+{
+ "id": "s4-06",
+ "name": "Smokestack Gauntlet",
+ "car": "volt",
+ "theme": "coast",
+ "seed": 2846680774,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve1L",
+   "gridPos": [
+    0,
+    0,
+    -6
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -1,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -2,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -4,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -8,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "surface": "cruise"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -10,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -12,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -13,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -17,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -21,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -25,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow"
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -26,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "narrow"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -27,
+    0,
+    -8
+   ],
+   "rot": 0,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -27,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -27,
+    0,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -25,
+    0,
+    -12
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    -23,
+    0,
+    -9
+   ],
+   "rot": 2,
+   "variant": "narrow"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -21,
+    0,
+    -8
+   ],
+   "rot": 3,
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -20,
+    0,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -19,
+    0,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -16,
+    0,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -14,
+    -2,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -12,
+    -2,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow",
+   "surface": "tech"
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    -11,
+    -2,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -10,
+    -1,
+    -8
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -9,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -5,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -4,
+    -1,
+    -8
+   ],
+   "rot": 3,
+   "surface": "tech"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -3,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    1,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    5,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    9,
+    -1,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    12,
+    -1,
+    -9
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    13,
+    -1,
+    -9
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    14,
+    -1,
+    -9
+   ],
+   "rot": 3,
+   "variant": "narrow"
+  }
+ ],
+ "medalTimes": {
+  "author": 33514,
+  "gold": 35525,
+  "silver": 38206,
+  "bronze": 43568
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

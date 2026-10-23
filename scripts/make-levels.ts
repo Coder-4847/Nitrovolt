@@ -1,5 +1,6 @@
-// Authoring tool: chains blocks into level JSON, validates with the path bot, derives provisional medal times.
-// Usage: npx tsx scripts/make-levels.ts
+// Authoring tool for the hand-made levels: chains blocks into level JSON, validates with the path bot,
+// records the author ghost and derives medal times. Usage: npx tsx scripts/make-levels.ts
+// (`npm run campaign` re-validates these and generates the other 93 campaign levels.)
 import { writeFileSync } from 'node:fs';
 import { CarId, carParams, getCar } from '../src/data/cars';
 import { Simulation } from '../src/physics/Simulation';
@@ -8,6 +9,7 @@ import { ChainItem, layoutChain } from '../src/tracks/ChainLayout';
 import { GhostRecorder, levelFingerprint } from '../src/core/Ghost';
 import { PathBot, applyBotHints } from '../src/tracks/PathBot';
 import { TrackJson, validateTrackJson } from '../src/tracks/TrackSchema';
+import { HANDMADE, MEDAL_FACTORS } from '../src/tracks/CampaignPlan';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 
 const S = (type: string, extra: Partial<ChainItem> = {}): ChainItem => ({ type, ...extra });
@@ -178,7 +180,9 @@ async function main(): Promise<void> {
     const t = sim.run.finishTime ?? 0;
     console.log(`${lv.id.padEnd(10)} blocks=${blocks.length} bot ${finished ? 'FINISHED' : 'FAILED'} time=${(t / 1000).toFixed(2)}s respawns=${sim.respawnCount} progress=${(bot.progress * 100).toFixed(0)}% cps=${sim.run.nextCp}/${sim.run.checkpointCount}`);
     if (finished) {
-      json.medalTimes = { author: t, gold: Math.round(t * 1.08), silver: Math.round(t * 1.2), bronze: Math.round(t * 1.45) };
+      // same margins as the rest of the campaign (season of the slot the level sits in)
+      const [g, sv, b] = MEDAL_FACTORS[HANDMADE[lv.id]?.[0] ?? 0]!;
+      json.medalTimes = { author: t, gold: Math.round(t * g), silver: Math.round(t * sv), bronze: Math.round(t * b) };
       // the bot's run is the author ghost
       const ghost = rec.finish(sim, { trackId: lv.id, carId: def.id, levelHash: levelFingerprint(json.blocks, json.car, json.laps ?? 1) });
       writeFileSync(`src/data/ghosts/${lv.id}.json`, JSON.stringify(ghost) + '\n');

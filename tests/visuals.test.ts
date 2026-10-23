@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { LEVELS } from '../src/data';
+import { SAMPLE } from './sample';
 import { CLEARANCE, planScenery } from '../src/render/env/SceneryPlan';
 import { THEMES, themeFor } from '../src/render/env/Theme';
 import { ResolutionGovernor, benchmarkStep } from '../src/render/Quality';
@@ -7,7 +8,7 @@ import { buildTrack } from '../src/tracks/TrackGenerator';
 import { SceneryKit } from '../src/render/env/Theme';
 
 const KITS: SceneryKit[] = ['city', 'alpine', 'desert', 'coast', 'stadium'];
-const tracks = LEVELS.map((l) => buildTrack(l));
+const tracks = SAMPLE.map((l) => buildTrack(l));
 
 function nearest(track: ReturnType<typeof buildTrack>, x: number, z: number): number {
   let best = Infinity;

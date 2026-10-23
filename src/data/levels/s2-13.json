@@ -1,0 +1,342 @@
+{
+ "id": "s2-13",
+ "name": "Hoarfrost Chute",
+ "car": "volt",
+ "theme": "alpine",
+ "seed": 4128917143,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -6
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -10
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -15
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -19
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -23
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    0,
+    0,
+    -24
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -2,
+    0,
+    -25
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -4,
+    0,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -7,
+    0,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -9,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -11,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -12,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -14,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -18,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -20,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    -21,
+    -2,
+    -25
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -23,
+    -2,
+    -22
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -23,
+    -2,
+    -21
+   ],
+   "rot": 2
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -23,
+    -2,
+    -20
+   ],
+   "rot": 2
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -23,
+    -2,
+    -17
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -23,
+    -4,
+    -15
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -23,
+    -4,
+    -13
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -23,
+    -4,
+    -12
+   ],
+   "rot": 2,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -23,
+    -4,
+    -10
+   ],
+   "rot": 2
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -23,
+    -4,
+    -8
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -23,
+    -2,
+    -6
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -23,
+    -2,
+    -5
+   ],
+   "rot": 2
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -23,
+    -2,
+    -4
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -23,
+    -2,
+    -3
+   ],
+   "rot": 2
+  }
+ ],
+ "medalTimes": {
+  "author": 31360,
+  "gold": 33869,
+  "silver": 37632,
+  "bronze": 44531
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

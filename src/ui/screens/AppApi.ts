@@ -22,7 +22,7 @@ export interface AppApi {
   level(id: string): TrackJson | undefined;
   car(id: string): CarDef;
   /** Thumbnail data URL, built lazily (may be '' until the first idle slot). */
-  thumbnail(id: string, done: (url: string) => void): void;
+  thumbnail(id: string, done: (url: string) => void, stillWanted?: () => boolean): void;
   /** The level the "Continue" button should open. */
   continueLevel(): string;
   playLevel(id: string): void;

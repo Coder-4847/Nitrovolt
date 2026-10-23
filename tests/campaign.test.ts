@@ -65,8 +65,9 @@ describe('progressive unlocks', () => {
   });
 
   it('scales the gates to the levels that exist (placeholders add nothing)', () => {
-    const st = computeCampaign(medals({}));
-    expect(st.maxPoints).toBe(CAMPAIGN.filter((c) => c.levelId).length * MEDAL_POINTS.author);
+    const partial = buildCampaign([[0, 0, 'sprint01'], [0, 1, 'circuit01'], [0, 2, 'boostlab'], [0, 3, 'stunt01'], [1, 0, 'frost01']]);
+    const st = computeCampaign(medals({}), { levels: partial });
+    expect(st.maxPoints).toBe(5 * MEDAL_POINTS.author);
     const s2 = st.seasons[1]!;
     expect(s2.required).toBeGreaterThan(0);
     expect(s2.required).toBeLessThanOrEqual(16); // four season-1 levels
@@ -74,10 +75,13 @@ describe('progressive unlocks', () => {
   });
 
   it('can unlock everything for accessibility, but placeholders stay unavailable', () => {
-    const st = computeCampaign(medals({}), { unlockAll: true });
+    const partial = buildCampaign([[0, 0, 'sprint01'], [2, 3, 'dune01']]);
+    const st = computeCampaign(medals({}), { unlockAll: true, levels: partial });
     for (const l of st.levels) expect(l.unlocked).toBe(l.available);
-    expect(st.levels.some((l) => l.available)).toBe(true);
+    expect(st.levels.filter((l) => l.available)).toHaveLength(2);
     expect(st.levels.find((l) => !l.available)!.lockReason).toBe('Coming soon');
+    // the real campaign has no placeholders left
+    expect(computeCampaign(medals({}), { unlockAll: true }).levels.every((l) => l.unlocked)).toBe(true);
   });
 
   it('counts points per medal tier', () => {
@@ -87,9 +91,11 @@ describe('progressive unlocks', () => {
   });
 
   it('finds the next available level for "Next"', () => {
-    expect(nextAvailable('sprint01')!.levelId).toBe('circuit01');
-    expect(nextAvailable('stunt01')!.levelId).toBe('frost01'); // skips placeholders into the next season
-    expect(nextAvailable('gravel01')).toBeNull();
+    expect(nextAvailable('sprint01')!.levelId).toBe(CAMPAIGN[1]!.levelId);
+    expect(nextAvailable(CAMPAIGN[24]!.levelId!)!.levelId).toBe('frost01'); // into the next season
+    expect(nextAvailable(CAMPAIGN[99]!.levelId!)).toBeNull();
     expect(nextAvailable('nope')).toBeNull();
+    const partial = buildCampaign([[0, 0, 'sprint01'], [1, 0, 'frost01']]);
+    expect(nextAvailable('sprint01', partial)!.levelId).toBe('frost01'); // skips placeholders
   });
 });

@@ -1,0 +1,292 @@
+{
+ "id": "s1-08",
+ "name": "Halogen Boulevard",
+ "car": "volt",
+ "theme": "neon",
+ "seed": 4034630511,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "bank2L",
+   "gridPos": [
+    0,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "chicaneWideR",
+   "gridPos": [
+    -2,
+    0,
+    -10
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -6,
+    0,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -7,
+    0,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    2,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -10,
+    2,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -12,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -13,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -15,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -16,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -20,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -21,
+    6,
+    -12
+   ],
+   "rot": 1,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -22,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -24,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -28,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    -29,
+    6,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -31,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -32,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -36,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -38,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -39,
+    4,
+    -12
+   ],
+   "rot": 1,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -40,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -42,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -46,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -47,
+    4,
+    -12
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -48,
+    4,
+    -12
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 22062,
+  "gold": 24268,
+  "silver": 27578,
+  "bronze": 33093
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

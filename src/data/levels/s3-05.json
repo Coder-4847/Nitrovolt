@@ -1,0 +1,355 @@
+{
+ "id": "s3-05",
+ "name": "Saltpan Flats",
+ "car": "volt",
+ "theme": "desert",
+ "seed": 2329839884,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "chicaneWideR",
+   "gridPos": [
+    0,
+    0,
+    -5
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    2,
+    0,
+    -9
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    2,
+    -11
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    2,
+    2,
+    -12
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    4,
+    -14
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    2,
+    4,
+    -15
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    2,
+    4,
+    -16
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    4,
+    -18
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    2,
+    4,
+    -19
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    2,
+    4,
+    -23
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    4,
+    -27
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    2,
+    4,
+    -28
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -1,
+    4,
+    -30
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -2,
+    4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -4,
+    4,
+    -30
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "chicaneWideR",
+   "gridPos": [
+    -5,
+    4,
+    -32
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    -3,
+    4,
+    -36
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -6,
+    4,
+    -38
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    4,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -8,
+    4,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -11,
+    4,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -13,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -15,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -16,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -18,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -19,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -21,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -25,
+    2,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -26,
+    2,
+    -38
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -28,
+    2,
+    -38
+   ],
+   "rot": 1
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -29,
+    2,
+    -38
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -30,
+    2,
+    -38
+   ],
+   "rot": 1
+  }
+ ],
+ "medalTimes": {
+  "author": 30696,
+  "gold": 32845,
+  "silver": 35914,
+  "bronze": 41747
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

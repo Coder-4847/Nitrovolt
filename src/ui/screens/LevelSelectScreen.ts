@@ -83,7 +83,7 @@ export class LevelSelectScreen implements Screen {
 
   private cardFor(lv: TrackJson, num: number | null, medal: Medal, lock: string | null): HTMLElement {
     const img = h('img', { class: 'thumb', alt: '', draggable: false });
-    this.app.thumbnail(lv.id, (url) => { if (url) img.src = url; });
+    this.app.thumbnail(lv.id, (url) => { if (url) img.src = url; }, () => img.isConnected);
     const car = this.app.car(lv.car);
     const pb = Records.get(lv.id);
     const mt = lv.medalTimes;

@@ -1,0 +1,242 @@
+{
+ "id": "s4-07",
+ "name": "Drydock Ring",
+ "car": "gravel",
+ "theme": "coast",
+ "seed": 1663452734,
+ "laps": 3,
+ "blocks": [
+  {
+   "type": "lapFinish",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    2,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    4,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    5,
+    1,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeDown1",
+   "gridPos": [
+    6,
+    1,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    7,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    9,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    10,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    11,
+    0,
+    -3
+   ],
+   "rot": 2,
+   "surface": "dirt"
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    11,
+    0,
+    1
+   ],
+   "rot": 2,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    9,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    8,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    7,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    6,
+    1,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeDown1",
+   "gridPos": [
+    5,
+    1,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    4,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "bank2R",
+   "gridPos": [
+    1,
+    0,
+    2
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  }
+ ],
+ "medalTimes": {
+  "author": 80281,
+  "gold": 85098,
+  "silver": 91520,
+  "bronze": 104365
+ },
+ "bot": {
+  "maxSpeed": 55,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12
+ }
+}

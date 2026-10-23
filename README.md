@@ -3,7 +3,7 @@
 A browser time-attack racer: instant restarts, short punchy tracks, ghosts, medals, jumps and a built-in level editor.
 Everything is generated in code, with no external assets. It is an original game and not affiliated with any other racing title.
 
-**Status:** Phase 5 of 8 complete (four season themes with procedural sky, ground and instanced scenery, road markings and kerbs, holographic gates, bloom and grading, reflective car paint with lights and flames, skid marks and sparks, auto quality with dynamic resolution). See [`docs/PHASE_1.md`](docs/PHASE_1.md), [`docs/PHASE_2.md`](docs/PHASE_2.md), [`docs/PHASE_3.md`](docs/PHASE_3.md), [`docs/PHASE_4.md`](docs/PHASE_4.md), [`docs/PHASE_5.md`](docs/PHASE_5.md).
+**Status:** Phase 6 of 8 complete: a full 100-level campaign (4 seasons x 25) of hand-made and generated levels, every one validated by the bot with a verified author ghost; see [`docs/LEVEL_REPORT.md`](docs/LEVEL_REPORT.md). Phase notes: [`docs/PHASE_1.md`](docs/PHASE_1.md), [`docs/PHASE_2.md`](docs/PHASE_2.md), [`docs/PHASE_3.md`](docs/PHASE_3.md), [`docs/PHASE_4.md`](docs/PHASE_4.md), [`docs/PHASE_5.md`](docs/PHASE_5.md), [`docs/PHASE_6.md`](docs/PHASE_6.md).
 
 ## Run
 
@@ -12,6 +12,7 @@ npm install
 npm run dev        # dev server
 npm test           # deterministic-core unit tests
 npm run build      # typecheck + static build in dist/
+npm run campaign   # regenerate + validate the 100 campaign levels and docs/LEVEL_REPORT.md
 ```
 
 The game opens on the main menu. Levels can also be started directly with `?level=sprint01 | gravel01 | frost01 | dune01 | circuit01 | boostlab | stunt01`. Each level declares its car (Volt, Gravel, Frost, Dune).

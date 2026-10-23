@@ -1,17 +1,18 @@
 import { TrackJson } from '../tracks/TrackSchema';
-import sprint01 from './levels/sprint01.json';
-import boostlab from './levels/boostlab.json';
-import circuit01 from './levels/circuit01.json';
-import stunt01 from './levels/stunt01.json';
-import gravel01 from './levels/gravel01.json';
-import frost01 from './levels/frost01.json';
-import dune01 from './levels/dune01.json';
+import placement from './campaign.json';
 
-/** Built-in levels (all driven through the same JSON loader the editor will use). */
-export const LEVELS: TrackJson[] = [sprint01, gravel01, frost01, dune01, circuit01, boostlab, stunt01] as unknown as TrackJson[];
+/** Every level file in `levels/` (hand-made and generated), loaded through the same JSON loader the editor uses. */
+const files = import.meta.glob<TrackJson>('./levels/*.json', { eager: true, import: 'default' });
+const all = Object.values(files);
+const order = new Map((placement as Array<[number, number, string]>).map(([s, k, id]) => [id, s * 25 + k]));
+
+/** Built-in levels in campaign order (levels not in the campaign come last). */
+export const LEVELS: TrackJson[] = all.sort((a, b) => (order.get(a.id) ?? 1e6) - (order.get(b.id) ?? 1e6) || a.id.localeCompare(b.id));
 
 export const DEFAULT_LEVEL_ID = 'sprint01';
 
+const byId = new Map(LEVELS.map((l) => [l.id, l]));
+
 export function getLevel(id: string | null | undefined): TrackJson | undefined {
-  return LEVELS.find((l) => l.id === id);
+  return id ? byId.get(id) : undefined;
 }

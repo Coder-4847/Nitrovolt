@@ -1,0 +1,398 @@
+{
+ "id": "s2-06",
+ "name": "Powder Valley",
+ "car": "volt",
+ "theme": "alpine",
+ "seed": 3913427796,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    2,
+    -5
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    2,
+    -6
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -8
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    4,
+    -9
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -11
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    6,
+    -12
+   ],
+   "rot": 0,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    6,
+    -13
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -17
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -18
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -19
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -20
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "fragile"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -21
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    0,
+    6,
+    -22
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -24
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    4,
+    -25
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    4,
+    -26
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    6,
+    -28
+   ],
+   "rot": 0,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    6,
+    -29
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    6,
+    -33
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    0,
+    6,
+    -35
+   ],
+   "rot": 0,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -37
+   ],
+   "rot": 0,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    4,
+    -38
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    4,
+    -39
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -43
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeDown2",
+   "gridPos": [
+    0,
+    4,
+    -44
+   ],
+   "rot": 0,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    2,
+    -46
+   ],
+   "rot": 0,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    2,
+    -47
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    2,
+    -51
+   ],
+   "rot": 0
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    0,
+    2,
+    -53
+   ],
+   "rot": 0
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    0,
+    2,
+    -54
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -56
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    4,
+    -57
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    4,
+    -61
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    4,
+    -63
+   ],
+   "rot": 0
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    0,
+    4,
+    -64
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    4,
+    -65
+   ],
+   "rot": 0
+  }
+ ],
+ "medalTimes": {
+  "author": 43033,
+  "gold": 46476,
+  "silver": 51640,
+  "bronze": 61107
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}

@@ -79,6 +79,7 @@ export class App implements AppApi {
   private bdPose: RenderPose | null = null;
   private bdStart = new Vector3();
   private bdTime = 0;
+  private bdSkip = 0;
   /** Frame-time samples of the running quality benchmark (only with the 'auto' choice). */
   private bench: { ms: number[]; t: number; rounds: number } | null = null;
   private readonly fpsEl: HTMLElement;
@@ -243,12 +244,13 @@ export class App implements AppApi {
     return c.levels.find((l) => l.unlocked && l.entry.levelId)?.entry.levelId ?? DEFAULT_LEVEL_ID;
   }
 
-  thumbnail(id: string, done: (url: string) => void): void {
+  thumbnail(id: string, done: (url: string) => void, stillWanted: () => boolean = () => true): void {
     const lv = getLevel(id);
     if (!lv) return done('');
     if (lv.thumbnail) return done(lv.thumbnail);
     // one thumbnail per idle slot so a 25-card page never stalls the frame
     this.thumbQueue.push(() => {
+      if (!stillWanted()) return;
       let track = this.trackCache.get(id);
       if (!track) {
         track = buildTrack(lv);
@@ -262,8 +264,10 @@ export class App implements AppApi {
 
   private pumpThumbs = (): void => {
     this.thumbTimer = 0;
-    this.thumbQueue.shift()?.();
-    if (this.thumbQueue.length) this.thumbTimer = window.setTimeout(this.pumpThumbs, 16);
+    // a few per slot: building one is ~10 ms
+    const t0 = performance.now();
+    while (this.thumbQueue.length && performance.now() - t0 < 12) this.thumbQueue.shift()!();
+    if (this.thumbQueue.length) this.thumbTimer = window.setTimeout(this.pumpThumbs, 8);
   };
 
   // ---- ghosts ----
@@ -516,7 +520,15 @@ export class App implements AppApi {
     this.screens.handledEscape = false;
 
     if (this.session) this.session.render(alpha, dt, this.screens.depth > 0 ? NO_META : meta);
-    else if (this.mode === 'menu') this.renderBackdrop(dt);
+    else if (this.mode === 'menu') {
+      // behind a full-screen list (level select, settings...) the backdrop only needs a slow refresh,
+      // which leaves the main thread to the thumbnail builder
+      this.bdSkip += dt;
+      if (this.screens.depth <= 1 || this.bdSkip > 0.1) {
+        this.renderBackdrop(this.bdSkip);
+        this.bdSkip = 0;
+      }
+    }
 
     this.runBenchmark(dt);
     if (Settings.get().showFps) {

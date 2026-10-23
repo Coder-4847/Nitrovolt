@@ -1,0 +1,371 @@
+{
+ "id": "s3-12",
+ "name": "Cactus Raceway",
+ "car": "volt",
+ "theme": "desert",
+ "seed": 863718452,
+ "laps": 1,
+ "blocks": [
+  {
+   "type": "start",
+   "gridPos": [
+    0,
+    0,
+    0
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    0,
+    0,
+    -1
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    0,
+    -3
+   ],
+   "rot": 0
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    0,
+    0,
+    -4
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -3,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "halfpipe2",
+   "gridPos": [
+    -4,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -6,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -7,
+    0,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "slopeUp1",
+   "gridPos": [
+    -8,
+    0,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -9,
+    1,
+    -6
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -10,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -14,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -15,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -17,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -18,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -22,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -26,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -30,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    -32,
+    1,
+    -6
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -34,
+    1,
+    -3
+   ],
+   "rot": 2
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -34,
+    1,
+    -2
+   ],
+   "rot": 2
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -34,
+    1,
+    1
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -34,
+    -1,
+    3
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -34,
+    -1,
+    5
+   ],
+   "rot": 2
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -34,
+    -1,
+    6
+   ],
+   "rot": 2,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -34,
+    -1,
+    7
+   ],
+   "rot": 2,
+   "variant": "wide"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -34,
+    -1,
+    8
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -34,
+    -1,
+    12
+   ],
+   "rot": 2
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -34,
+    -1,
+    16
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -37,
+    -1,
+    18
+   ],
+   "rot": 1
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -38,
+    -1,
+    18
+   ],
+   "rot": 1
+  },
+  {
+   "type": "landingLong",
+   "gridPos": [
+    -41,
+    -1,
+    18
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -43,
+    -3,
+    18
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -45,
+    -3,
+    18
+   ],
+   "rot": 1
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -46,
+    -3,
+    18
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -47,
+    -3,
+    18
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    -48,
+    -3,
+    18
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -49,
+    -3,
+    18
+   ],
+   "rot": 1,
+   "variant": "wide"
+  }
+ ],
+ "medalTimes": {
+  "author": 29980,
+  "gold": 32079,
+  "silver": 35077,
+  "bronze": 40773
+ },
+ "bot": {
+  "maxSpeed": 75
+ }
+}
