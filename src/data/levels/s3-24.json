@@ -1,9 +1,9 @@
 {
  "id": "s3-24",
- "name": "Dune Rally",
+ "name": "Butte Leap",
  "car": "gravel",
  "theme": "desert",
- "seed": 3405385053,
+ "seed": 3874995976,
  "laps": 1,
  "blocks": [
   {
@@ -14,6 +14,7 @@
     0
    ],
    "rot": 0,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
@@ -24,193 +25,162 @@
     -1
    ],
    "rot": 0,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "slopeUp2",
    "gridPos": [
     0,
     0,
     -3
    ],
    "rot": 0,
-   "variant": "wide",
-   "surface": "gravity"
-  },
-  {
-   "type": "kicker",
-   "gridPos": [
-    0,
-    0,
-    -4
-   ],
-   "rot": 0,
-   "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "landingLong",
+   "type": "straight1",
    "gridPos": [
     0,
-    0,
-    -7
+    2,
+    -5
    ],
    "rot": 0,
-   "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "straight4",
+   "type": "straight2",
    "gridPos": [
     0,
-    -2,
+    2,
+    -6
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    0,
+    2,
+    -8
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "steepUp",
+   "gridPos": [
+    0,
+    2,
     -9
    ],
    "rot": 0,
    "variant": "wide",
-   "surface": "dirt"
+   "surface": "grass"
   },
   {
    "type": "straight1",
    "gridPos": [
     0,
-    -2,
-    -13
+    6,
+    -11
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "grass"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    6,
+    -12
    ],
    "rot": 0,
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "checkpoint",
    "gridPos": [
     0,
-    -2,
-    -14
-   ],
-   "rot": 0,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    0,
-    -2,
-    -15
-   ],
-   "rot": 0,
-   "surface": "fragile"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    0,
-    -2,
+    6,
     -16
    ],
    "rot": 0,
-   "surface": "fragile"
+   "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "straight4",
    "gridPos": [
     0,
-    -2,
+    6,
     -17
    ],
    "rot": 0,
-   "surface": "fragile"
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    6,
+    -21
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    6,
+    -25
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
   },
   {
    "type": "straight1",
    "gridPos": [
     0,
-    -2,
-    -18
+    6,
+    -29
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    0,
+    6,
+    -30
    ],
    "rot": 0,
    "surface": "dirt"
   },
   {
    "type": "checkpoint",
-   "gridPos": [
-    0,
-    -2,
-    -19
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -20
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -24
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -28
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    0,
-    -2,
-    -32
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "bank2L",
-   "gridPos": [
-    0,
-    -2,
-    -34
-   ],
-   "rot": 0,
-   "surface": "dirt"
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -2,
-    -2,
-    -35
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
    "gridPos": [
     -3,
-    -2,
-    -35
+    6,
+    -32
+   ],
+   "rot": 1,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -4,
+    6,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
@@ -218,19 +188,19 @@
   {
    "type": "kicker",
    "gridPos": [
-    -4,
-    -2,
-    -35
+    -5,
+    6,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
-    -7,
-    -2,
-    -35
+    -8,
+    6,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
@@ -238,29 +208,9 @@
   {
    "type": "straight2",
    "gridPos": [
-    -9,
-    -4,
-    -35
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
     -11,
-    -4,
-    -35
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "slopeUp1",
-   "gridPos": [
-    -12,
-    -4,
-    -35
+    4,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
@@ -269,18 +219,18 @@
    "type": "straight1",
    "gridPos": [
     -13,
-    -3,
-    -35
+    4,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
   },
   {
-   "type": "slopeUp2",
+   "type": "straight2",
    "gridPos": [
     -14,
-    -3,
-    -35
+    4,
+    -32
    ],
    "rot": 1,
    "variant": "wide",
@@ -290,19 +240,28 @@
    "type": "straight1",
    "gridPos": [
     -16,
-    -1,
-    -35
+    4,
+    -32
    ],
    "rot": 1,
-   "variant": "wide",
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -17,
+    4,
+    -32
+   ],
+   "rot": 1,
    "surface": "dirt"
   },
   {
    "type": "straight4",
    "gridPos": [
-    -17,
-    -1,
-    -35
+    -19,
+    4,
+    -32
    ],
    "rot": 1,
    "surface": "dirt"
@@ -310,245 +269,207 @@
   {
    "type": "checkpoint",
    "gridPos": [
-    -21,
-    -1,
-    -35
+    -23,
+    4,
+    -32
    ],
    "rot": 1,
-   "variant": "wide"
+   "variant": "wide",
+   "surface": "dirt"
   },
   {
-   "type": "straight4",
+   "type": "curve3L",
    "gridPos": [
-    -22,
-    -1,
-    -35
+    -24,
+    4,
+    -32
    ],
    "rot": 1,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -26,
+    4,
+    -29
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -26,
+    4,
+    -28
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "slowMo"
+  },
+  {
+   "type": "jumpRampLong",
+   "gridPos": [
+    -26,
+    4,
+    -27
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -26,
+    4,
+    -24
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -26,
+    2,
+    -21
+   ],
+   "rot": 2,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -26,
+    2,
+    -19
+   ],
+   "rot": 2,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -26,
+    2,
+    -17
+   ],
+   "rot": 2,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -26,
+    2,
+    -16
+   ],
+   "rot": 2,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "straight4",
    "gridPos": [
     -26,
-    -1,
-    -35
+    2,
+    -15
    ],
-   "rot": 1,
+   "rot": 2,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "straight4",
    "gridPos": [
-    -30,
-    -1,
-    -35
+    -26,
+    2,
+    -11
    ],
-   "rot": 1,
+   "rot": 2,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    -26,
+    2,
+    -7
+   ],
+   "rot": 2,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "straight1",
    "gridPos": [
-    -34,
-    -1,
-    -35
+    -26,
+    2,
+    -3
    ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "chicaneR",
-   "gridPos": [
-    -35,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -38,
-    -1,
-    -36
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -39,
-    -1,
-    -36
-   ],
-   "rot": 1,
+   "rot": 2,
    "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "chicaneL",
    "gridPos": [
-    -41,
-    -1,
-    -36
+    -26,
+    2,
+    -2
    ],
-   "rot": 1,
+   "rot": 2,
    "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "straight1",
    "gridPos": [
-    -44,
-    -1,
-    -35
+    -25,
+    2,
+    1
    ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -45,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "surface": "fragile"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -46,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "surface": "fragile"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -47,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "surface": "fragile"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -48,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "curve3R",
-   "gridPos": [
-    -49,
-    -1,
-    -35
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -51,
-    -1,
-    -38
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "gravity"
-  },
-  {
-   "type": "kicker",
-   "gridPos": [
-    -51,
-    -1,
-    -39
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "landingLong",
-   "gridPos": [
-    -51,
-    -1,
-    -42
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    -51,
-    -3,
-    -44
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -51,
-    -3,
-    -48
-   ],
-   "rot": 0,
-   "variant": "wide",
+   "rot": 2,
    "surface": "dirt"
   },
   {
    "type": "finish",
    "gridPos": [
-    -51,
-    -3,
-    -49
+    -25,
+    2,
+    2
    ],
-   "rot": 0,
-   "variant": "wide",
+   "rot": 2,
    "surface": "dirt"
   },
   {
    "type": "straight2",
    "gridPos": [
-    -51,
-    -3,
-    -50
+    -25,
+    2,
+    3
    ],
-   "rot": 0,
-   "variant": "wide",
+   "rot": 2,
    "surface": "dirt"
   }
  ],
  "medalTimes": {
-  "author": 55999,
-  "gold": 59919,
-  "silver": 65519,
-  "bronze": 76159
+  "author": 50267,
+  "gold": 53786,
+  "silver": 58812,
+  "bronze": 68363
  },
  "bot": {
-  "maxSpeed": 55,
+  "maxSpeed": 37,
   "lookTime": 0.7,
   "steerSlew": 0.05,
-  "lateralBudget": 12
+  "lateralBudget": 7.800000000000001
  }
 }

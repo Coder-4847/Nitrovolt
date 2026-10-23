@@ -227,7 +227,7 @@
    "walls": "both"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -25,
     0,
@@ -238,11 +238,11 @@
    "walls": "both"
   },
   {
-   "type": "straight2",
+   "type": "straight1",
    "gridPos": [
     -25,
     -2,
-    -21
+    -22
    ],
    "rot": 0,
    "surface": "snow",
@@ -348,10 +348,10 @@
   }
  ],
  "medalTimes": {
-  "author": 53280,
-  "gold": 57542,
-  "silver": 63936,
-  "bronze": 75658
+  "author": 53386,
+  "gold": 57657,
+  "silver": 64063,
+  "bronze": 75808
  },
  "bot": {
   "maxSpeed": 50,

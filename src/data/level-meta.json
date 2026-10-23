@@ -67,7 +67,7 @@
   "rejects": {}
  },
  "s1-14": {
-  "origin": "generated (9 phrases)",
+  "origin": "generated (8 phrases)",
   "seedsTried": 1,
   "rejects": {}
  },
@@ -82,7 +82,7 @@
   "rejects": {}
  },
  "s1-17": {
-  "origin": "generated (11 phrases)",
+  "origin": "generated (12 phrases)",
   "seedsTried": 2,
   "rejects": {
    "respawn (fell off or flipped)": 1
@@ -124,7 +124,7 @@
   "rejects": {}
  },
  "s1-25": {
-  "origin": "generated (14 phrases)",
+  "origin": "generated (15 phrases)",
   "seedsTried": 1,
   "rejects": {}
  },
@@ -151,9 +151,11 @@
   "rejects": {}
  },
  "s2-05": {
-  "origin": "generated (12 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (10 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "jump overshot its landing": 1
+  }
  },
  "s2-06": {
   "origin": "generated (15 phrases)",
@@ -196,9 +198,11 @@
   "rejects": {}
  },
  "s2-13": {
-  "origin": "generated (10 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (12 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "respawn (fell off or flipped)": 1
+  }
  },
  "s2-14": {
   "origin": "generated (9 phrases)",
@@ -206,15 +210,18 @@
   "rejects": {}
  },
  "s2-15": {
-  "origin": "generated (12 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (13 phrases)",
+  "seedsTried": 4,
+  "rejects": {
+   "respawn (fell off or flipped)": 2,
+   "stuck": 1
+  }
  },
  "s2-16": {
-  "origin": "generated (13 phrases)",
-  "seedsTried": 3,
+  "origin": "generated (11 phrases)",
+  "seedsTried": 2,
   "rejects": {
-   "respawn (fell off or flipped)": 2
+   "respawn (fell off or flipped)": 1
   }
  },
  "s2-17": {
@@ -226,7 +233,7 @@
   }
  },
  "s2-18": {
-  "origin": "generated (14 phrases)",
+  "origin": "generated (15 phrases)",
   "seedsTried": 1,
   "rejects": {}
  },
@@ -243,11 +250,9 @@
   }
  },
  "s2-21": {
-  "origin": "generated (15 phrases)",
-  "seedsTried": 2,
-  "rejects": {
-   "respawn (fell off or flipped)": 1
-  }
+  "origin": "generated (12 phrases)",
+  "seedsTried": 1,
+  "rejects": {}
  },
  "s2-22": {
   "origin": "generated (17 phrases)",
@@ -267,11 +272,9 @@
   "rejects": {}
  },
  "s2-25": {
-  "origin": "generated (16 phrases)",
-  "seedsTried": 3,
-  "rejects": {
-   "respawn (fell off or flipped)": 2
-  }
+  "origin": "generated (13 phrases)",
+  "seedsTried": 1,
+  "rejects": {}
  },
  "dune01": {
   "origin": "hand-made",
@@ -279,10 +282,10 @@
   "rejects": {}
  },
  "s3-02": {
-  "origin": "generated (10 phrases)",
-  "seedsTried": 5,
+  "origin": "generated (11 phrases)",
+  "seedsTried": 6,
   "rejects": {
-   "respawn (fell off or flipped)": 4
+   "respawn (fell off or flipped)": 5
   }
  },
  "s3-03": {
@@ -292,9 +295,9 @@
  },
  "s3-04": {
   "origin": "generated (12 phrases)",
-  "seedsTried": 8,
+  "seedsTried": 2,
   "rejects": {
-   "respawn (fell off or flipped)": 7
+   "respawn (fell off or flipped)": 1
   }
  },
  "s3-05": {
@@ -303,10 +306,11 @@
   "rejects": {}
  },
  "s3-06": {
-  "origin": "generated (11 phrases)",
-  "seedsTried": 2,
+  "origin": "generated (13 phrases)",
+  "seedsTried": 28,
   "rejects": {
-   "respawn (fell off or flipped)": 1
+   "respawn (fell off or flipped)": 26,
+   "jump overshot its landing": 1
   }
  },
  "s3-07": {
@@ -320,14 +324,14 @@
   "rejects": {}
  },
  "s3-09": {
-  "origin": "generated (11 phrases)",
-  "seedsTried": 5,
+  "origin": "generated (14 phrases)",
+  "seedsTried": 2,
   "rejects": {
-   "respawn (fell off or flipped)": 4
+   "respawn (fell off or flipped)": 1
   }
  },
  "s3-10": {
-  "origin": "generated (19 phrases)",
+  "origin": "generated (17 phrases)",
   "seedsTried": 3,
   "rejects": {
    "respawn (fell off or flipped)": 2
@@ -341,30 +345,31 @@
   }
  },
  "s3-12": {
-  "origin": "generated (10 phrases)",
+  "origin": "generated (9 phrases)",
   "seedsTried": 2,
   "rejects": {
    "respawn (fell off or flipped)": 1
   }
  },
  "s3-13": {
-  "origin": "generated (17 phrases)",
-  "seedsTried": 4,
+  "origin": "generated (12 phrases)",
+  "seedsTried": 2,
   "rejects": {
-   "layout boxed in": 2,
    "respawn (fell off or flipped)": 1
   }
  },
  "s3-14": {
-  "origin": "generated (13 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (16 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "jump overshot its landing": 1
+  }
  },
  "s3-15": {
-  "origin": "generated (16 phrases)",
-  "seedsTried": 11,
+  "origin": "generated (13 phrases)",
+  "seedsTried": 9,
   "rejects": {
-   "respawn (fell off or flipped)": 10
+   "respawn (fell off or flipped)": 8
   }
  },
  "s3-16": {
@@ -374,14 +379,18 @@
  },
  "s3-17": {
   "origin": "generated (12 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "seedsTried": 2,
+  "rejects": {
+   "respawn (fell off or flipped)": 1
+  }
  },
  "s3-18": {
   "origin": "generated (11 phrases)",
-  "seedsTried": 4,
+  "seedsTried": 30,
   "rejects": {
-   "respawn (fell off or flipped)": 3
+   "layout boxed in": 4,
+   "respawn (fell off or flipped)": 24,
+   "jump overshot its landing": 1
   }
  },
  "s3-19": {
@@ -391,16 +400,16 @@
  },
  "s3-20": {
   "origin": "generated (12 phrases)",
-  "seedsTried": 30,
+  "seedsTried": 4,
   "rejects": {
-   "respawn (fell off or flipped)": 29
+   "respawn (fell off or flipped)": 3
   }
  },
  "s3-21": {
   "origin": "generated (12 phrases)",
-  "seedsTried": 8,
+  "seedsTried": 3,
   "rejects": {
-   "respawn (fell off or flipped)": 7
+   "respawn (fell off or flipped)": 2
   }
  },
  "s3-22": {
@@ -412,16 +421,18 @@
   }
  },
  "s3-23": {
-  "origin": "generated (14 phrases)",
-  "seedsTried": 36,
+  "origin": "generated (12 phrases)",
+  "seedsTried": 31,
   "rejects": {
-   "respawn (fell off or flipped)": 35
+   "respawn (fell off or flipped)": 30
   }
  },
  "s3-24": {
-  "origin": "generated (16 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (13 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "jump overshot its landing": 1
+  }
  },
  "s3-25": {
   "origin": "generated (19 phrases)",
@@ -436,12 +447,12 @@
   "rejects": {}
  },
  "s4-02": {
-  "origin": "generated (14 phrases)",
+  "origin": "generated (15 phrases)",
   "seedsTried": 1,
   "rejects": {}
  },
  "s4-03": {
-  "origin": "generated (15 phrases)",
+  "origin": "generated (13 phrases)",
   "seedsTried": 2,
   "rejects": {
    "respawn (fell off or flipped)": 1
@@ -475,48 +486,57 @@
  },
  "s4-08": {
   "origin": "generated (14 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "seedsTried": 2,
+  "rejects": {
+   "respawn (fell off or flipped)": 1
+  }
  },
  "s4-09": {
-  "origin": "generated (15 phrases)",
-  "seedsTried": 4,
+  "origin": "generated (11 phrases)",
+  "seedsTried": 2,
   "rejects": {
-   "respawn (fell off or flipped)": 3
+   "respawn (fell off or flipped)": 1
   }
  },
  "s4-10": {
-  "origin": "generated (15 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
- },
- "s4-11": {
   "origin": "generated (14 phrases)",
   "seedsTried": 1,
   "rejects": {}
  },
+ "s4-11": {
+  "origin": "generated (15 phrases)",
+  "seedsTried": 6,
+  "rejects": {
+   "respawn (fell off or flipped)": 3,
+   "stuck": 2
+  }
+ },
  "s4-12": {
-  "origin": "generated (17 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (15 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "respawn (fell off or flipped)": 1
+  }
  },
  "s4-13": {
-  "origin": "generated (18 phrases)",
+  "origin": "generated (15 phrases)",
   "seedsTried": 5,
   "rejects": {
    "respawn (fell off or flipped)": 4
   }
  },
  "s4-14": {
-  "origin": "generated (14 phrases)",
-  "seedsTried": 1,
-  "rejects": {}
+  "origin": "generated (12 phrases)",
+  "seedsTried": 2,
+  "rejects": {
+   "jump overshot its landing": 1
+  }
  },
  "s4-15": {
   "origin": "generated (12 phrases)",
-  "seedsTried": 6,
+  "seedsTried": 2,
   "rejects": {
-   "respawn (fell off or flipped)": 5
+   "respawn (fell off or flipped)": 1
   }
  },
  "s4-16": {
@@ -525,10 +545,11 @@
   "rejects": {}
  },
  "s4-17": {
-  "origin": "generated (15 phrases)",
-  "seedsTried": 2,
+  "origin": "generated (12 phrases)",
+  "seedsTried": 3,
   "rejects": {
-   "respawn (fell off or flipped)": 1
+   "respawn (fell off or flipped)": 1,
+   "jump overshot its landing": 1
   }
  },
  "s4-18": {
@@ -537,14 +558,16 @@
   "rejects": {}
  },
  "s4-19": {
-  "origin": "generated (13 phrases)",
-  "seedsTried": 3,
+  "origin": "generated (15 phrases)",
+  "seedsTried": 6,
   "rejects": {
-   "respawn (fell off or flipped)": 2
+   "respawn (fell off or flipped)": 3,
+   "stuck": 1,
+   "jump overshot its landing": 1
   }
  },
  "s4-20": {
-  "origin": "generated (15 phrases)",
+  "origin": "generated (14 phrases)",
   "seedsTried": 2,
   "rejects": {
    "respawn (fell off or flipped)": 1
@@ -552,9 +575,9 @@
  },
  "s4-21": {
   "origin": "generated (14 phrases)",
-  "seedsTried": 9,
+  "seedsTried": 31,
   "rejects": {
-   "respawn (fell off or flipped)": 8
+   "respawn (fell off or flipped)": 30
   }
  },
  "s4-22": {

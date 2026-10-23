@@ -360,7 +360,7 @@
    "walls": "both"
   },
   {
-   "type": "kicker",
+   "type": "jumpRamp",
    "gridPos": [
     22,
     2,
@@ -371,9 +371,9 @@
    "walls": "both"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
-    19,
+    20,
     2,
     -4
    ],
@@ -411,6 +411,7 @@
     -4
    ],
    "rot": 1,
+   "variant": "wide",
    "surface": "snow",
    "walls": "both"
   },
@@ -422,6 +423,7 @@
     -4
    ],
    "rot": 1,
+   "variant": "wide",
    "surface": "snow",
    "walls": "both"
   },
@@ -433,15 +435,16 @@
     -4
    ],
    "rot": 1,
+   "variant": "wide",
    "surface": "snow",
    "walls": "both"
   }
  ],
  "medalTimes": {
-  "author": 48854,
-  "gold": 52762,
-  "silver": 58625,
-  "bronze": 69373
+  "author": 49825,
+  "gold": 53811,
+  "silver": 59790,
+  "bronze": 70752
  },
  "bot": {
   "maxSpeed": 50,

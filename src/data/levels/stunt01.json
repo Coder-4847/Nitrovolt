@@ -151,7 +151,7 @@
    "rot": 1
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -16,
     -3,
@@ -160,9 +160,9 @@
    "rot": 1
   },
   {
-   "type": "straight2",
+   "type": "straight1",
    "gridPos": [
-    -18,
+    -19,
     -5,
     -19
    ],
@@ -179,10 +179,10 @@
   }
  ],
  "medalTimes": {
-  "author": 25725,
-  "gold": 28298,
-  "silver": 32156,
-  "bronze": 38588
+  "author": 25694,
+  "gold": 28263,
+  "silver": 32118,
+  "bronze": 38541
  },
  "bot": {
   "maxSpeed": 75

@@ -127,6 +127,7 @@ async function makeSlot(season: number, slot: number, usedNames: Set<string>): P
     if (secs > tMax) { reject('too long'); continue; }
     if (run.wallHits > 6 + season * 2) { reject('bot kept hitting walls'); continue; }
     if (run.airTime > secs * 0.35) { reject('mostly airborne'); continue; }
+    if (run.overshoots > 0) { reject('jump overshot its landing'); continue; }
     json.name = levelName(season, seed, p.lap, usedNames);
     json.medalTimes = medalsFor(run.time, season);
     json.bot = run.hints;

@@ -206,7 +206,7 @@
    "rot": 0
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -24,
     2,
@@ -219,16 +219,7 @@
    "gridPos": [
     -24,
     0,
-    -27
-   ],
-   "rot": 0
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -24,
-    0,
-    -29
+    -28
    ],
    "rot": 0
   },
@@ -242,7 +233,7 @@
    "rot": 0
   },
   {
-   "type": "finish",
+   "type": "straight1",
    "gridPos": [
     -24,
     0,
@@ -251,20 +242,29 @@
    "rot": 0
   },
   {
-   "type": "straight2",
+   "type": "finish",
    "gridPos": [
     -24,
     0,
     -32
    ],
    "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -24,
+    0,
+    -33
+   ],
+   "rot": 0
   }
  ],
  "medalTimes": {
-  "author": 21975,
-  "gold": 24173,
-  "silver": 27469,
-  "bronze": 32963
+  "author": 21909,
+  "gold": 24100,
+  "silver": 27386,
+  "bronze": 32864
  },
  "bot": {
   "maxSpeed": 75

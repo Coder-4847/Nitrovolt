@@ -1,9 +1,9 @@
 {
  "id": "s3-17",
- "name": "Oasis Wash",
+ "name": "Badlands Basin",
  "car": "gravel",
  "theme": "desert",
- "seed": 769653136,
+ "seed": 300248549,
  "laps": 1,
  "blocks": [
   {
@@ -14,6 +14,7 @@
     0
    ],
    "rot": 0,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
@@ -24,21 +25,21 @@
     -1
    ],
    "rot": 0,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "platform",
    "gridPos": [
     0,
     0,
     -3
    ],
    "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
+   "surface": "grass"
   },
   {
-   "type": "kicker",
+   "type": "straight1",
    "gridPos": [
     0,
     0,
@@ -46,24 +47,23 @@
    ],
    "rot": 0,
    "variant": "wide",
-   "surface": "dirt"
+   "surface": "grass"
   },
   {
-   "type": "landingLong",
+   "type": "straight4",
    "gridPos": [
     0,
     0,
-    -7
+    -5
    ],
    "rot": 0,
-   "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "straight2",
+   "type": "straight4",
    "gridPos": [
     0,
-    -2,
+    0,
     -9
    ],
    "rot": 0,
@@ -71,11 +71,11 @@
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "straight4",
    "gridPos": [
     0,
-    -2,
-    -11
+    0,
+    -13
    ],
    "rot": 0,
    "variant": "wide",
@@ -85,176 +85,30 @@
    "type": "straight2",
    "gridPos": [
     0,
-    -2,
-    -12
+    0,
+    -17
    ],
    "rot": 0,
+   "variant": "wide",
    "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -14
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -18
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    0,
-    -2,
-    -22
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "curve3L",
-   "gridPos": [
-    0,
-    -2,
-    -26
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "sand"
   },
   {
    "type": "straight1",
    "gridPos": [
-    -3,
-    -2,
-    -28
+    0,
+    0,
+    -19
    ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "jumpRamp",
-   "gridPos": [
-    -4,
-    -2,
-    -28
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "landingLong",
-   "gridPos": [
-    -6,
-    -2,
-    -28
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -8,
-    -4,
-    -28
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -10,
-    -4,
-    -28
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "sand"
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -11,
-    -4,
-    -28
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight4",
-   "gridPos": [
-    -12,
-    -4,
-    -28
-   ],
-   "rot": 1
-  },
-  {
-   "type": "chicaneL",
-   "gridPos": [
-    -16,
-    -4,
-    -28
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -19,
-    -4,
-    -27
-   ],
-   "rot": 1,
+   "rot": 0,
    "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "bank2R",
    "gridPos": [
-    -21,
-    -4,
-    -27
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "platformBig",
-   "gridPos": [
-    -22,
-    -4,
-    -29
-   ],
-   "rot": 0,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -22,
-    -4,
-    -32
+    0,
+    0,
+    -20
    ],
    "rot": 0,
    "surface": "dirt"
@@ -262,7 +116,205 @@
   {
    "type": "checkpoint",
    "gridPos": [
-    -22,
+    2,
+    0,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    3,
+    0,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    4,
+    0,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    6,
+    0,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    9,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    11,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    12,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    13,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    15,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    16,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    20,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    24,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    28,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve1L",
+   "gridPos": [
+    30,
+    -2,
+    -21
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    30,
+    -2,
+    -22
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    30,
+    -2,
+    -23
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    30,
+    -2,
+    -25
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    30,
+    -2,
+    -28
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    30,
+    -4,
+    -31
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    30,
     -4,
     -33
    ],
@@ -270,9 +322,9 @@
    "surface": "dirt"
   },
   {
-   "type": "straight4",
+   "type": "slopeUp1",
    "gridPos": [
-    -22,
+    30,
     -4,
     -34
    ],
@@ -281,32 +333,42 @@
    "surface": "dirt"
   },
   {
-   "type": "straight2",
+   "type": "straight1",
    "gridPos": [
-    -22,
-    -4,
-    -38
+    30,
+    -3,
+    -35
    ],
    "rot": 0,
    "variant": "wide",
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "straight4",
    "gridPos": [
-    -22,
-    -4,
+    30,
+    -3,
+    -36
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    30,
+    -3,
     -40
    ],
    "rot": 0,
-   "variant": "wide",
-   "surface": "dirt"
+   "surface": "sand"
   },
   {
-   "type": "chicaneWideR",
+   "type": "straight4",
    "gridPos": [
-    -22,
-    -4,
+    30,
+    -3,
     -41
    ],
    "rot": 0,
@@ -314,66 +376,22 @@
    "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "straight4",
    "gridPos": [
-    -20,
-    -4,
+    30,
+    -3,
     -45
    ],
    "rot": 0,
    "variant": "wide",
-   "surface": "reactor"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -20,
-    -4,
-    -46
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "grass"
-  },
-  {
-   "type": "kicker",
-   "gridPos": [
-    -20,
-    -4,
-    -47
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "grass"
-  },
-  {
-   "type": "landingLong",
-   "gridPos": [
-    -20,
-    -4,
-    -50
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "grass"
+   "surface": "dirt"
   },
   {
    "type": "straight4",
    "gridPos": [
-    -20,
-    -6,
-    -52
-   ],
-   "rot": 0,
-   "variant": "wide",
-   "surface": "grass"
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -20,
-    -6,
-    -56
+    30,
+    -3,
+    -49
    ],
    "rot": 0,
    "variant": "wide",
@@ -382,9 +400,20 @@
   {
    "type": "straight2",
    "gridPos": [
-    -20,
-    -6,
-    -57
+    30,
+    -3,
+    -53
+   ],
+   "rot": 0,
+   "variant": "wide",
+   "surface": "dirt"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    30,
+    -3,
+    -55
    ],
    "rot": 0,
    "variant": "wide",
@@ -393,55 +422,47 @@
   {
    "type": "straight1",
    "gridPos": [
-    -20,
-    -6,
-    -59
+    28,
+    -3,
+    -56
    ],
-   "rot": 0,
+   "rot": 1,
    "variant": "wide",
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -20,
-    -6,
-    -60
-   ],
-   "rot": 0,
    "surface": "dirt"
   },
   {
    "type": "finish",
    "gridPos": [
-    -20,
-    -6,
-    -61
+    27,
+    -3,
+    -56
    ],
-   "rot": 0,
+   "rot": 1,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
    "type": "straight2",
    "gridPos": [
-    -20,
-    -6,
-    -62
+    26,
+    -3,
+    -56
    ],
-   "rot": 0,
+   "rot": 1,
+   "variant": "wide",
    "surface": "dirt"
   }
  ],
  "medalTimes": {
-  "author": 43825,
-  "gold": 46893,
-  "silver": 51275,
-  "bronze": 59602
+  "author": 38221,
+  "gold": 40896,
+  "silver": 44719,
+  "bronze": 51981
  },
  "bot": {
-  "maxSpeed": 37,
+  "maxSpeed": 55,
   "lookTime": 0.7,
   "steerSlew": 0.05,
-  "lateralBudget": 7.800000000000001
+  "lateralBudget": 12
  }
 }

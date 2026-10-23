@@ -28,9 +28,12 @@ export function blockExit(type: string, variant: Variant = 'std'): BlockExit {
   t.place(new Vector3(0, 0, 0), 0);
   def.build(t, { width: def.fixedWidth ?? VARIANT_WIDTH[variant], surface: 'tarmac', effect: undefined, walls: 'none' });
   const yaw = (Math.atan2(-t.f.x, -t.f.z) * 180) / Math.PI;
+  const pitch = (Math.asin(Math.max(-1, Math.min(1, t.f.y))) * 180) / Math.PI;
+  // a jump ramp's lip sits below the grid level above it; that level is its nominal exit
+  const lip = def.category === 'jump' && pitch > 1;
   const e: BlockExit = {
     dx: t.p.x,
-    dy: t.p.y,
+    dy: lip ? Math.ceil(t.p.y / LEVEL_H - 1e-6) * LEVEL_H : t.p.y,
     dz: t.p.z,
     dyawDeg: def.chain ? yaw : 0,
     pitchDeg: (Math.asin(Math.max(-1, Math.min(1, t.f.y))) * 180) / Math.PI,

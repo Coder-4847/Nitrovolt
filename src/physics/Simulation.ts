@@ -17,7 +17,7 @@ export type SimulationEvent = SimEvent | RunEvent | { type: 'break'; blockId: nu
 export const GRID_PREROLL_TICKS = 100;
 
 /** Bump when anything that changes simulated results changes: it invalidates recorded ghosts. */
-export const PHYSICS_VERSION = 'p4.1';
+export const PHYSICS_VERSION = 'p5.0';
 
 const _up = new Vector3();
 

@@ -299,7 +299,7 @@
    "variant": "wide"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -30,
     3,
@@ -311,17 +311,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    -32,
-    1,
-    -38
-   ],
-   "rot": 1,
-   "variant": "wide"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -34,
+    -33,
     1,
     -38
    ],
@@ -339,7 +329,7 @@
    "variant": "wide"
   },
   {
-   "type": "finish",
+   "type": "straight1",
    "gridPos": [
     -36,
     1,
@@ -349,9 +339,19 @@
    "variant": "wide"
   },
   {
-   "type": "straight2",
+   "type": "finish",
    "gridPos": [
     -37,
+    1,
+    -38
+   ],
+   "rot": 1,
+   "variant": "wide"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -38,
     1,
     -38
    ],
@@ -360,10 +360,10 @@
   }
  ],
  "medalTimes": {
-  "author": 36996,
-  "gold": 39956,
-  "silver": 44395,
-  "bronze": 52534
+  "author": 36923,
+  "gold": 39877,
+  "silver": 44308,
+  "bronze": 52431
  },
  "bot": {
   "maxSpeed": 75

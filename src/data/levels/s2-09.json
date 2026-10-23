@@ -116,7 +116,7 @@
    "walls": "both"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -7,
     0,
@@ -132,7 +132,7 @@
    "gridPos": [
     -7,
     -2,
-    5
+    6
    ],
    "rot": 2,
    "variant": "wide",
@@ -144,7 +144,7 @@
    "gridPos": [
     -7,
     -2,
-    7
+    8
    ],
    "rot": 2,
    "variant": "wide",
@@ -156,7 +156,7 @@
    "gridPos": [
     -7,
     -2,
-    8
+    9
    ],
    "rot": 2,
    "surface": "snow",
@@ -164,17 +164,6 @@
   },
   {
    "type": "straight1",
-   "gridPos": [
-    -7,
-    0,
-    10
-   ],
-   "rot": 2,
-   "surface": "snow",
-   "walls": "both"
-  },
-  {
-   "type": "straight4",
    "gridPos": [
     -7,
     0,
@@ -185,25 +174,24 @@
    "walls": "both"
   },
   {
-   "type": "checkpoint",
+   "type": "straight4",
    "gridPos": [
     -7,
     0,
-    15
+    12
    ],
    "rot": 2,
    "surface": "snow",
    "walls": "both"
   },
   {
-   "type": "straight1",
+   "type": "checkpoint",
    "gridPos": [
     -7,
     0,
     16
    ],
    "rot": 2,
-   "variant": "wide",
    "surface": "snow",
    "walls": "both"
   },
@@ -215,6 +203,18 @@
     17
    ],
    "rot": 2,
+   "variant": "wide",
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -7,
+    0,
+    18
+   ],
+   "rot": 2,
    "surface": "noBrake"
   },
   {
@@ -222,7 +222,7 @@
    "gridPos": [
     -7,
     0,
-    18
+    19
    ],
    "rot": 2
   },
@@ -231,7 +231,7 @@
    "gridPos": [
     -7,
     0,
-    20
+    21
    ],
    "rot": 2,
    "surface": "snow",
@@ -242,7 +242,7 @@
    "gridPos": [
     -7,
     0,
-    24
+    25
    ],
    "rot": 2,
    "surface": "snow",
@@ -253,7 +253,7 @@
    "gridPos": [
     -7,
     0,
-    28
+    29
    ],
    "rot": 2,
    "surface": "snow",
@@ -264,7 +264,7 @@
    "gridPos": [
     -7,
     0,
-    30
+    31
    ],
    "rot": 2,
    "surface": "snow",
@@ -275,7 +275,7 @@
    "gridPos": [
     -4,
     0,
-    32
+    33
    ],
    "rot": 3,
    "variant": "wide",
@@ -287,7 +287,7 @@
    "gridPos": [
     -3,
     0,
-    32
+    33
    ],
    "rot": 3,
    "surface": "snow",
@@ -298,7 +298,7 @@
    "gridPos": [
     -1,
     0,
-    32
+    33
    ],
    "rot": 3,
    "surface": "snow",
@@ -309,7 +309,7 @@
    "gridPos": [
     2,
     0,
-    33
+    34
    ],
    "rot": 3,
    "surface": "ice",
@@ -320,7 +320,7 @@
    "gridPos": [
     4,
     2,
-    33
+    34
    ],
    "rot": 3,
    "surface": "ice",
@@ -331,7 +331,7 @@
    "gridPos": [
     5,
     2,
-    33
+    34
    ],
    "rot": 3,
    "surface": "snow",
@@ -342,7 +342,7 @@
    "gridPos": [
     7,
     2,
-    33
+    34
    ],
    "rot": 3,
    "surface": "snow",
@@ -353,7 +353,7 @@
    "gridPos": [
     8,
     2,
-    33
+    34
    ],
    "rot": 3,
    "surface": "snow",
@@ -364,7 +364,7 @@
    "gridPos": [
     12,
     2,
-    31
+    32
    ],
    "rot": 3,
    "surface": "snow",
@@ -375,7 +375,7 @@
    "gridPos": [
     13,
     2,
-    31
+    32
    ],
    "rot": 3,
    "surface": "snow",
@@ -386,7 +386,7 @@
    "gridPos": [
     14,
     2,
-    31
+    32
    ],
    "rot": 3,
    "surface": "snow",
@@ -394,15 +394,15 @@
   }
  ],
  "medalTimes": {
-  "author": 50142,
-  "gold": 54153,
-  "silver": 60170,
-  "bronze": 71202
+  "author": 54798,
+  "gold": 59182,
+  "silver": 65758,
+  "bronze": 77813
  },
  "bot": {
-  "maxSpeed": 41,
+  "maxSpeed": 50,
   "lookTime": 0.7,
   "steerSlew": 0.05,
-  "lateralBudget": 9.600000000000001
+  "lateralBudget": 12
  }
 }

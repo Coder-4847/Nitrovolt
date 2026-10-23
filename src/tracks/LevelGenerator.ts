@@ -57,22 +57,30 @@ const CELLS_OF: Record<string, number> = {
   curve1L: 1, curve1R: 1, curve2L: 3, curve2R: 3, curve3L: 5, curve3R: 5, bank2L: 3, bank2R: 3, bank3L: 5, bank3R: 5,
   chicaneL: 3, chicaneR: 3, chicaneWideL: 4, chicaneWideR: 4,
   slopeUp1: 1, slopeDown1: 1, slopeUp2: 2, slopeDown2: 2, steepUp: 2, steepDown: 2,
-  kicker: 2, jumpRamp: 1, jumpRampLong: 2, landing1: 1, landingLong: 2,
+  kicker: 2, jumpRamp: 1, jumpRampLong: 2, landing1: 1, landingLong: 2, landingXL: 3,
   platform: 1, platformBig: 3, loop: 3, halfpipe2: 2, wallRide4L: 4, wallRide4R: 4, spiralDownL: 4, spiralDownR: 4,
 };
 
-/** Measured cells flown before dropping 4 m below the lip, at lip speeds of 18, 25, 32, 40, 50, 60 m/s. */
+/** Measured cells flown until the car is back at the run-up's road level (the landing's top edge), at lip speeds of 18, 25, 32, 40, 50, 60 m/s. */
 const FLIGHT: Record<string, Record<string, number[]>> = {
-  volt: { kicker: [0.7, 1.1, 1.5, 2.0, 2.6, 3.4], jumpRamp: [0.9, 1.5, 2.2, 3.2, 4.7, 6.4] },
-  dune: { kicker: [0.8, 1.2, 1.8, 2.5, 3.5, 4.4], jumpRamp: [1.0, 1.7, 2.6, 4.0, 6.3, 8.9] },
-  frost: { kicker: [0.7, 1.1, 1.6, 2.1, 2.9, 3.7], jumpRamp: [0.8, 1.5, 2.3, 3.4, 5.1, 7.1] },
-  gravel: { kicker: [0.7, 1.1, 1.6, 2.1, 2.9, 3.7], jumpRamp: [0.8, 1.5, 2.3, 3.4, 5.2, 7.5] },
+  volt: { kicker: [0.5, 0.8, 1.0, 1.4, 1.8, 2.2], jumpRamp: [0.5, 0.9, 1.3, 1.7, 2.3, 3.1], jumpRampLong: [0.7, 1.1, 1.6, 2.2, 2.9, 3.6] },
+  dune: { kicker: [0.5, 0.9, 1.3, 1.7, 2.4, 3.1], jumpRamp: [0.6, 1.0, 1.5, 2.1, 3.3, 5.0], jumpRampLong: [0.8, 1.3, 1.9, 2.7, 3.9, 5.5] },
+  frost: { kicker: [0.5, 0.8, 1.1, 1.5, 2.0, 2.5], jumpRamp: [0.6, 0.9, 1.3, 1.8, 2.6, 3.6], jumpRampLong: [0.7, 1.1, 1.6, 2.3, 3.1, 4.1] },
+  gravel: { kicker: [0.5, 0.8, 1.1, 1.5, 2.0, 2.5], jumpRamp: [0.6, 0.9, 1.3, 1.8, 2.8, 4.0], jumpRampLong: [0.7, 1.1, 1.6, 2.3, 3.0, 3.9] },
 };
+/** Measured cells flown until 8 m below the run-up level (where a car meets the bottom of a long landing). */
+const FLIGHT_LOW: Record<string, Record<string, number[]>> = {
+  volt: { kicker: [1.1, 1.6, 2.0, 2.6, 3.3, 3.9], jumpRamp: [1.1, 1.7, 2.2, 2.9, 3.7, 4.6], jumpRampLong: [1.2, 1.8, 2.4, 3.1, 4.1, 4.9] },
+  dune: { kicker: [1.2, 1.7, 2.4, 3.1, 4.0, 5.0], jumpRamp: [1.2, 1.9, 2.5, 3.4, 4.7, 6.5], jumpRampLong: [1.3, 2.0, 2.8, 3.7, 5.2, 6.9] },
+  frost: { kicker: [1.1, 1.6, 2.1, 2.7, 3.5, 4.3], jumpRamp: [1.1, 1.7, 2.3, 3.0, 4.0, 5.2], jumpRampLong: [1.2, 1.8, 2.5, 3.3, 4.4, 5.5] },
+  gravel: { kicker: [1.1, 1.6, 2.1, 2.7, 3.5, 4.3], jumpRamp: [1.1, 1.7, 2.3, 3.0, 4.2, 5.6], jumpRampLong: [1.2, 1.8, 2.5, 3.3, 4.2, 5.3] },
+};
+
 const FLIGHT_V = [18, 25, 32, 40, 50, 60];
 
 /** Interpolated flight distance (cells) for a car / ramp / lip speed. */
-export function flight(car: string, ramp: string, v: number): number {
-  const row = (FLIGHT[car] ?? FLIGHT.volt!)[ramp] ?? FLIGHT.volt!.kicker!;
+export function flight(car: string, ramp: string, v: number, table = FLIGHT): number {
+  const row = (table[car] ?? table.volt!)[ramp] ?? table.volt!.kicker!;
   if (v <= FLIGHT_V[0]!) return row[0]! * (v / FLIGHT_V[0]!);
   for (let i = 1; i < FLIGHT_V.length; i++) {
     if (v <= FLIGHT_V[i]!) {
@@ -173,14 +181,22 @@ export function generateLevel(p: GenProfile, seed: number): GenResult | null {
 
   /**
    * Jump pieces sized from the speed expected at the lip, using flight distances measured per car
-   * (`scripts/jump-lab.ts`): the gap is chosen so the car clears it even 15 % slower than expected, and
-   * the landing plus the in-line run-out catch it even 20 % faster.
+   * (`scripts/jump-lab.ts`): the flattest ramp and the shortest gap such that the car still clears the
+   * gap 15 % slower than expected, and at the expected speed comes down on the extra-long landing well
+   * before its end (so flat-out runs land on it too), not on the road beyond it. The in-line run-out
+   * catches anything faster.
    */
   const jump = (s: SurfaceSpec, v: Variant, vLip: number): ChainItem[] => {
-    const ramp = vLip < 30 ? (rng.next() < 0.6 ? 'jumpRamp' : 'kicker') : 'kicker';
-    const lo = flight(p.car, ramp, vLip * 0.85);
-    const gap = Math.max(1, Math.min(4, Math.floor(lo - 0.25)));
-    return [item(ramp, s, v), item('landingLong', s, v, { gap, dy: -1 })];
+    let best = { ramp: 'kicker', gap: 1, score: Infinity };
+    for (const ramp of ['kicker', 'jumpRamp', 'jumpRampLong']) {
+      for (let gap = 1; gap <= 3; gap++) {
+        const clear = flight(p.car, ramp, vLip * 0.85) - gap;
+        const over = flight(p.car, ramp, vLip, FLIGHT_LOW) - (gap + 2);
+        const score = Math.max(0, 0.15 - clear) * 3 + Math.max(0, over);
+        if (score < best.score - 1e-9) best = { ramp, gap, score };
+      }
+    }
+    return [item(best.ramp, s, v), item('landingXL', s, v, { gap: best.gap, dy: -1 })];
   };
 
   /** Corner speed (m/s) the speed model expects for a block on a surface. */
@@ -263,7 +279,8 @@ export function generateLevel(p: GenProfile, seed: number): GenResult | null {
           lead.push(...simulate([item(c, s, v)]));
         }
         lead.push(...simulate(run(sp.v < 20 ? 2 : 1, s, v)));
-        const pieces = simulate(jump(s, v, sp.v));
+        // the speed model runs slow at jump lips (the bot arrives ~30 % faster); size the jump for the real speed
+        const pieces = simulate(jump(s, v, sp.v * 1.3));
         return { name: 'jump', items: [...lead, ...pieces, ...run(3, s, v)] };
       }
       case 'pad': {
@@ -287,9 +304,9 @@ export function generateLevel(p: GenProfile, seed: number): GenResult | null {
             return { name: e, items: [...lead, item('straight1', e, v), ...jump(s, v, sp.v * 0.95), ...run(2, s, v)] };
           }
           case 'gravity':
-            return { name: e, items: [...(sp.v > 30 ? [item(`curve3${dir()}`, s, v)] : []), item('straight1', e, v), item('kicker', s, v), item('landingLong', s, v, { gap: Math.max(1, Math.min(4, Math.floor(flight(p.car, 'kicker', Math.min(sp.v, 30) * 0.85) * 1.6 - 0.25))), dy: -1 }), ...run(4, s, v)] };
+            return { name: e, items: [...(sp.v > 30 ? [item(`curve3${dir()}`, s, v)] : []), item('straight1', e, v), item('kicker', s, v), item('landingXL', s, v, { gap: Math.max(1, Math.min(4, Math.floor(flight(p.car, 'kicker', Math.min(sp.v, 30) * 0.85) * 1.6 - 0.25))), dy: -1 }), ...run(4, s, v)] };
           case 'reactor':
-            return { name: e, items: [...(sp.v > 30 ? [item(`curve3${dir()}`, s, v)] : []), item('straight1', e, v), ...run(1, s, v), item('kicker', s, v), item('landingLong', s, v, { gap: Math.max(1, Math.min(4, Math.floor(flight(p.car, 'kicker', Math.min(sp.v, 30) + 12) - 0.25))), dy: -1 }), ...run(4, s, v)] };
+            return { name: e, items: [...(sp.v > 30 ? [item(`curve3${dir()}`, s, v)] : []), item('straight1', e, v), ...run(1, s, v), item('kicker', s, v), item('landingXL', s, v, { gap: Math.max(1, Math.min(4, Math.floor(flight(p.car, 'kicker', Math.min(sp.v, 30) + 12) - 0.25))), dy: -1 }), ...run(4, s, v)] };
           case 'turbo':
           case 'turbo2':
           default:

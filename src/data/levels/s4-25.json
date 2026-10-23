@@ -432,7 +432,7 @@
    "surface": "grass"
   },
   {
-   "type": "kicker",
+   "type": "jumpRamp",
    "gridPos": [
     -42,
     3,
@@ -443,9 +443,9 @@
    "surface": "grass"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
-    -39,
+    -40,
     3,
     -27
    ],
@@ -483,6 +483,7 @@
     -27
    ],
    "rot": 3,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
@@ -493,6 +494,7 @@
     -27
    ],
    "rot": 3,
+   "variant": "wide",
    "surface": "dirt"
   },
   {
@@ -503,14 +505,15 @@
     -27
    ],
    "rot": 3,
+   "variant": "wide",
    "surface": "dirt"
   }
  ],
  "medalTimes": {
-  "author": 50084,
-  "gold": 53089,
-  "silver": 57096,
-  "bronze": 65109
+  "author": 49895,
+  "gold": 52889,
+  "silver": 56880,
+  "bronze": 64864
  },
  "bot": {
   "maxSpeed": 45,

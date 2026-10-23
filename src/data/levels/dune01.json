@@ -117,9 +117,9 @@
    "surface": "sand"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
-    -13,
+    -12,
     0,
     -7
    ],
@@ -289,10 +289,10 @@
   }
  ],
  "medalTimes": {
-  "author": 31628,
-  "gold": 33842,
-  "silver": 37005,
-  "bronze": 43014
+  "author": 31193,
+  "gold": 33377,
+  "silver": 36496,
+  "bronze": 42422
  },
  "bot": {
   "maxSpeed": 62,

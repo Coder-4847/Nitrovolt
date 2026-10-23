@@ -35,7 +35,7 @@
    "variant": "wide"
   },
   {
-   "type": "kicker",
+   "type": "jumpRampLong",
    "gridPos": [
     0,
     0,
@@ -45,27 +45,17 @@
    "variant": "wide"
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     0,
     0,
-    -7
+    -8
    ],
    "rot": 0,
    "variant": "wide"
   },
   {
    "type": "straight2",
-   "gridPos": [
-    0,
-    -2,
-    -9
-   ],
-   "rot": 0,
-   "variant": "wide"
-  },
-  {
-   "type": "straight1",
    "gridPos": [
     0,
     -2,
@@ -75,16 +65,17 @@
    "variant": "wide"
   },
   {
-   "type": "straight2",
+   "type": "straight1",
    "gridPos": [
     0,
     -2,
-    -12
+    -13
    ],
-   "rot": 0
+   "rot": 0,
+   "variant": "wide"
   },
   {
-   "type": "straight4",
+   "type": "straight2",
    "gridPos": [
     0,
     -2,
@@ -97,7 +88,16 @@
    "gridPos": [
     0,
     -2,
-    -18
+    -16
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    0,
+    -2,
+    -20
    ],
    "rot": 0
   },
@@ -106,7 +106,7 @@
    "gridPos": [
     0,
     -2,
-    -22
+    -24
    ],
    "rot": 0
   },
@@ -115,7 +115,7 @@
    "gridPos": [
     -3,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
@@ -124,79 +124,79 @@
    "gridPos": [
     -4,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     -7,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight2",
    "gridPos": [
-    -9,
+    -10,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight1",
    "gridPos": [
-    -11,
+    -12,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "checkpoint",
    "gridPos": [
-    -12,
+    -13,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight1",
    "gridPos": [
-    -13,
+    -14,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight2",
    "gridPos": [
-    -14,
+    -15,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight1",
    "gridPos": [
-    -16,
+    -17,
     -4,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "slopeUp2",
    "gridPos": [
-    -17,
+    -18,
     -4,
-    -24
+    -26
    ],
    "rot": 1,
    "variant": "wide",
@@ -205,9 +205,9 @@
   {
    "type": "straight1",
    "gridPos": [
-    -19,
+    -20,
     -2,
-    -24
+    -26
    ],
    "rot": 1,
    "variant": "wide",
@@ -216,9 +216,9 @@
   {
    "type": "straight4",
    "gridPos": [
-    -20,
+    -21,
     -2,
-    -24
+    -26
    ],
    "rot": 1,
    "variant": "wide"
@@ -226,9 +226,9 @@
   {
    "type": "straight2",
    "gridPos": [
-    -24,
+    -25,
     -2,
-    -24
+    -26
    ],
    "rot": 1,
    "variant": "wide"
@@ -236,9 +236,9 @@
   {
    "type": "straight1",
    "gridPos": [
-    -26,
+    -27,
     -2,
-    -24
+    -26
    ],
    "rot": 1,
    "surface": "cruise"
@@ -246,116 +246,74 @@
   {
    "type": "straight2",
    "gridPos": [
-    -27,
+    -28,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight1",
    "gridPos": [
-    -29,
+    -30,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "checkpoint",
    "gridPos": [
-    -30,
+    -31,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight2",
    "gridPos": [
-    -31,
+    -32,
     -2,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight1",
-   "gridPos": [
-    -33,
-    -2,
-    -24
-   ],
-   "rot": 1,
-   "variant": "wide",
-   "surface": "turbo"
-  },
-  {
-   "type": "straight2",
    "gridPos": [
     -34,
     -2,
-    -24
-   ],
-   "rot": 1,
-   "variant": "wide"
-  },
-  {
-   "type": "slopeUp2",
-   "gridPos": [
-    -36,
-    -2,
-    -24
-   ],
-   "rot": 1,
-   "variant": "wide"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -38,
-    0,
-    -24
-   ],
-   "rot": 1,
-   "variant": "wide"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -40,
-    0,
-    -24
+    -26
    ],
    "rot": 1
   },
   {
    "type": "finish",
    "gridPos": [
-    -41,
-    0,
-    -24
+    -35,
+    -2,
+    -26
    ],
    "rot": 1
   },
   {
    "type": "straight2",
    "gridPos": [
-    -42,
-    0,
-    -24
+    -36,
+    -2,
+    -26
    ],
    "rot": 1
   }
  ],
  "medalTimes": {
-  "author": 23937,
-  "gold": 26331,
-  "silver": 29921,
-  "bronze": 35906
+  "author": 21331,
+  "gold": 23464,
+  "silver": 26664,
+  "bronze": 31997
  },
  "bot": {
-  "maxSpeed": 61,
-  "lateralBudget": 16
+  "maxSpeed": 75
  }
 }

@@ -71,7 +71,7 @@ describe('level generator', () => {
   });
 
   it('sizes jumps from measured flight distances', () => {
-    expect(flight('volt', 'kicker', 25)).toBeCloseTo(1.1, 5);
+    expect(flight('volt', 'kicker', 25)).toBeCloseTo(0.8, 5);
     expect(flight('dune', 'jumpRamp', 40)).toBeGreaterThan(flight('volt', 'jumpRamp', 40));
     expect(flight('volt', 'jumpRamp', 45)).toBeGreaterThan(flight('volt', 'jumpRamp', 40));
   });

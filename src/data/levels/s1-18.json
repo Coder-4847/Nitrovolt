@@ -70,7 +70,7 @@
    "rot": 3
   },
   {
-   "type": "landingLong",
+   "type": "landingXL",
    "gridPos": [
     7,
     0,
@@ -81,7 +81,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    9,
+    10,
     -2,
     -11
    ],
@@ -89,15 +89,6 @@
   },
   {
    "type": "straight1",
-   "gridPos": [
-    11,
-    -2,
-    -11
-   ],
-   "rot": 3
-  },
-  {
-   "type": "checkpoint",
    "gridPos": [
     12,
     -2,
@@ -106,7 +97,7 @@
    "rot": 3
   },
   {
-   "type": "straight1",
+   "type": "checkpoint",
    "gridPos": [
     13,
     -2,
@@ -115,7 +106,7 @@
    "rot": 3
   },
   {
-   "type": "straight2",
+   "type": "straight1",
    "gridPos": [
     14,
     -2,
@@ -124,9 +115,9 @@
    "rot": 3
   },
   {
-   "type": "straight1",
+   "type": "straight2",
    "gridPos": [
-    16,
+    15,
     -2,
     -11
    ],
@@ -139,6 +130,15 @@
     -2,
     -11
    ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    18,
+    -2,
+    -11
+   ],
    "rot": 3,
    "variant": "wide",
    "surface": "turbo"
@@ -146,7 +146,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    18,
+    19,
     -2,
     -11
    ],
@@ -156,7 +156,7 @@
   {
    "type": "slopeUp2",
    "gridPos": [
-    20,
+    21,
     -2,
     -11
    ],
@@ -166,7 +166,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    22,
+    23,
     0,
     -11
    ],
@@ -176,7 +176,7 @@
   {
    "type": "straight4",
    "gridPos": [
-    24,
+    25,
     0,
     -11
    ],
@@ -184,15 +184,6 @@
   },
   {
    "type": "straight1",
-   "gridPos": [
-    28,
-    0,
-    -11
-   ],
-   "rot": 3
-  },
-  {
-   "type": "checkpoint",
    "gridPos": [
     29,
     0,
@@ -201,14 +192,13 @@
    "rot": 3
   },
   {
-   "type": "straight1",
+   "type": "checkpoint",
    "gridPos": [
     30,
     0,
     -11
    ],
-   "rot": 3,
-   "variant": "wide"
+   "rot": 3
   },
   {
    "type": "straight1",
@@ -218,8 +208,7 @@
     -11
    ],
    "rot": 3,
-   "variant": "wide",
-   "surface": "fragile"
+   "variant": "wide"
   },
   {
    "type": "straight1",
@@ -251,21 +240,23 @@
     -11
    ],
    "rot": 3,
-   "variant": "wide"
+   "variant": "wide",
+   "surface": "fragile"
   },
   {
-   "type": "straight4",
+   "type": "straight1",
    "gridPos": [
     35,
     0,
     -11
    ],
-   "rot": 3
+   "rot": 3,
+   "variant": "wide"
   },
   {
    "type": "straight4",
    "gridPos": [
-    39,
+    36,
     0,
     -11
    ],
@@ -274,7 +265,16 @@
   {
    "type": "straight4",
    "gridPos": [
-    43,
+    40,
+    0,
+    -11
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight4",
+   "gridPos": [
+    44,
     0,
     -11
    ],
@@ -283,7 +283,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    47,
+    48,
     0,
     -11
    ],
@@ -292,7 +292,7 @@
   {
    "type": "curve2L",
    "gridPos": [
-    49,
+    50,
     0,
     -11
    ],
@@ -301,7 +301,7 @@
   {
    "type": "straight1",
    "gridPos": [
-    50,
+    51,
     0,
     -13
    ],
@@ -311,7 +311,7 @@
   {
    "type": "finish",
    "gridPos": [
-    50,
+    51,
     0,
     -14
    ],
@@ -321,7 +321,7 @@
   {
    "type": "straight2",
    "gridPos": [
-    50,
+    51,
     0,
     -15
    ],
@@ -330,12 +330,13 @@
   }
  ],
  "medalTimes": {
-  "author": 22287,
-  "gold": 24516,
-  "silver": 27859,
-  "bronze": 33431
+  "author": 23750,
+  "gold": 26125,
+  "silver": 29688,
+  "bronze": 35625
  },
  "bot": {
-  "maxSpeed": 75
+  "maxSpeed": 61,
+  "lateralBudget": 16
  }
 }

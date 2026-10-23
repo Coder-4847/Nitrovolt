@@ -70,29 +70,19 @@
    "rot": 3
   },
   {
-   "type": "landing1",
+   "type": "landingXL",
    "gridPos": [
-    8,
+    7,
     0,
     -6
    ],
    "rot": 3
   },
   {
-   "type": "straight1",
-   "gridPos": [
-    9,
-    -1,
-    -6
-   ],
-   "rot": 3,
-   "surface": "turbo"
-  },
-  {
    "type": "straight2",
    "gridPos": [
     10,
-    -1,
+    -2,
     -6
    ],
    "rot": 3
@@ -101,7 +91,7 @@
    "type": "chicaneL",
    "gridPos": [
     12,
-    -1,
+    -2,
     -6
    ],
    "rot": 3
@@ -110,7 +100,7 @@
    "type": "straight2",
    "gridPos": [
     15,
-    -1,
+    -2,
     -7
    ],
    "rot": 3
@@ -119,7 +109,7 @@
    "type": "checkpoint",
    "gridPos": [
     17,
-    -1,
+    -2,
     -7
    ],
    "rot": 3
@@ -128,7 +118,7 @@
    "type": "curve3L",
    "gridPos": [
     18,
-    -1,
+    -2,
     -7
    ],
    "rot": 3
@@ -137,7 +127,7 @@
    "type": "straight2",
    "gridPos": [
     20,
-    -1,
+    -2,
     -10
    ],
    "rot": 0
@@ -146,7 +136,7 @@
    "type": "slopeUp1",
    "gridPos": [
     20,
-    -1,
+    -2,
     -12
    ],
    "rot": 0
@@ -155,7 +145,7 @@
    "type": "straight4",
    "gridPos": [
     20,
-    0,
+    -1,
     -13
    ],
    "rot": 0
@@ -164,7 +154,7 @@
    "type": "bank2R",
    "gridPos": [
     20,
-    0,
+    -1,
     -17
    ],
    "rot": 0
@@ -173,7 +163,7 @@
    "type": "straight2",
    "gridPos": [
     22,
-    0,
+    -1,
     -18
    ],
    "rot": 3
@@ -182,7 +172,7 @@
    "type": "checkpoint",
    "gridPos": [
     24,
-    0,
+    -1,
     -18
    ],
    "rot": 3
@@ -191,7 +181,7 @@
    "type": "straight1",
    "gridPos": [
     25,
-    0,
+    -1,
     -18
    ],
    "rot": 3,
@@ -201,7 +191,7 @@
    "type": "straight2",
    "gridPos": [
     26,
-    0,
+    -1,
     -18
    ],
    "rot": 3
@@ -210,17 +200,17 @@
    "type": "finish",
    "gridPos": [
     28,
-    0,
+    -1,
     -18
    ],
    "rot": 3
   }
  ],
  "medalTimes": {
-  "author": 22107,
-  "gold": 24318,
-  "silver": 27634,
-  "bronze": 33161
+  "author": 21842,
+  "gold": 24026,
+  "silver": 27303,
+  "bronze": 32763
  },
  "bot": {
   "maxSpeed": 75

@@ -1,4 +1,4 @@
-// Dev: where cars land off each ramp at a given approach speed. Usage: npx tsx scripts/jump-lab.ts
+// Dev: where cars land off each ramp at a given approach speed (feeds FLIGHT in LevelGenerator). Usage: npx tsx scripts/jump-lab.ts
 import { carParams, getCar } from '../src/data/cars';
 import { Simulation } from '../src/physics/Simulation';
 import { layoutChain } from '../src/tracks/ChainLayout';
@@ -18,8 +18,11 @@ for (const car of ['volt', 'dune', 'frost', 'gravel']) {
       // hold speed v0 with a simple controller, then coast over the ramp; measure the flight
       let lip: { x: number; y: number; z: number } | null = null;
       let d1 = 0, d2 = 0, air = 0;
+      // the car's height at rest on the run-up: the landing's top edge is at that road level
+      let rest = Infinity;
       for (let t = 0; t < 8000; t++) {
         const v = sim.vehicle;
+        if (t === 150) rest = v.position.y;
         const err = v0 - v.speed;
         sim.step(makeFrame(0, lip ? 0 : err > 0 ? Math.min(1, err * 0.5) : 0, !lip && err < -1 ? 0.3 : 0));
         if (v.wheelsOnGround === 0) air++;
@@ -27,12 +30,12 @@ for (const car of ['volt', 'dune', 'frost', 'gravel']) {
         if (!lip && air === 3) lip = { x: v.position.x, y: v.position.y, z: v.position.z };
         if (lip) {
           const h = Math.hypot(v.position.x - lip.x, v.position.z - lip.z);
-          if (!d1 && v.position.y < lip.y - 4) d1 = h;
-          if (!d2 && v.position.y < lip.y - 8) { d2 = h; break; }
+          if (!d1 && v.position.y < rest) d1 = h;
+          if (!d2 && v.position.y < rest - 8) { d2 = h; break; }
         }
       }
       line.push(`${v0}:${(d1 / 16).toFixed(1)}/${(d2 / 16).toFixed(1)}`);
     }
-    console.log(car.padEnd(7), ramp.padEnd(13), line.join('  '), '  (cells flown to 4 m / 8 m below the lip)');
+    console.log(car.padEnd(7), ramp.padEnd(13), line.join('  '), '  (cells flown until back at run-up level / 8 m below it)');
   }
 }

@@ -102,11 +102,21 @@ add('steepUp', 'Steep climb', 'slope', (t, o) => t.slope(CELL * 2, 16, 16, 2, ro
 add('steepDown', 'Steep descent', 'slope', (t, o) => t.slope(CELL * 2, -16, 16, 2, ro(o)));
 
 // ---------------------------------------------------------------- jumps: ramps leave pitched up, landings enter pitched down
-add('kicker', 'Kicker', 'jump', (t, o) => t.slope(CELL * 2, 4, 60, 1, ro(o)));
-add('jumpRamp', 'Jump ramp', 'jump', (t, o) => t.slope(CELL, 4, 30, 1, ro(o)));
-add('jumpRampLong', 'Long jump ramp', 'jump', (t, o) => t.slope(CELL * 2, 8, 50, 1, ro(o)));
-add('landing1', 'Landing', 'jump', (t, o) => t.slope(CELL, -4, 30, 1, ro(o)));
-add('landingLong', 'Long landing', 'jump', (t, o) => t.slope(CELL * 2, -8, 50, 1, ro(o)));
+// Jump ramps are shallow (lips of about 5, 9 and 12 degrees) so flight grows gently with speed and a landing
+// sized for the approach speed still catches a flat-out run; the generator picks the flattest one that
+// clears the gap. They end below the grid level above them; the chain layout treats that level as their
+// exit (a gap always follows a ramp).
+add('kicker', 'Kicker', 'jump', (t, o) => t.slope(CELL * 2, 2.2, 140, 1, ro(o)));
+add('jumpRamp', 'Jump ramp', 'jump', (t, o) => t.slope(CELL, 2.0, 40, 1, ro(o)));
+add('jumpRampLong', 'Long jump ramp', 'jump', (t, o) => {
+  t.straight(CELL / 2, ro(o));
+  t.slope(CELL * 1.5, 3.6, 36, 1, ro(o));
+});
+// Landings are S-curves: they start level (no edge to clip), steepen to meet the falling car, and round out
+// flat at the bottom, so a car comes down on the slope across a wide band of speeds.
+add('landing1', 'Landing', 'jump', (t, o) => t.slope(CELL, -4, 16, 2, ro(o)));
+add('landingLong', 'Long landing', 'jump', (t, o) => t.slope(CELL * 2, -8, 32, 2, ro(o)));
+add('landingXL', 'Extra-long landing', 'jump', (t, o) => t.slope(CELL * 3, -8, 60, 2, ro(o)));
 
 // ---------------------------------------------------------------- platforms
 add('platform', 'Platform', 'platform', (t, o) => t.straight(CELL, ro(o, { width: 32, thickness: 1.5 })), { fixedWidth: 32 });

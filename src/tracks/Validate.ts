@@ -2,6 +2,7 @@ import { GhostData, GhostPlayer, GhostRecorder, levelFingerprint } from '../core
 import { carParams, getCar } from '../data/cars';
 import { Simulation } from '../physics/Simulation';
 import { SurfaceId } from '../physics/Surface';
+import { blockCells } from './Footprint';
 import { PathBot, applyBotHints } from './PathBot';
 import { BotHints, TrackJson } from './TrackSchema';
 import { buildTrack } from './TrackGenerator';
@@ -24,6 +25,8 @@ export interface BotRun {
   /** Seconds with no wheel on the ground. */
   airTime: number;
   jumps: number;
+  /** Jumps off a ramp that came down beyond the landing block (on the road after it, or off the track). */
+  overshoots: number;
   hardLandings: number;
   wallHits: number;
   /** Share of driving time per surface. */
@@ -70,6 +73,18 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
   let bestProgress = 0, lastGain = 0;
   let wasAir = false;
   let wraps = 0, prevProgress = 0;
+  // ramp and landing cells: a flight that starts on a ramp should come down on its landing
+  const cellsOf = (pred: (t: string) => boolean): Set<string> => {
+    const out = new Set<string>();
+    for (const b of json.blocks) if (pred(b.type)) for (const c of blockCells(b)) out.add(`${c.x},${c.z}`);
+    return out;
+  };
+  const rampCells = [...cellsOf((t) => t === 'kicker' || t.startsWith('jumpRamp'))].map((k) => k.split(',').map(Number) as [number, number]);
+  // take-off happens at the lip, right at the edge of the ramp's last cell
+  const nearRamp = (x: number, z: number): boolean => rampCells.some(([cx, cz]) => Math.hypot(x - cx * 16, z - cz * 16) < 14);
+  const landingCells = cellsOf((t) => t.startsWith('landing'));
+  const cellKey = (x: number, z: number): string => `${Math.round(x / 16)},${Math.round(z / 16)}`;
+  let takeoffOnRamp = false, flightTicks = 0, overshoots = 0;
   let lastSpeed = 0;
   const lastPos: [number, number, number] = [0, 0, 0];
   const limit = maxSeconds * 100;
@@ -88,7 +103,13 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
     sumV += v.speed;
     const inAir = v.wheelsOnGround === 0;
     if (inAir) air++;
-    if (inAir && !wasAir) jumps++;
+    if (inAir && !wasAir) {
+      jumps++;
+      takeoffOnRamp = nearRamp(v.position.x, v.position.z);
+      flightTicks = 0;
+    }
+    if (inAir) flightTicks++;
+    if (!inAir && wasAir && takeoffOnRamp && flightTicks > 35 && !landingCells.has(cellKey(v.position.x, v.position.z))) overshoots++;
     wasAir = inAir;
     const s = v.dominantSurface();
     if (s) surf[s] = (surf[s] ?? 0) + 1;
@@ -132,6 +153,7 @@ export async function botRun(json: TrackJson, hints: BotHints, maxSeconds = 150,
     avgSpeed: sumV / Math.max(1, ticks),
     airTime: air / 100,
     jumps,
+    overshoots,
     hardLandings: hard,
     wallHits: walls,
     surfaces: shares,
