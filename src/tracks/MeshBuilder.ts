@@ -19,6 +19,8 @@ export class MeshBuilder {
   private nor: number[] = [];
   private uv: number[] = [];
   private idx: number[] = [];
+  /** Per vertex: metres from the road's left edge and the road width, or (-1, 0) off the driving surface. */
+  private lat: number[] = [];
 
   constructor(
     readonly kind: MeshKind,
@@ -33,10 +35,11 @@ export class MeshBuilder {
     return this.pos.length / 3;
   }
 
-  private vert(p: Vector3, n: Vector3, u: number, v: number): number {
+  private vert(p: Vector3, n: Vector3, u: number, v: number, lat = -1, width = 0): number {
     this.pos.push(p.x, p.y, p.z);
     this.nor.push(n.x, n.y, n.z);
     this.uv.push(u, v);
+    this.lat.push(lat, width);
     return this.pos.length / 3 - 1;
   }
 
@@ -46,11 +49,14 @@ export class MeshBuilder {
     na: Vector3, nb: Vector3, nc: Vector3, nd: Vector3,
     uvs: [number, number][],
     outward: Vector3,
+    lats?: [number, number, number, number],
+    width = 0,
   ): void {
-    const ia = this.vert(a, na, uvs[0]![0], uvs[0]![1]);
-    const ib = this.vert(b, nb, uvs[1]![0], uvs[1]![1]);
-    const ic = this.vert(c, nc, uvs[2]![0], uvs[2]![1]);
-    const id = this.vert(d, nd, uvs[3]![0], uvs[3]![1]);
+    const L = lats ?? [-1, -1, -1, -1];
+    const ia = this.vert(a, na, uvs[0]![0], uvs[0]![1], L[0], width);
+    const ib = this.vert(b, nb, uvs[1]![0], uvs[1]![1], L[1], width);
+    const ic = this.vert(c, nc, uvs[2]![0], uvs[2]![1], L[2], width);
+    const id = this.vert(d, nd, uvs[3]![0], uvs[3]![1], L[3], width);
     const e1 = new Vector3().subVectors(b, a);
     const e2 = new Vector3().subVectors(c, a);
     const faceN = e1.cross(e2);
@@ -61,7 +67,8 @@ export class MeshBuilder {
     if (warp > 0.01) {
       const m = new Vector3().add(a).add(b).add(c).add(d).multiplyScalar(0.25);
       const nm = new Vector3().add(na).add(nb).add(nc).add(nd).normalize();
-      const im = this.vert(m, nm, (uvs[0]![0] + uvs[1]![0] + uvs[2]![0] + uvs[3]![0]) / 4, (uvs[0]![1] + uvs[1]![1] + uvs[2]![1] + uvs[3]![1]) / 4);
+      const im = this.vert(m, nm, (uvs[0]![0] + uvs[1]![0] + uvs[2]![0] + uvs[3]![0]) / 4, (uvs[0]![1] + uvs[1]![1] + uvs[2]![1] + uvs[3]![1]) / 4,
+        lats ? (L[0] + L[1] + L[2] + L[3]) / 4 : -1, width);
       const ring = [ia, ib, ic, id];
       for (let k = 0; k < 4; k++) {
         const p0 = ring[k]!, p1 = ring[(k + 1) % 4]!;
@@ -89,8 +96,9 @@ export class MeshBuilder {
   /**
    * Sweep a convex cross-section along `frames`. Each profile edge becomes a smooth-shaded strip,
    * with hard edges between edges. UVs are in metres/4 so a grid texture stays square everywhere.
+   * With `halfWidth`, upward-facing edges also get a lateral coordinate (for road markings).
    */
-  sweep(frames: Frame[], profileIn: Profile, caps = true): void {
+  sweep(frames: Frame[], profileIn: Profile, caps = true, halfWidth = 0): void {
     if (frames.length < 2) return;
     // ensure CCW (x right, y up)
     let area = 0;
@@ -124,15 +132,27 @@ export class MeshBuilder {
       return new Vector3().addScaledVector(rights[fi]!, nx).addScaledVector(frames[fi]!.u, ny).normalize();
     };
 
+    // profile edges whose outward normal points up (the driving surface)
+    const topFacing = profile.map((a, j) => {
+      const b = profile[(j + 1) % n]!;
+      const dx = b[0] - a[0], dy = b[1] - a[1];
+      return -dx / (Math.hypot(dx, dy) || 1) > 0.5;
+    });
+
     for (let i = 0; i < frames.length - 1; i++) {
       const s0 = frames[i]!.s / 4, s1 = frames[i + 1]!.s / 4;
       for (let j = 0; j < n; j++) {
         const j2 = (j + 1) % n;
         const n0 = edgeN(i, j), n1 = edgeN(i + 1, j);
         const A = grid[i]![j]!, B = grid[i]![j2]!, C = grid[i + 1]![j2]!, D = grid[i + 1]![j]!;
+        let lats: [number, number, number, number] | undefined;
+        if (halfWidth > 0 && topFacing[j]) {
+          const la = profile[j]![0] + halfWidth, lb = profile[j2]![0] + halfWidth;
+          lats = [la, lb, lb, la];
+        }
         this.quad(A, B, C, D, n0, n0, n1, n1, [
           [per[j]! / 4, s0], [per[j + 1]! / 4, s0], [per[j + 1]! / 4, s1], [per[j]! / 4, s1],
-        ], n0);
+        ], n0, lats, halfWidth * 2);
       }
     }
     if (caps) {
@@ -155,6 +175,7 @@ export class MeshBuilder {
       normals: new Float32Array(this.nor),
       uvs: new Float32Array(this.uv),
       indices: new Uint32Array(this.idx),
+      lateral: new Float32Array(this.lat),
     };
   }
 }

@@ -1,6 +1,10 @@
 import { EffectId } from '../physics/Surface';
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
 
+function hexCss(c: number): string {
+  return '#' + c.toString(16).padStart(6, '0');
+}
+
 function canvasTexture(size: number, draw: (g: CanvasRenderingContext2D, s: number) => void): CanvasTexture {
   const c = document.createElement('canvas');
   c.width = c.height = size;
@@ -13,46 +17,24 @@ function canvasTexture(size: number, draw: (g: CanvasRenderingContext2D, s: numb
   return t;
 }
 
-/** One texture tile = 4 m x 4 m. Subtle grid so speed and slope read clearly on grey-box geometry. */
-export function makeGridTexture(): CanvasTexture {
-  return canvasTexture(256, (g, s) => {
-    g.fillStyle = '#c9ccd2';
-    g.fillRect(0, 0, s, s);
-    // faint noise-free panel shading
-    g.fillStyle = '#d3d6db';
-    g.fillRect(4, 4, s - 8, s - 8);
-    g.strokeStyle = '#7d828c';
-    g.lineWidth = 6;
-    g.strokeRect(0, 0, s, s);
-    g.strokeStyle = 'rgba(120,126,138,0.35)';
-    g.lineWidth = 2;
-    g.beginPath();
-    g.moveTo(s / 2, 0); g.lineTo(s / 2, s);
-    g.moveTo(0, s / 2); g.lineTo(s, s / 2);
-    g.stroke();
-  });
-}
-
-/** Red/white hazard stripes for barriers. */
-export function makeStripeTexture(): CanvasTexture {
+/** Diagonal hazard stripes for barriers (two theme colours); tiles seamlessly. */
+export function makeStripeTexture(a = 0xf2f2f2, b = 0xe0323a): CanvasTexture {
   return canvasTexture(128, (g, s) => {
-    g.fillStyle = '#f2f2f2';
+    g.fillStyle = hexCss(a);
     g.fillRect(0, 0, s, s);
-    g.fillStyle = '#e0323a';
-    for (let i = -1; i < 3; i++) {
+    g.strokeStyle = hexCss(b);
+    g.lineWidth = (s / 4) * Math.SQRT1_2 * 1.4;
+    for (let x = -s; x <= 2 * s; x += s / 2) {
       g.beginPath();
-      g.moveTo(0, i * s / 2 + s / 4);
-      g.lineTo(s, i * s / 2 - s / 4 + s / 2);
-      g.lineTo(s, i * s / 2 + s / 2 + s / 4);
-      g.lineTo(0, i * s / 2 + s / 2 + s / 4 + s / 4);
-      g.closePath();
-      g.fill();
+      g.moveTo(x, -2);
+      g.lineTo(x - s - 2, s + 2);
+      g.stroke();
     }
   });
 }
 
 
-const hex = (c: number): string => '#' + c.toString(16).padStart(6, '0');
+const hex = (c: number): string => hexCss(c);
 
 /** Pad textures for special blocks: one tile = 4 m x 4 m; the bright pattern is also used as the emissive map. */
 export function makeEffectTexture(effect: EffectId, color: number, glow: number): CanvasTexture {

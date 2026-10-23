@@ -2,7 +2,7 @@
  "id": "circuit01",
  "name": "Ring Road",
  "car": "volt",
- "theme": "grey",
+ "theme": "neon",
  "seed": 1,
  "laps": 2,
  "blocks": [

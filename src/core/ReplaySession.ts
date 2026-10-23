@@ -171,7 +171,7 @@ export class ReplaySession {
     hud.clearSplits();
     gfx.trackView?.setBroken(this.player.world.broken);
     gfx.rig.snap();
-    gfx.wheelFx.clear();
+    gfx.clearFx();
     this.slider.value = String(this.player.currentTick);
   }
 
@@ -213,9 +213,11 @@ export class ReplaySession {
         case 'checkpoint':
         case 'lap':
           hud.addSplit(e.type === 'lap' ? `LAP ${e.lap}` : `CP ${e.index + 1}`, e.time, null);
+          gfx.trackView?.gates.flash(e.type === 'lap' ? 'finish' : 'checkpoint', e.type === 'lap' ? 0 : e.index);
           audio.chime();
           break;
         case 'finish':
+          gfx.trackView?.gates.flash('finish');
           hud.toast(`Finish  ${formatTime(e.time)}`, 2200, 'good');
           audio.fanfare();
           break;
@@ -230,7 +232,11 @@ export class ReplaySession {
           break;
         case 'impact':
           gfx.rig.addShake(Math.min(1, e.intensity / 14));
+          gfx.impactBurst(p.vehicle, e.intensity);
           audio.thud(e.intensity * 1.4);
+          break;
+        case 'bottomOut':
+          if (e.intensity > 4) gfx.scrapeBurst(p.vehicle, e.intensity);
           break;
         default:
       }
@@ -269,6 +275,7 @@ export class ReplaySession {
 
     const mods = v.effects.mods;
     if (!this.paused) gfx.updateFx(dt * (this.playing ? this.speed : 0), v);
+    gfx.setDrive(this.scrubbing ? 0 : v.appliedInput.brake, mods.boostLevel);
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
     audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface() }, dt);
     hud.update(v.speed, v.params.topSpeed, Math.min(ms, total), mods.boostLevel);

@@ -4,6 +4,7 @@ import { CarDef } from '../../data/cars';
 import { InputManager } from '../../core/input/InputManager';
 import { GameRenderer } from '../../render/GameRenderer';
 import { TrackJson } from '../../tracks/TrackSchema';
+import { QualityChoice } from '../../render/Quality';
 import { ScreenManager } from './ScreenManager';
 
 export type GhostKind = 'pb' | 'author';
@@ -32,6 +33,8 @@ export interface AppApi {
   hasGhost(id: string, kind: GhostKind): Promise<boolean>;
   watchReplay(id: string, kind: GhostKind): void;
   toast(msg: string): void;
+  /** Fixed graphics level, or 'auto' (re-run the benchmark). */
+  setQuality(q: QualityChoice): void;
   /** Name of the level in the race (pause screen). */
   currentLevelId(): string | null;
 }

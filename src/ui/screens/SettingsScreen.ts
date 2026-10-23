@@ -7,7 +7,7 @@ import { exportSave, importSave } from '../../core/SaveFile';
 import { GhostShow, CountdownMode, Settings } from '../../core/Settings';
 import { GhostStore } from '../../core/GhostStore';
 import { CARS, CAR_IDS } from '../../data/cars';
-import { QUALITY, QualityLevel, saveQuality } from '../../render/Quality';
+import { QUALITY, QualityChoice, QualityLevel, loadQualityChoice } from '../../render/Quality';
 import { h } from '../dom';
 import { AppApi } from './AppApi';
 import { header } from './common';
@@ -76,7 +76,8 @@ export class SettingsScreen implements Screen {
         break;
       case 'graphics':
         b.append(
-          row('Quality', select<QualityLevel>((Object.keys(QUALITY) as QualityLevel[]).map((k) => [k, k]), gfx.qualityLevel, (v) => { saveQuality(v); gfx.applyQuality(v); })),
+          row('Quality', select<QualityChoice>([['auto', `Auto (now ${gfx.qualityLevel})`], ...(Object.keys(QUALITY) as QualityLevel[]).map((k): [QualityChoice, string] => [k, k[0]!.toUpperCase() + k.slice(1)])], loadQualityChoice(), (v) => this.app.setQuality(v)), 'Auto measures your device on the menu and picks a level'),
+          row('Dynamic resolution', check(s.dynamicResolution, (v) => Settings.set('dynamicResolution', v)), 'Renders fewer pixels when the frame rate drops'),
           row('Speed lines', check(s.speedFx, (v) => Settings.set('speedFx', v))),
           row('Show FPS', check(s.showFps, (v) => Settings.set('showFps', v))),
         );

@@ -1,5 +1,6 @@
 import { SURFACES } from '../physics/Surface';
 import { TrackData } from '../tracks/TrackTypes';
+import { themeFor } from './env/Theme';
 
 const cache = new Map<string, string>();
 
@@ -17,8 +18,11 @@ export function levelThumbnail(track: TrackData, w = 320, h = 180): string {
   const g = c.getContext('2d')!;
 
   const bg = g.createLinearGradient(0, 0, 0, h);
-  bg.addColorStop(0, '#16203a');
-  bg.addColorStop(1, '#0a0f1c');
+  // tinted by the level's theme so a season reads at a glance
+  const th = themeFor(track.theme);
+  const css = (c: number, k: number): string => `rgb(${((c >> 16) & 255) * k | 0},${((c >> 8) & 255) * k | 0},${(c & 255) * k | 0})`;
+  bg.addColorStop(0, css(th.sky.zenith, th.night ? 0.9 : 0.45));
+  bg.addColorStop(1, css(th.ground.a, th.night ? 1 : 0.32));
   g.fillStyle = bg;
   g.fillRect(0, 0, w, h);
   g.strokeStyle = 'rgba(120,160,255,0.08)';

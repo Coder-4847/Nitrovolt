@@ -127,7 +127,7 @@ export class TrackBuilder {
   }
 
   private emit(frames: Frame[], o: ResolvedOpts): void {
-    this.builder('road', o.surface, o.effect).sweep(frames, this.roadProfile(o));
+    this.builder('road', o.surface, o.effect).sweep(frames, this.roadProfile(o), true, o.width / 2);
     if (o.walls !== 'none') {
       const w = o.width / 2;
       const th = 0.7;

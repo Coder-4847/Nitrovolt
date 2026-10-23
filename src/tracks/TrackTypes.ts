@@ -23,6 +23,8 @@ export interface TrackMesh {
   normals: Float32Array;
   uvs: Float32Array;
   indices: Uint32Array;
+  /** Render-only: per vertex (metres from the left road edge, road width); (-1, 0) off the driving surface. */
+  lateral?: Float32Array;
 }
 
 export type TriggerKind = 'checkpoint' | 'finish';

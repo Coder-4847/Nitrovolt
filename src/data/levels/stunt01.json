@@ -2,7 +2,7 @@
  "id": "stunt01",
  "name": "Stunt Park",
  "car": "volt",
- "theme": "grey",
+ "theme": "neon",
  "seed": 1,
  "laps": 1,
  "blocks": [

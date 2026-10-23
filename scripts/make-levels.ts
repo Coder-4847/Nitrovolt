@@ -49,7 +49,7 @@ const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxS
   {
     id: 'sprint01',
     name: 'Sprint 01',
-    theme: 'grey',
+    theme: 'neon',
     items: [
       S('start'), S('straight2'), S('straight2'),
       S('curve2R'), S('straight2'), S('checkpoint'),
@@ -62,7 +62,7 @@ const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxS
   {
     id: 'boostlab',
     name: 'Boost Lab',
-    theme: 'grey',
+    theme: 'neon',
     items: [
       S('start'), S('straight2'),
       eff('straight2', 'turbo'), S('straight4'), S('checkpoint'),
@@ -81,7 +81,7 @@ const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxS
   {
     id: 'circuit01',
     name: 'Ring Road',
-    theme: 'grey',
+    theme: 'neon',
     laps: 2,
     items: circuit(),
   },
@@ -89,7 +89,7 @@ const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxS
     id: 'gravel01',
     look: 0.7, slew: 0.05, lat: 12,
     name: 'Dirt Road',
-    theme: 'rally',
+    theme: 'coast',
     car: 'gravel',
     maxSpeed: 55,
     items: [
@@ -135,7 +135,7 @@ const levels: Array<{ id: string; name: string; theme: string; car?: CarId; maxS
   {
     id: 'stunt01',
     name: 'Stunt Park',
-    theme: 'grey',
+    theme: 'neon',
     items: [
       S('start'), S('straight4'), S('straight4'), S('loop'), S('straight2'),
       S('checkpoint'), S('halfpipe2'), S('straight2'),

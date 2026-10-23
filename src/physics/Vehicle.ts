@@ -122,6 +122,10 @@ export class Vehicle {
   readonly effects = new EffectState();
   private readonly touching: EffectId[] = [];
   private readonly effInput: InputFrame = { steer: 0, accel: 0, brake: 0, respawn: false };
+  /** Driver input after locks / cruise control, as applied on the last step (visuals: brake lights). */
+  get appliedInput(): Readonly<InputFrame> {
+    return this.effInput;
+  }
   private engineOff = false;
   private stepDt = 0.01;
   private readonly bctx: BehaviorCtx;

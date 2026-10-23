@@ -24,7 +24,7 @@ export class DebugOverlay {
     return this.visible;
   }
 
-  update(dt: number, v: Vehicle, input: { steer: number; accel: number; brake: number }, stepMs: number, steps: number, tick: number): void {
+  update(dt: number, v: Vehicle, input: { steer: number; accel: number; brake: number }, stepMs: number, steps: number, tick: number, extra = ''): void {
     this.acc += dt;
     this.frames++;
     if (this.acc < 0.15) return;
@@ -39,6 +39,7 @@ export class DebugOverlay {
     s += `body slip ${(v.bodySlip * 57.3).toFixed(1)}°  yaw ${v.angvel.y.toFixed(2)} rad/s  steer ${(v.steerAngle * 57.3).toFixed(1)}°\n`;
     s += `in  steer ${input.steer.toFixed(2)}  gas ${input.accel.toFixed(2)}  brk ${input.brake.toFixed(2)}\n`;
     s += `wheels on ground ${v.wheelsOnGround}/4\n`;
+    if (extra) s += `${extra}\n`;
     for (let i = 0; i < 4; i++) {
       const w = v.wheels[i]!;
       s += `${WN[i]} ${w.contact ? '●' : '○'} ${w.surface.padEnd(7)} load ${String(Math.round(w.load)).padStart(5)}N  slip ${(w.slipAngle * 57.3).toFixed(1).padStart(5)}° grip ${bar(w.gripUse)} ${w.gripUse.toFixed(2)}${w.slipping ? ' SPIN' : ''}\n`;

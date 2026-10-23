@@ -165,7 +165,7 @@ export class RaceSession {
     if (this.phase === 'running') this.go();
     gfx.rig.snap();
     gfx.trackView?.setBroken(new Set());
-    gfx.wheelFx.clear();
+    gfx.clearFx();
     hud.clearSplits();
     hud.hideFinish();
     hud.setCountdown(null);
@@ -310,11 +310,13 @@ export class RaceSession {
           const prev = this.pb?.splits[e.splitIndex];
           const delta = prev === undefined ? null : e.time - prev;
           hud.addSplit(e.type === 'lap' ? `LAP ${e.lap}` : `CP ${e.index + 1}`, e.time, delta);
+          gfx.trackView?.gates.flash(e.type === 'lap' ? 'finish' : 'checkpoint', e.type === 'lap' ? 0 : e.index);
           hud.setProgress(run.nextCp, run.checkpointCount, run.lap, this.track.laps);
           audio.chime();
           break;
         }
         case 'finish':
+          gfx.trackView?.gates.flash('finish');
           this.finish(e.time);
           break;
         case 'break':
@@ -330,8 +332,12 @@ export class RaceSession {
           break;
         case 'impact':
           gfx.rig.addShake(Math.min(1, e.intensity / 14));
+          gfx.impactBurst(this.sim.vehicle, e.intensity);
           audio.thud(e.intensity * 1.4);
           input.rumble(0.9, 0.6, 160);
+          break;
+        case 'bottomOut':
+          if (e.intensity > 4) gfx.scrapeBurst(this.sim.vehicle, e.intensity);
           break;
         default:
           break;
@@ -402,6 +408,7 @@ export class RaceSession {
       g.view.update(g.pose);
     }
     if (!this.paused) gfx.updateFx(dt, v);
+    gfx.setDrive(this.phase === 'grid' ? 0 : v.appliedInput.brake, mods.boostLevel);
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
 
     let slip = 0;
@@ -417,7 +424,8 @@ export class RaceSession {
     hud.update(v.speed, v.params.topSpeed, runMs, mods.boostLevel);
     hud.setEffects(mods.active);
     const ls = this.ctx.loopStats();
-    debug.update(dt, v, this.lastFrame, ls.stepMs, ls.steps, this.sim.tick);
+    const fs = gfx.frameStats;
+    debug.update(dt, v, this.lastFrame, ls.stepMs, ls.steps, this.sim.tick, `gfx ${gfx.qualityLevel} x${fs.scale.toFixed(2)}  ${fs.calls} calls  ${(fs.triangles / 1000).toFixed(0)}k tris`);
     this.lastRenderMs = performance.now() - t0;
   }
 }

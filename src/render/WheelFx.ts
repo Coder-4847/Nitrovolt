@@ -34,7 +34,12 @@ const _v = new Vector3();
 
 /** Per-wheel dust / snow / sand spray and tyre smoke, tuned per car by its ParticleStyle. */
 export class WheelFx {
-  readonly particles = new Particles();
+  readonly particles: Particles;
+
+  constructor(maxParticles = 1400) {
+    this.particles = new Particles(maxParticles);
+  }
+
   private readonly acc = [0, 0, 0, 0];
   private readonly rng = new Rng(77);
 

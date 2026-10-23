@@ -6,7 +6,7 @@ import { DEFAULT_LEVEL_ID, LEVELS, getLevel } from '../data';
 import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
 import { GameRenderer } from '../render/GameRenderer';
-import { detectQuality } from '../render/Quality';
+import { QualityChoice, benchmarkStep, detectQuality, isTouchDevice, loadQualityChoice, saveQuality } from '../render/Quality';
 import { levelThumbnail } from '../render/Thumbnail';
 import { buildGreyboxTrack } from '../tracks/GreyboxTrack';
 import { TrackJson } from '../tracks/TrackSchema';
@@ -79,6 +79,8 @@ export class App implements AppApi {
   private bdPose: RenderPose | null = null;
   private bdStart = new Vector3();
   private bdTime = 0;
+  /** Frame-time samples of the running quality benchmark (only with the 'auto' choice). */
+  private bench: { ms: number[]; t: number; rounds: number } | null = null;
   private readonly fpsEl: HTMLElement;
   private fpsAcc = 0;
   private fpsFrames = 0;
@@ -123,6 +125,36 @@ export class App implements AppApi {
     );
     window.addEventListener('keydown', this.onKey);
     this.hud.setVisible(false);
+    if (loadQualityChoice() === 'auto') this.bench = { ms: [], t: 0, rounds: 0 };
+  }
+
+  setQuality(q: QualityChoice): void {
+    saveQuality(q);
+    if (q === 'auto') {
+      this.bench = { ms: [], t: 0, rounds: 0 };
+      this.toast('Measuring performance…');
+    } else {
+      this.bench = null;
+      this.gfx.applyQuality(q);
+      this.toast(`Quality: ${q}`);
+    }
+  }
+
+  /** Auto quality: watch ~3 s of frames (after a warm-up), step the preset, repeat at most twice. */
+  private runBenchmark(dt: number): void {
+    const b = this.bench;
+    if (!b) return;
+    b.t += dt;
+    if (b.t < 0.8) return;
+    b.ms.push(dt * 1000);
+    if (b.t < 3.8) return;
+    const next = benchmarkStep(b.ms, this.gfx.qualityLevel, isTouchDevice());
+    if (next !== this.gfx.qualityLevel && b.rounds < 2) {
+      this.gfx.applyQuality(next);
+      this.bench = { ms: [], t: 0, rounds: b.rounds + 1 };
+    } else {
+      this.bench = null;
+    }
   }
 
   static async start(appRoot: HTMLElement, canvasHost: HTMLElement): Promise<App> {
@@ -251,7 +283,7 @@ export class App implements AppApi {
     this.hud.awayFinish(false);
     this.hud.clearSplits();
     this.hud.setCountdown(null);
-    this.gfx.wheelFx.clear();
+    this.gfx.clearFx();
   }
 
   private setActive(mode: App['mode']): void {
@@ -442,6 +474,7 @@ export class App implements AppApi {
     document.body.classList.toggle('rm', s.reducedMotion);
     document.documentElement.style.setProperty('--hud-scale', String(s.hudScale));
     this.fpsEl.style.display = s.showFps ? 'block' : 'none';
+    this.gfx.dynamicResolution = s.dynamicResolution;
     if (s.ghosts !== this.lastGhostSetting) {
       this.lastGhostSetting = s.ghosts;
       const r = this.race ?? this.suspended;
@@ -485,6 +518,7 @@ export class App implements AppApi {
     if (this.session) this.session.render(alpha, dt, this.screens.depth > 0 ? NO_META : meta);
     else if (this.mode === 'menu') this.renderBackdrop(dt);
 
+    this.runBenchmark(dt);
     if (Settings.get().showFps) {
       this.fpsAcc += dt;
       this.fpsFrames++;
@@ -504,9 +538,9 @@ export class App implements AppApi {
   private renderBackdrop(dt: number): void {
     if (!this.bdPose) return;
     this.bdTime += dt;
-    const a = this.bdTime * 0.18 + 0.7;
-    const r = 13;
-    this.bdCam.position.set(this.bdStart.x + Math.sin(a) * r, this.bdStart.y + 3.2 + Math.sin(this.bdTime * 0.4) * 0.8, this.bdStart.z + Math.cos(a) * r);
+    const a = this.bdTime * 0.16 + 0.7;
+    const r = 15;
+    this.bdCam.position.set(this.bdStart.x + Math.sin(a) * r, this.bdStart.y + 4 + Math.sin(this.bdTime * 0.4) * 0.8, this.bdStart.z + Math.cos(a) * r);
     this.bdCam.lookAt(this.bdStart.x, this.bdStart.y + 1, this.bdStart.z);
     this.gfx.viewCamera = this.bdCam;
     this.gfx.render(dt, this.bdPose, new Vector3(), 0, 0);

@@ -1,6 +1,6 @@
 import {
   BoxGeometry, Color, CylinderGeometry, ExtrudeGeometry, Group, InstancedMesh, Matrix4, Mesh, MeshBasicMaterial,
-  MeshStandardMaterial, Object3D, Quaternion, Shape, TorusGeometry, Vector3,
+  MeshPhysicalMaterial, MeshStandardMaterial, Object3D, Quaternion, Shape, TorusGeometry, Vector3,
 } from 'three';
 
 /** Shared look: livery-driven paint and accent plus neutral dark / glass. */
@@ -13,10 +13,11 @@ export interface CarMaterials {
 
 export function makeMaterials(primary: number, accent: number): CarMaterials {
   return {
-    paint: new MeshStandardMaterial({ color: primary, roughness: 0.34, metalness: 0.5 }),
+    // clear-coated metallic paint: picks up the sky through the environment map
+    paint: new MeshPhysicalMaterial({ color: primary, roughness: 0.36, metalness: 0.55, clearcoat: 1, clearcoatRoughness: 0.07 }),
     accent: new MeshStandardMaterial({ color: accent, emissive: new Color(accent), emissiveIntensity: 1.2, roughness: 0.4 }),
     dark: new MeshStandardMaterial({ color: 0x15171c, roughness: 0.65, metalness: 0.3 }),
-    glass: new MeshStandardMaterial({ color: 0x0b1018, roughness: 0.05, metalness: 0.9 }),
+    glass: new MeshPhysicalMaterial({ color: 0x0b1018, roughness: 0.04, metalness: 0.9, clearcoat: 1, clearcoatRoughness: 0.02 }),
   };
 }
 

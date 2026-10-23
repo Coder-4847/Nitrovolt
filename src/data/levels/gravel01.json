@@ -2,7 +2,7 @@
  "id": "gravel01",
  "name": "Dirt Road",
  "car": "gravel",
- "theme": "rally",
+ "theme": "coast",
  "seed": 1,
  "laps": 1,
  "blocks": [

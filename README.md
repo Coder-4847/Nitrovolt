@@ -3,7 +3,7 @@
 A browser time-attack racer: instant restarts, short punchy tracks, ghosts, medals, jumps and a built-in level editor.
 Everything is generated in code, with no external assets. It is an original game and not affiliated with any other racing title.
 
-**Status:** Phase 4 of 8 complete (main menu, 4x25 campaign with unlocks, medals, exact ghosts, replay viewer with free camera, local leaderboard, settings with accessibility, save export/import). See [`docs/PHASE_1.md`](docs/PHASE_1.md), [`docs/PHASE_2.md`](docs/PHASE_2.md), [`docs/PHASE_3.md`](docs/PHASE_3.md), [`docs/PHASE_4.md`](docs/PHASE_4.md).
+**Status:** Phase 5 of 8 complete (four season themes with procedural sky, ground and instanced scenery, road markings and kerbs, holographic gates, bloom and grading, reflective car paint with lights and flames, skid marks and sparks, auto quality with dynamic resolution). See [`docs/PHASE_1.md`](docs/PHASE_1.md), [`docs/PHASE_2.md`](docs/PHASE_2.md), [`docs/PHASE_3.md`](docs/PHASE_3.md), [`docs/PHASE_4.md`](docs/PHASE_4.md), [`docs/PHASE_5.md`](docs/PHASE_5.md).
 
 ## Run
 
@@ -15,7 +15,7 @@ npm run build      # typecheck + static build in dist/
 ```
 
 The game opens on the main menu. Levels can also be started directly with `?level=sprint01 | gravel01 | frost01 | dune01 | circuit01 | boostlab | stunt01`. Each level declares its car (Volt, Gravel, Frost, Dune).
-Dev flags: `?debug=1` (tuning panel + debug HUD), `?track=flat|greybox`, `?car=<id>`, `?autodrive=1`.
+Dev flags: `?debug=1` (tuning panel + debug HUD), `?track=flat|greybox`, `?car=<id>`, `?autodrive=1`, `?quality=low|medium|high|ultra`.
 
 ## Controls
 

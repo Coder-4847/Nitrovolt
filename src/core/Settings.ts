@@ -16,6 +16,8 @@ export interface SettingsData {
   reducedMotion: boolean;
   speedFx: boolean;
   showFps: boolean;
+  /** Lower the render resolution automatically to hold the frame rate. */
+  dynamicResolution: boolean;
 }
 
 const KEY = 'nitrovolt.settings.v1';
@@ -29,6 +31,7 @@ const DEFAULTS: SettingsData = {
   reducedMotion: false,
   speedFx: true,
   showFps: false,
+  dynamicResolution: true,
 };
 
 type Listener = (s: SettingsData) => void;
