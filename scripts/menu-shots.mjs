@@ -1,7 +1,7 @@
 // Screenshots of the menu flow: landing, main menu, play hub, campaign, training. Usage: node scripts/menu-shots.mjs <outPrefix>
 import { chromium } from 'playwright-core';
 const prefix = process.argv[2] ?? '/tmp/menu';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const page = await browser.newPage({ viewport: { width: Number(process.env.W ?? 1280), height: Number(process.env.H ?? 720) } });
 const errs = [];
 page.on('pageerror', (e) => errs.push(e.message));

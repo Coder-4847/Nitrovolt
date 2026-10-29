@@ -7,12 +7,11 @@ import { VOLT, cloneParams } from '../src/physics/VehicleParams';
 import { ChainItem, layoutChain } from '../src/tracks/ChainLayout';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 
-const medals = { author: 0, gold: 0, silver: 0, bronze: 0 };
 
 /** start + run-up + a 2-cell pad of `effect` + a long runout (+ finish so the level is valid). */
 async function padSim(effect: EffectId | null, runUp = 2): Promise<Simulation> {
   const items: ChainItem[] = [{ type: 'start' }, ...Array.from({ length: runUp }, () => ({ type: 'straight2' })), effect ? { type: 'straight2', surface: effect } : { type: 'straight2' }, { type: 'straight4' }, { type: 'straight4' }, { type: 'finish' }];
-  const track = buildTrack({ id: 'p', name: 'p', car: 'volt', theme: 'g', seed: 1, medalTimes: medals, blocks: layoutChain(items).blocks });
+  const track = buildTrack({ id: 'p', name: 'p', car: 'volt', theme: 'g', seed: 1, blocks: layoutChain(items).blocks });
   return Simulation.create(track, cloneParams(VOLT), 0);
 }
 
@@ -120,7 +119,7 @@ describe('special block effects', () => {
 
   it('fragile blocks break on a hard landing, and are restored on restart', async () => {
     const items: ChainItem[] = [{ type: 'start' }, { type: 'straight2', surface: 'fragile' }, { type: 'straight4' }, { type: 'finish' }];
-    const track = buildTrack({ id: 'f', name: 'f', car: 'volt', theme: 'g', seed: 1, medalTimes: medals, blocks: layoutChain(items).blocks });
+    const track = buildTrack({ id: 'f', name: 'f', car: 'volt', theme: 'g', seed: 1, blocks: layoutChain(items).blocks });
     const s = await Simulation.create(track, cloneParams(VOLT), 0);
     const above = track.start.position.clone().add(new Vector3(0, 0, -60)).setY(8);
     s.vehicle.reset(above, new Quaternion(), new Vector3(0, -2, 0));

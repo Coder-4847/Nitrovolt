@@ -1,5 +1,4 @@
 import { AudioEngine } from '../../audio/AudioEngine';
-import { CampaignState } from '../../data/campaign';
 import { CarDef } from '../../data/cars';
 import { InputManager } from '../../core/input/InputManager';
 import { GameRenderer } from '../../render/GameRenderer';
@@ -17,7 +16,6 @@ export interface AppApi {
   readonly gfx: GameRenderer;
   /** What is behind the menus right now. */
   readonly mode: 'menu' | 'race' | 'replay';
-  campaign(): CampaignState;
   levels(): readonly TrackJson[];
   level(id: string): TrackJson | undefined;
   car(id: string): CarDef;

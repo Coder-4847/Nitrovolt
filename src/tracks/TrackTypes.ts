@@ -103,8 +103,8 @@ export interface TrackData {
   centerFrame: RoadSample[];
   /** Landscape around the track (null for dev pads that bring their own floor). */
   terrain: TerrainData | null;
-  /** Medal / author times in ms (0 = not set). */
-  medals: { author: number; gold: number; silver: number; bronze: number };
+  /** Target time in ms: the author (validation) run, 0 when not set. */
+  targetTime: number;
 }
 
 export const checkpointCount = (t: TrackData): number => t.triggers.filter((x) => x.kind === 'checkpoint').length;

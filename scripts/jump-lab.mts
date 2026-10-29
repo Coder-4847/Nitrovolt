@@ -11,7 +11,7 @@ for (const car of ['volt', 'dune', 'frost', 'gravel']) {
     for (const v0 of [20, 30, 40, 50, 60, 75]) {
       const items = [{ type: 'start' }, ...Array(12).fill({ type: 'straight4' }), { type: ramp }, { type: 'straight4', gap: 20, dy: -4 }];
       const { blocks } = layoutChain(items);
-      const json = { id: 'j', name: 'j', car, theme: 'neon', seed: 1, laps: 1, blocks, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 } };
+      const json = { id: 'j', name: 'j', car, theme: 'neon', seed: 1, laps: 1, blocks };
       const track = buildTrack(json);
       const def = getCar(car);
       const sim = await Simulation.create(track, carParams(def.id), false, undefined, def.behavior);

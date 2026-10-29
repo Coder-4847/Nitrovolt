@@ -40,13 +40,12 @@ export function buildTrack(json: TrackJson): TrackData {
   for (const h of terrain.heights) minY = Math.min(minY, h);
   for (const p of t.centerline) minY = Math.min(minY, p.y);
   if (!isFinite(minY)) minY = 0;
-  const m = json.medalTimes;
   return t.finish(json.id, json.name, spawn, minY - 25, {
     terrain,
     car: json.car,
     theme: json.theme,
     seed: json.seed,
     laps: json.laps ?? 1,
-    medals: { author: m.author, gold: m.gold, silver: m.silver, bronze: m.bronze },
+    targetTime: json.target ?? 0,
   });
 }

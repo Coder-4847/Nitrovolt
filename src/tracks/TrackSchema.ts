@@ -21,13 +21,6 @@ export interface BlockJson {
   walls?: WallSide;
 }
 
-export interface MedalTimes {
-  author: number;
-  gold: number;
-  silver: number;
-  bronze: number;
-}
-
 /** The single source of truth for a level: loaded by the game, written by the editor. */
 export interface TrackJson {
   id: string;
@@ -37,8 +30,8 @@ export interface TrackJson {
   seed: number;
   laps?: number;
   blocks: BlockJson[];
-  /** Medal thresholds in ms (0 = not yet set). */
-  medalTimes: MedalTimes;
+  /** The target time in ms: the track's own validation run (its ghost proves it). 0 = not yet set. */
+  target?: number;
   /** Optional data-URL thumbnail. */
   thumbnail?: string;
   /** How the validation bot should drive this level (it tunes itself per car and surface). */
@@ -47,6 +40,8 @@ export interface TrackJson {
 
 export interface BotHints {
   maxSpeed?: number;
+  /** Per-car speed caps scaled by this factor (1 = each car's natural pace); overrides maxSpeed when set. */
+  speedScale?: number;
   lookTime?: number;
   steerSlew?: number;
   lateralBudget?: number;

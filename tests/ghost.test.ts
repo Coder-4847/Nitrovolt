@@ -91,7 +91,7 @@ describe('ghost determinism', () => {
   });
 
   it('survives a save/load round trip of its serialised form', async () => {
-    const lv = getLevel('t04')!;
+    const lv = getLevel('c21')!; // a loop and a car gate
     const r = await record(lv);
     const copy = JSON.parse(JSON.stringify(r.data)) as GhostData;
     const p = await player(lv, copy);
@@ -100,7 +100,7 @@ describe('ghost determinism', () => {
   });
 
   it('is exact through car gates (the run switches car twice)', async () => {
-    const lv = getLevel('t08')!;
+    const lv = getLevel('c05')!; // stadium, rally, desert
     const r = await record(lv);
     const p = await player(lv, r.data);
     expect(p.mode).toBe('exact');
@@ -138,11 +138,11 @@ describe('ghost determinism', () => {
 });
 
 describe('bundled author ghosts', () => {
-  it('every level has a current author ghost (time = author medal, fingerprints match)', async () => {
+  it('every level has a current author ghost (time = target, fingerprints match)', async () => {
     for (const lv of LEVELS) {
       const g = await authorGhost(lv.id);
       expect(g, `${lv.id}: missing author ghost; run \`npm run campaign\``).not.toBeNull();
-      expect(g!.time, lv.id).toBe(lv.medalTimes.author);
+      expect(g!.time, lv.id).toBe(lv.target);
       expect(g!.levelHash, `${lv.id}: level changed since its ghost was recorded`).toBe(levelFingerprint(lv.blocks, lv.car, lv.laps ?? 1));
       expect(g!.physicsHash, `${lv.id}: physics changed since its ghost was recorded`).toBe(physicsFingerprint(carParams(getCar(lv.car).id)));
     }
@@ -151,7 +151,7 @@ describe('bundled author ghosts', () => {
     it(`${lv.id}: loads, is current, replays exactly to the author time`, async () => {
       const g = await authorGhost(lv.id);
       expect(g, 'missing author ghost; run `npm run levels`').not.toBeNull();
-      expect(g!.time).toBe(lv.medalTimes.author);
+      expect(g!.time).toBe(lv.target);
       const p = await player(lv, g!);
       expect(p.mode, 'ghost is stale: physics or level changed; run `npm run levels`').toBe('exact');
       for (let i = 0; i < g!.ticks; i++) p.step();

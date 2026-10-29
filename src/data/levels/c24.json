@@ -1,8 +1,8 @@
 {
  "id": "c24",
- "name": "Vortex",
- "car": "volt",
- "theme": "sunset",
+ "name": "Midnight Mountain",
+ "car": "frost",
+ "theme": "night",
  "seed": 33020,
  "laps": 1,
  "blocks": [
@@ -13,7 +13,9 @@
     0,
     0
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
   },
   {
    "type": "straight2",
@@ -22,206 +24,327 @@
     0,
     -1
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
   },
   {
-   "type": "slopeUp2",
+   "type": "curve3R",
    "gridPos": [
     0,
     0,
     -3
    ],
-   "rot": 0
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    0,
-    2,
-    -5
-   ],
-   "rot": 0
-  },
-  {
-   "type": "wallTurn90L",
-   "gridPos": [
-    0,
-    2,
-    -7
-   ],
-   "rot": 0
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -3,
-    2,
-    -9
-   ],
-   "rot": 1
-  },
-  {
-   "type": "loop",
-   "gridPos": [
-    -4,
-    2,
-    -9
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -6,
-    2,
-    -10
-   ],
-   "rot": 1
-  },
-  {
-   "type": "wallTurnR",
-   "gridPos": [
-    -7,
-    2,
-    -10
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -6,
-    2,
-    -13
-   ],
-   "rot": 3
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -5,
-    2,
-    -13
-   ],
-   "rot": 3
-  },
-  {
-   "type": "spiralDownL",
-   "gridPos": [
-    -4,
-    2,
-    -13
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -3,
-    0,
-    -13
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -2,
-    0,
-    -13
-   ],
-   "rot": 3,
-   "surface": "turbo2"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -1,
-    0,
-    -13
-   ],
-   "rot": 3
-  },
-  {
-   "type": "loop",
-   "gridPos": [
-    1,
-    0,
-    -13
-   ],
-   "rot": 3
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
   },
   {
    "type": "straight1",
    "gridPos": [
     3,
     0,
-    -12
+    -5
    ],
-   "rot": 3
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
   },
   {
-   "type": "wallTurn90R",
+   "type": "steepUp",
    "gridPos": [
     4,
     0,
-    -12
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    6,
-    0,
-    -9
-   ],
-   "rot": 2
-  },
-  {
-   "type": "halfpipe2",
-   "gridPos": [
-    6,
-    0,
-    -7
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    6,
-    0,
     -5
    ],
-   "rot": 2
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
   },
   {
-   "type": "finish",
+   "type": "chicaneL",
    "gridPos": [
     6,
-    0,
-    -3
+    4,
+    -5
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    9,
+    4,
+    -6
+   ],
+   "rot": 3,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "curve2L",
+   "gridPos": [
+    10,
+    4,
+    -6
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    11,
+    4,
+    -8
+   ],
+   "rot": 0,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    11,
+    4,
+    -9
+   ],
+   "rot": 0,
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    11,
+    4,
+    -10
+   ],
+   "rot": 0,
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    11,
+    4,
+    -12
+   ],
+   "rot": 0,
+   "surface": "turbo",
+   "walls": "both"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    11,
+    4,
+    -13
+   ],
+   "rot": 0,
+   "walls": "both"
+  },
+  {
+   "type": "wallTurnR",
+   "gridPos": [
+    11,
+    4,
+    -15
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    14,
+    4,
+    -14
+   ],
+   "rot": 2,
+   "walls": "both"
+  },
+  {
+   "type": "loop",
+   "gridPos": [
+    14,
+    4,
+    -13
    ],
    "rot": 2
   },
   {
    "type": "straight1",
    "gridPos": [
-    6,
-    0,
-    -2
+    13,
+    4,
+    -11
+   ],
+   "rot": 2,
+   "walls": "both"
+  },
+  {
+   "type": "bank3L",
+   "gridPos": [
+    13,
+    4,
+    -10
    ],
    "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    16,
+    4,
+    -8
+   ],
+   "rot": 3,
+   "walls": "both"
+  },
+  {
+   "type": "bankChicaneL",
+   "gridPos": [
+    17,
+    4,
+    -8
+   ],
+   "rot": 3
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    20,
+    4,
+    -9
+   ],
+   "rot": 3,
+   "walls": "both"
+  },
+  {
+   "type": "gateFrost",
+   "gridPos": [
+    21,
+    4,
+    -9
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "steepDown",
+   "gridPos": [
+    22,
+    4,
+    -9
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    24,
+    0,
+    -9
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "hairpinR",
+   "gridPos": [
+    25,
+    0,
+    -9
+   ],
+   "rot": 3,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    24,
+    0,
+    -7
+   ],
+   "rot": 1,
+   "surface": "ice",
+   "walls": "both"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    23,
+    0,
+    -7
+   ],
+   "rot": 1,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    21,
+    0,
+    -4
+   ],
+   "rot": 2,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    21,
+    0,
+    -3
+   ],
+   "rot": 2,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    22,
+    0,
+    0
+   ],
+   "rot": 2,
+   "surface": "snow",
+   "walls": "both"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    22,
+    0,
+    1
+   ],
+   "rot": 2,
+   "surface": "snow",
+   "walls": "both"
   }
  ],
  "medalTimes": {
-  "author": 44167,
-  "gold": 46155,
-  "silver": 50792,
-  "bronze": 59625
+  "author": 0,
+  "gold": 0,
+  "silver": 0,
+  "bronze": 0
  },
+ "target": 69985,
  "bot": {
-  "maxSpeed": 75
+  "maxSpeed": 50,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12,
+  "speedScale": 1
  }
 }

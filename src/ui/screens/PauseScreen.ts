@@ -19,7 +19,7 @@ export class PauseScreen implements Screen {
         btn('Restart', () => this.app.restartRace(), 'big'),
         btn('Settings', () => this.app.screens.push(new SettingsScreen(this.app)), 'big'),
         document.body.classList.contains('touch') ? btn(document.fullscreenElement ? 'Leave fullscreen' : 'Fullscreen', () => toggleFullscreen(), 'big') : null,
-        btn('Level select', () => this.app.openLevelSelect(), 'big'),
+        btn('Track select', () => this.app.openLevelSelect(), 'big'),
         btn('Main menu', () => this.app.toMainMenu(), 'big'),
     );
     this.el.replaceChildren(menu);

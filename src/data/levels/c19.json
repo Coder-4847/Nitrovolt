@@ -1,8 +1,8 @@
 {
  "id": "c19",
- "name": "Corkscrew",
+ "name": "Oasis Highway",
  "car": "volt",
- "theme": "forest",
+ "theme": "desert",
  "seed": 30336,
  "laps": 1,
  "blocks": [
@@ -16,35 +16,16 @@
    "rot": 0
   },
   {
-   "type": "straight1",
+   "type": "straight4",
    "gridPos": [
     0,
     0,
     -1
    ],
-   "rot": 0,
-   "surface": "turbo"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    0,
-    0,
-    -2
-   ],
    "rot": 0
   },
   {
    "type": "straight1",
-   "gridPos": [
-    0,
-    0,
-    -4
-   ],
-   "rot": 0
-  },
-  {
-   "type": "loop",
    "gridPos": [
     0,
     0,
@@ -53,177 +34,356 @@
    "rot": 0
   },
   {
-   "type": "straight1",
+   "type": "curve3L",
    "gridPos": [
-    1,
     0,
-    -7
+    0,
+    -6
    ],
    "rot": 0
   },
   {
-   "type": "wallRide4R",
+   "type": "straight2",
    "gridPos": [
-    1,
+    -3,
     0,
     -8
    ],
-   "rot": 0
+   "rot": 1
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    -5,
+    0,
+    -8
+   ],
+   "rot": 1
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    -8,
+    0,
+    -7
+   ],
+   "rot": 1
   },
   {
    "type": "straight1",
    "gridPos": [
-    1,
+    -11,
     0,
-    -12
+    -8
    ],
-   "rot": 0
+   "rot": 1,
+   "surface": "turbo"
   },
   {
-   "type": "curve3L",
+   "type": "straight2",
    "gridPos": [
-    1,
+    -12,
     0,
-    -13
+    -8
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -14,
+    0,
+    -8
+   ],
+   "rot": 1
+  },
+  {
+   "type": "bank3R",
+   "gridPos": [
+    -15,
+    0,
+    -8
+   ],
+   "rot": 1
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -17,
+    0,
+    -11
    ],
    "rot": 0
   },
   {
    "type": "checkpoint",
    "gridPos": [
-    -2,
+    -17,
     0,
-    -15
+    -13
    ],
-   "rot": 1
+   "rot": 0
   },
   {
-   "type": "straight1",
+   "type": "gateDune",
    "gridPos": [
-    -3,
-    0,
-    -15
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -4,
-    0,
-    -15
-   ],
-   "rot": 1,
-   "surface": "slowMo"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -5,
-    0,
-    -15
-   ],
-   "rot": 1
-  },
-  {
-   "type": "wallTurnR",
-   "gridPos": [
-    -6,
-    0,
-    -15
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -5,
-    0,
-    -18
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -3,
-    0,
-    -18
-   ],
-   "rot": 3,
-   "surface": "turbo2"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -2,
-    0,
-    -18
-   ],
-   "rot": 3
-  },
-  {
-   "type": "loop",
-   "gridPos": [
-    0,
-    0,
-    -18
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    2,
-    0,
-    -17
-   ],
-   "rot": 3
-  },
-  {
-   "type": "curve3R",
-   "gridPos": [
-    4,
-    0,
-    -17
-   ],
-   "rot": 3
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    6,
+    -17,
     0,
     -14
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -17,
+    0,
+    -15
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "curve3L",
+   "gridPos": [
+    -17,
+    0,
+    -17
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -20,
+    0,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "slopeUp2",
+   "gridPos": [
+    -21,
+    0,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -23,
+    2,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -25,
+    2,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    -26,
+    2,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -28,
+    2,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -31,
+    0,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "curve2R",
+   "gridPos": [
+    -33,
+    0,
+    -19
+   ],
+   "rot": 1,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -34,
+    0,
+    -21
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "chicaneWideL",
+   "gridPos": [
+    -34,
+    0,
+    -22
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "chicaneWideR",
+   "gridPos": [
+    -36,
+    0,
+    -26
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -34,
+    0,
+    -30
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -34,
+    0,
+    -31
+   ],
+   "rot": 0,
+   "surface": "sand"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    -34,
+    0,
+    -32
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -34,
+    0,
+    -33
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallTurnL",
+   "gridPos": [
+    -34,
+    0,
+    -35
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -37,
+    0,
+    -34
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -37,
+    0,
+    -32
+   ],
+   "rot": 2
+  },
+  {
+   "type": "jumpRampLong",
+   "gridPos": [
+    -37,
+    0,
+    -31
+   ],
+   "rot": 2
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -37,
+    0,
+    -28
+   ],
+   "rot": 2
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -37,
+    -2,
+    -25
    ],
    "rot": 2
   },
   {
    "type": "finish",
    "gridPos": [
-    6,
-    0,
-    -12
+    -37,
+    -2,
+    -23
    ],
    "rot": 2
   },
   {
    "type": "straight1",
    "gridPos": [
-    6,
-    0,
-    -11
+    -37,
+    -2,
+    -22
    ],
    "rot": 2
   }
  ],
  "medalTimes": {
-  "author": 34935,
-  "gold": 36682,
-  "silver": 41223,
-  "bronze": 48909
+  "author": 0,
+  "gold": 0,
+  "silver": 0,
+  "bronze": 0
  },
+ "target": 63224,
  "bot": {
-  "maxSpeed": 75
+  "maxSpeed": 75,
+  "speedScale": 1
  }
 }

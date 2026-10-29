@@ -379,7 +379,7 @@ export class AudioEngine {
     this.music?.setMode(mode);
   }
 
-  /** Finish / medal flourish on the music bus. */
+  /** Finish flourish on the music bus. */
   musicSting(rank: number): void {
     this.music?.sting(rank);
   }
@@ -401,8 +401,8 @@ export class AudioEngine {
     this.tone(390, 0.1, 'triangle', 0.1, 0.05);
   }
 
-  /** Medal earned: a rising arpeggio that gets longer and brighter with the tier (1 bronze .. 4 author). */
-  medalJingle(rank: number): void {
+  /** New personal best: a rising arpeggio, longer and brighter the higher the rank (1 .. 4). */
+  recordJingle(rank: number): void {
     const scale = [523, 659, 784, 1047, 1319, 1568, 2093];
     const notes = Math.min(scale.length, 2 + rank);
     for (let i = 0; i < notes; i++) this.tone(scale[i]!, 0.3 + i * 0.03, 'triangle', 0.2, i * 0.085);

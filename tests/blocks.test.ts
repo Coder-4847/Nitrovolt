@@ -24,7 +24,7 @@ describe('block library', () => {
     for (const id of BLOCK_IDS) {
       for (const variant of ['std', 'wide', 'narrow'] as const) {
         const json: TrackJson = {
-          id: 't', name: 't', car: 'volt', theme: 'grey', seed: 1, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 },
+          id: 't', name: 't', car: 'volt', theme: 'grey', seed: 1,
           blocks: [{ type: id, gridPos: [0, 0, 0], rot: 0, variant }],
         };
         const t = buildTrack(json);

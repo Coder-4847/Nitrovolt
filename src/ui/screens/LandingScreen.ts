@@ -1,5 +1,5 @@
 import { CAR_IDS, CARS } from '../../data/cars';
-import { CAMPAIGN, TRAINING } from '../../data/campaign';
+import { CAMPAIGN } from '../../data/campaign';
 import { h } from '../dom';
 import { AppApi } from './AppApi';
 import { CAR_STATS } from './MainMenu';
@@ -7,19 +7,19 @@ import { Screen } from './ScreenManager';
 
 const art = (f: string): string => `${import.meta.env.BASE_URL}art/${f}`;
 
-const WORLDS: Array<[string, string, string]> = [
-  ['forest', 'Forest', 'Green lawns, copses and the stadium beyond the trees.'],
-  ['snow', 'Snow', 'Packed snow, rink-blue ice and pine-covered hills.'],
-  ['desert', 'Desert', 'Sand, cactus fields and ravines to jump.'],
-  ['sunset', 'Sunset', 'Cherry blossom and long shadows in the golden hour.'],
-  ['night', 'Night', 'Floodlights, stars and walls lit in neon blue.'],
+const WORLD_ART: Array<[string, string, string]> = [
+  ['forest', 'Summer', 'Sunny valleys, lakeshore roads and a run down to the beach.'],
+  ['sunset', 'Autumn', 'Red and gold woods, farm tracks and misty gorges.'],
+  ['snow', 'Winter', 'Fresh powder, frozen lakes and glacier canyons.'],
+  ['desert', 'Desert', 'Dunes, canyons and big jumps over the mesas.'],
+  ['night', 'Night', 'Neon streets: loops, wall rides and skyline stunts.'],
 ];
 
 const FEATURES: Array<[string, string]> = [
   ['Car gates', 'Drive through a gate and finish the section in another car: stadium, rally, snow or desert.'],
   ['Walls and loops', 'Wall turns that hold you on at speed, full loops, half-pipes and corkscrews.'],
   ['Instant restart', 'One key and you are back on the line. Every attempt is an exact, fresh run.'],
-  ['Ghosts and medals', 'Race your best and the author ghost. Bronze, silver, gold, author.'],
+  ['Ghosts and times', 'Race your own best run and the target ghost, with a live gap on screen. Every track is open from the start.'],
   ['Track of the day', 'A different campaign track every day, the same for everyone.'],
   ['Any controller', 'Keyboard, gamepad with rumble, mouse steering, or touch with tilt. Works offline.'],
 ];
@@ -40,14 +40,14 @@ export class LandingScreen implements Screen {
     const hero = h('section', { class: 'ld-hero' },
       h('div', { class: 'ld-kicker' }, 'Time-attack racing · free in your browser'),
       h('h1', { class: 'ld-logo', html: 'NITRO<span>VOLT</span>' }),
-      h('p', { class: 'ld-tag' }, 'Four cars. Hand-built tracks through forest, snow and desert. Learn the line, shave the tenths, beat the author.'),
+      h('p', { class: 'ld-tag' }, 'Four cars. Twenty-five hand-built tracks through summer, autumn, winter, desert and night. Learn the line, shave the tenths, beat the target.'),
       h('div', { class: 'ld-cta' }, play('ld-play'), h('button', { class: 'ld-alt', type: 'button', onclick: () => this.app.screens.pop() }, h('span', {}, 'Main menu'))),
-      h('div', { class: 'ld-facts' }, ...[`${CAR_IDS.length} cars`, `${CAMPAIGN.length} campaign tracks`, `${TRAINING.length} training`, 'track of the day', 'ghosts', 'works offline'].map((t) => h('span', {}, t))),
+      h('div', { class: 'ld-facts' }, ...[`${CAR_IDS.length} cars`, `${CAMPAIGN.length} tracks`, '5 worlds', 'car switches', 'track of the day', 'ghosts', 'works offline'].map((t) => h('span', {}, t))),
       h('div', { class: 'ld-scroll' }, 'Scroll'),
     );
     const worlds = h('section', { class: 'ld-sec' },
-      h('div', { class: 'ld-h' }, h('small', {}, 'Environments'), h('h2', {}, 'Five worlds')),
-      h('div', { class: 'ld-worlds' }, ...WORLDS.map(([id, name, text]) => h('div', { class: 'ld-world' },
+      h('div', { class: 'ld-h' }, h('small', {}, 'Environments'), h('h2', {}, 'Five worlds, five tracks each')),
+      h('div', { class: 'ld-worlds' }, ...WORLD_ART.map(([id, name, text]) => h('div', { class: 'ld-world' },
         h('img', { src: art(`${id}.jpg`), alt: `${name} track`, loading: 'lazy' }),
         h('div', { class: 'ld-world-txt' }, h('b', {}, name), h('small', {}, text)),
       ))),

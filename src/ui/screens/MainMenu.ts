@@ -1,6 +1,7 @@
 import { CAR_IDS } from '../../data/cars';
 import { h } from '../dom';
-import { medalBadge } from '../medals';
+import { CAMPAIGN } from '../../data/campaign';
+import { Records } from '../../core/Records';
 import { AboutScreen } from './AboutScreen';
 import { AppApi } from './AppApi';
 import { HelpScreen } from './HelpScreen';
@@ -20,7 +21,7 @@ export const CAR_STATS: Record<string, { speed: number; grip: number; air: numbe
 
 /**
  * Main menu: the big slanted list on the left over the showroom (the car on its podium on the right), with
- * the podium car's card under it (switch with the arrows) and the medal tally.
+ * the podium car's card under it (switch with the arrows) and how many tracks are timed.
  */
 export class MainMenu implements Screen {
   readonly el = h('div', { class: 'screen main-menu' });
@@ -29,17 +30,19 @@ export class MainMenu implements Screen {
   constructor(private readonly app: AppApi) {}
 
   onShow(): void {
-    const c = this.app.campaign();
     const contId = this.app.continueLevel();
     const cont = this.app.level(contId);
-    const counts: Record<string, number> = { author: 0, gold: 0, silver: 0, bronze: 0 };
-    for (const l of c.levels) if (l.medal !== 'none') counts[l.medal]!++;
+    const timed = CAMPAIGN.filter((l) => Records.get(l.levelId)).length;
+    const beaten = CAMPAIGN.filter((l) => {
+      const pb = Records.get(l.levelId), t = this.app.level(l.levelId)?.target ?? 0;
+      return !!pb && t > 0 && pb.best <= t;
+    }).length;
     const item = (label: string, sub: string, onClick: () => void, cls = ''): HTMLButtonElement =>
       h('button', { class: `mm-item ${cls}`.trim(), type: 'button', onclick: onClick }, h('span', { class: 'mm-label' }, label), h('small', {}, sub));
     const menu = h('nav', { class: 'mm-list' },
-      item('Play', 'Campaign · training · track of the day', () => this.app.screens.push(new PlayScreen(this.app)), 'primary'),
+      item('Play', 'Campaign · track of the day', () => this.app.screens.push(new PlayScreen(this.app)), 'primary'),
       item('Continue', cont ? cont.name : 'Start the campaign', () => this.app.playLevel(contId)),
-      item('Records', 'Times, medals, replays', () => this.app.screens.push(new LeaderboardScreen(this.app))),
+      item('Records', 'Best times, replays, target ghosts', () => this.app.screens.push(new LeaderboardScreen(this.app))),
       item('Garage', 'Paint your cars', () => { setSettingsTab('garage'); this.app.screens.push(new SettingsScreen(this.app)); }),
       item('Settings', 'Controls, graphics, sound', () => this.app.screens.push(new SettingsScreen(this.app))),
     );
@@ -48,7 +51,6 @@ export class MainMenu implements Screen {
       h('button', { class: 'mm-link', type: 'button', onclick: () => this.app.screens.push(new HelpScreen(this.app)) }, 'How to play'),
       h('button', { class: 'mm-link', type: 'button', onclick: () => this.app.screens.push(new AboutScreen(this.app)) }, 'About'),
     );
-    const medals = h('div', { class: 'mm-medals', html: (['author', 'gold', 'silver', 'bronze'] as const).map((m) => `<span>${medalBadge(m)} ${counts[m]}</span>`).join('') });
     this.el.replaceChildren(
       h('div', { class: 'mm-left' },
         h('div', { class: 'mm-logo', html: '<span class="lg-n">NITRO</span><span class="lg-v">VOLT</span>' }),
@@ -56,7 +58,7 @@ export class MainMenu implements Screen {
         foot,
       ),
       this.carCard(),
-      h('div', { class: 'mm-progress-card' }, h('b', {}, `${c.totalPoints} / ${c.maxPoints}`), h('small', {}, 'medal points'), medals),
+      h('div', { class: 'mm-progress-card' }, h('b', {}, `${timed} / ${CAMPAIGN.length}`), h('small', {}, 'tracks timed'), h('div', { class: 'mm-medals' }, h('span', {}, `${beaten} targets beaten`))),
     );
     (menu.firstElementChild as HTMLElement).setAttribute('data-autofocus', '');
   }

@@ -1,167 +1,127 @@
 [
  {
   "id": "c01",
-  "tier": 0,
-  "blurb": "A flowing first lap: one jump, one banked turn, full throttle."
+  "world": "forest",
+  "blurb": "A sweeping valley road, one jump over the stream, then dirt for the final stretch."
  },
  {
   "id": "c02",
-  "tier": 0,
-  "blurb": "Through the pines on packed snow. Brake early, the snow car is heavy."
+  "world": "forest",
+  "blurb": "Zigzag through the woods in the rally car, then the stadium car takes the lakeshore."
  },
  {
   "id": "c03",
-  "tier": 0,
-  "blurb": "Wide sand, long sweepers and a big jump over the ravine."
+  "world": "forest",
+  "blurb": "Switchbacks up the mountain, the rally car down the dirt, and a flat-out run home."
  },
  {
   "id": "c04",
-  "tier": 0,
-  "blurb": "Your first wall turn at sunset. Commit and keep it pinned."
+  "world": "forest",
+  "blurb": "Fast forest dirt with jumps, then the stadium car for the loop and the wall."
  },
  {
   "id": "c05",
-  "tier": 0,
-  "blurb": "Gravel road through the woods. Slide it, do not fight it."
+  "world": "forest",
+  "blurb": "The big one: tarmac, forest dirt and a beach run, three cars in one lap."
  },
  {
   "id": "c06",
-  "tier": 1,
-  "blurb": "Under the floodlights: a loop, a wall and a loop again."
+  "world": "sunset",
+  "blurb": "A short, snappy dirt trail through the red woods, then tarmac for the last sprint."
  },
  {
   "id": "c07",
-  "tier": 1,
-  "blurb": "Stadium car on tarmac, rally car through the dirt, and back."
+  "world": "sunset",
+  "blurb": "Farm tracks and sandy fields: rally car, desert car, rally car again."
  },
  {
   "id": "c08",
-  "tier": 1,
-  "blurb": "Glide across the frozen lake. On ice, less steering is more."
+  "world": "sunset",
+  "blurb": "A narrow walled gorge for the stadium car, then out onto the rally trail."
  },
  {
   "id": "c09",
-  "tier": 1,
-  "blurb": "Three ravines in a row and a climb between them."
+  "world": "sunset",
+  "blurb": "Down the mountain in switchbacks, across a tarmac viaduct, and down again."
  },
  {
   "id": "c10",
-  "tier": 1,
-  "blurb": "Drop into the half-pipe, then tip over onto the tilted straight."
+  "world": "sunset",
+  "blurb": "Autumn forest, a tarmac mountain road and the first snow of winter. Three cars."
  },
  {
   "id": "c11",
-  "tier": 2,
-  "blurb": "Stadium car to the snow gate, snow car over the pass, stadium car home."
+  "world": "snow",
+  "blurb": "A quick run over fresh powder, then the rally car for the dirt road home."
  },
  {
   "id": "c12",
-  "tier": 2,
-  "blurb": "Climb to the top of the hill, then corkscrew back down."
+  "world": "snow",
+  "blurb": "Glide across the ice in the snow car, then switch to the stadium car on the gritted road."
  },
  {
   "id": "c13",
-  "tier": 2,
-  "blurb": "Desert car on the dunes, rally car through the canyon dirt."
+  "world": "snow",
+  "blurb": "Downhill at full speed, then the snow car down the chute, and the stadium car for the runout."
  },
  {
   "id": "c14",
-  "tier": 2,
-  "blurb": "Reactor boost, cruise control and a wall turn under the lights."
+  "world": "snow",
+  "blurb": "Narrow ice canyons, a rally dirt shortcut under the glacier, and back onto the ice."
  },
  {
   "id": "c15",
-  "tier": 2,
-  "blurb": "Stadium, rally, snow, desert: one track, four cars."
+  "world": "snow",
+  "blurb": "The longest road in the snow: stadium, snow and rally cars across the whole range."
  },
  {
   "id": "c16",
-  "tier": 3,
-  "blurb": "Narrow road high above the field. No-steer pads before the jumps."
+  "world": "desert",
+  "blurb": "Fly over the dunes, then pull on the stadium car for the walls at the end."
  },
  {
   "id": "c17",
-  "tier": 3,
-  "blurb": "Down the mountain on ice, rally car through the slush, snow car to finish."
+  "world": "desert",
+  "blurb": "Sand, then the rally car through the dirt canyon, then back to the dunes."
  },
  {
   "id": "c18",
-  "tier": 3,
-  "blurb": "Big air on sand, then the stadium car and two wall turns."
+  "world": "desert",
+  "blurb": "Rally car over the rocky ridge, then the desert car for four big jumps."
  },
  {
   "id": "c19",
-  "tier": 3,
-  "blurb": "Loop, tilt, loop, wall. And a slow-motion pad where you least want it."
+  "world": "desert",
+  "blurb": "A tarmac highway, a dune shortcut through the oasis, and a high-speed finish."
  },
  {
   "id": "c20",
-  "tier": 3,
-  "blurb": "Two laps: tarmac, a rally sector through the trees, tarmac again."
+  "world": "desert",
+  "blurb": "The longest drive in the desert: sand, dirt and tarmac, and home across the dunes."
  },
  {
   "id": "c21",
-  "tier": 4,
-  "blurb": "Every pad in the book between two wall turns and a loop."
+  "world": "night",
+  "blurb": "A flat-out lap under the floodlights: loop, wall, then a dirt alley to the line."
  },
  {
   "id": "c22",
-  "tier": 4,
-  "blurb": "Narrow ice lanes, a frozen spiral and the engine cut on the climb."
+  "world": "night",
+  "blurb": "Slide through the back alleys in the rally car, then stadium speed down the main drag."
  },
  {
   "id": "c23",
-  "tier": 4,
-  "blurb": "Huge jumps on sand, then the stadium car over the last ravine."
+  "world": "night",
+  "blurb": "Spirals, loops and wall rides above the city, with a sandy rooftop in the middle."
  },
  {
   "id": "c24",
-  "tier": 4,
-  "blurb": "Wall, loop, spiral, wall: the stadium car at full stretch."
+  "world": "night",
+  "blurb": "Snow and ice up the peak, tarmac across the ridge, and back down on the snow."
  },
  {
   "id": "c25",
-  "tier": 4,
-  "blurb": "The whole game in one run: four cars, walls, loops and the big ravine."
- },
- {
-  "id": "t01",
-  "tier": "training",
-  "blurb": "Throttle, brake, steer. Brake before the corner, not in it."
- },
- {
-  "id": "t02",
-  "tier": "training",
-  "blurb": "Hit the ramps flat out and land on the slope."
- },
- {
-  "id": "t03",
-  "tier": "training",
-  "blurb": "Keep your speed up and the wall holds you."
- },
- {
-  "id": "t04",
-  "tier": "training",
-  "blurb": "Full speed into the loop; let the car follow it round."
- },
- {
-  "id": "t05",
-  "tier": "training",
-  "blurb": "The rally car slides on dirt: turn in early and power out."
- },
- {
-  "id": "t06",
-  "tier": "training",
-  "blurb": "Snow grips, ice does not. Smooth hands."
- },
- {
-  "id": "t07",
-  "tier": "training",
-  "blurb": "Light and bouncy: the desert car flies off every crest."
- },
- {
-  "id": "t08",
-  "tier": "training",
-  "blurb": "Drive through a gate and you change car on the spot."
+  "world": "night",
+  "blurb": "Every car, every trick: stadium, rally, snow and desert in one run under the lights."
  }
 ]

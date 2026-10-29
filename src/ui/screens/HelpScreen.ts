@@ -1,7 +1,6 @@
 import { prettyKey } from '../../core/input/Bindings';
 import { EFFECTS, EffectId } from '../../physics/Surface';
 import { h } from '../dom';
-import { medalBadge } from '../medals';
 import { AppApi } from './AppApi';
 import { header } from './common';
 import { Screen } from './ScreenManager';
@@ -21,7 +20,7 @@ const SPECIALS: Array<[EffectId, string]> = [
 
 const hex = (c: number): string => '#' + c.toString(16).padStart(6, '0');
 
-/** How to play: controls for every device, the special blocks, medals and the main tips. */
+/** How to play: controls for every device, the special blocks and the main tips. */
 export class HelpScreen implements Screen {
   readonly el = h('div', { class: 'screen help' });
 
@@ -45,7 +44,7 @@ export class HelpScreen implements Screen {
       h('tbody', {}, ...rows.map((r) => h('tr', {}, ...r.map((c) => h('td', {}, c))))),
     );
     const specials = h('div', { class: 'help-specials' }, ...SPECIALS.map(([id, text]) => h('div', { class: 'help-sp' }, h('span', { class: 'swatch', style: `background:${hex(EFFECTS[id].glow || EFFECTS[id].color)}` }), h('span', {}, text))));
-    const medals = h('div', { class: 'help-medals', html: `${medalBadge('author')} Author: the time of the track's own validation run (its ghost proves it). ${medalBadge('gold')} Gold, ${medalBadge('silver')} Silver and ${medalBadge('bronze')} Bronze give you more margin. Bronze on four tracks of a tier opens the next tier.` });
+    const times = h('div', { class: 'help-medals' }, 'There are no stars or unlocks: every track is open and the game is about the clock. Each track has a target time (the track\'s own validation run, its ghost proves it) and your personal best. Beat both: your best run races alongside you as a ghost, with a live gap to it at the top of the screen and a split at every checkpoint.');
     this.el.replaceChildren(
       header('How to play', () => this.app.screens.back()),
       h('div', { class: 'ls-body help-body' },
@@ -54,14 +53,14 @@ export class HelpScreen implements Screen {
         h('h4', {}, 'Controls'), table,
         h('p', { class: 'note' }, 'Keys and buttons can be changed in Settings > Controls. Mouse steering: M.'),
         h('h4', {}, 'Special blocks'), specials,
-        h('h4', {}, 'Medals'), medals,
+        h('h4', {}, 'Times and ghosts'), times,
         h('h4', {}, 'Tips'),
         h('ul', {},
           h('li', {}, 'Tap the brake to start a drift, then counter-steer to hold it.'),
           h('li', {}, 'In the air, accelerate tilts the nose down and brake lifts it: land flat to keep your speed.'),
           h('li', {}, 'Each car has its ground: Stadium on tarmac, Rally on dirt, Snow on snow and ice, Desert on sand.'),
           h('li', {}, 'Wall turns and loops need speed: stay on the gas and keep the wheel steady.'),
-          h('li', {}, 'Watch the author ghost (Records, or G in a race) to find the line.'),
+          h('li', {}, 'Watch the target ghost (Records, or G in a race) to find the line.'),
         ),
       ),
     );

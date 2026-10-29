@@ -9,10 +9,6 @@ export interface SettingsData {
   ghosts: GhostShow;
   /** HUD size multiplier (accessibility). */
   hudScale: number;
-  /** Colour-blind-safe medal palette (shapes are always shown). */
-  cbMedals: boolean;
-  /** Everything unlocked (accessibility / dev). */
-  unlockAll: boolean;
   reducedMotion: boolean;
   speedFx: boolean;
   showFps: boolean;
@@ -28,8 +24,6 @@ const DEFAULTS: SettingsData = {
   countdown: 'quick',
   ghosts: 'pb',
   hudScale: 1,
-  cbMedals: false,
-  unlockAll: false,
   reducedMotion: false,
   speedFx: true,
   showFps: false,

@@ -56,7 +56,7 @@ async function cornering(car: CarId, surface: SurfaceId, speed: number): Promise
 async function jumpAirTime(car: CarId, surface: SurfaceId): Promise<number> {
   const def = getCar(car);
   const items: ChainItem[] = [{ type: 'start', surface }, { type: 'straight4', surface }, { type: 'straight4', surface }, { type: 'jumpRamp', surface }, { type: 'landingXL', gap: 1, dy: -1 }, { type: 'straight4' }, { type: 'straight4' }, { type: 'finish' }];
-  const track = buildTrack({ id: 'j', name: 'j', car, theme: 'g', seed: 1, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 }, blocks: layoutChain(items).blocks });
+  const track = buildTrack({ id: 'j', name: 'j', car, theme: 'g', seed: 1, blocks: layoutChain(items).blocks });
   const s = await Simulation.create(track, carParams(car), 0, G, def.behavior);
   let best = 0;
   for (let i = 0; i < 2500 && s.respawnCount === 0; i++) {

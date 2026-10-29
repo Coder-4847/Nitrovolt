@@ -1,7 +1,6 @@
 import { Quaternion, Vector3 } from 'three';
 import { describe, expect, it } from 'vitest';
 import { makeFrame } from '../src/core/InputFrame';
-import { medalFor } from '../src/core/Medals';
 import { Simulation } from '../src/physics/Simulation';
 import { VOLT, cloneParams } from '../src/physics/VehicleParams';
 import { carParams, getCar } from '../src/data/cars';
@@ -10,32 +9,15 @@ import { layoutChain } from '../src/tracks/ChainLayout';
 import { buildTrack } from '../src/tracks/TrackGenerator';
 import { TrackJson } from '../src/tracks/TrackSchema';
 import { ChainItem } from '../src/tracks/ChainLayout';
-import { LEVELS } from '../src/data';
 import { SAMPLE } from './sample';
 
-const medals = { author: 0, gold: 0, silver: 0, bronze: 0 };
 function level(items: ChainItem[], laps = 1): TrackJson {
-  return { id: 't', name: 't', car: 'volt', theme: 'grey', seed: 1, laps, medalTimes: medals, blocks: layoutChain(items).blocks };
+  return { id: 't', name: 't', car: 'volt', theme: 'grey', seed: 1, laps, blocks: layoutChain(items).blocks };
 }
 async function sim(items: ChainItem[], hold = 0, laps = 1): Promise<Simulation> {
   return Simulation.create(buildTrack(level(items, laps)), cloneParams(VOLT), hold);
 }
 const full = makeFrame(0, 1, 0);
-
-describe('medals', () => {
-  const m = { author: 20000, gold: 21600, silver: 24000, bronze: 29000 };
-  it('awards the best medal reached', () => {
-    expect(medalFor(19999, m)).toBe('author');
-    expect(medalFor(20000, m)).toBe('author');
-    expect(medalFor(20001, m)).toBe('gold');
-    expect(medalFor(23000, m)).toBe('silver');
-    expect(medalFor(28999, m)).toBe('bronze');
-    expect(medalFor(29001, m)).toBe('none');
-  });
-  it('never awards unset thresholds', () => {
-    expect(medalFor(1, { author: 0, gold: 0, silver: 0, bronze: 0 })).toBe('none');
-  });
-});
 
 describe('run logic', () => {
   it('grids the car and ignores the driver until go(), then starts the clock at zero', async () => {
@@ -138,11 +120,17 @@ describe('run logic', () => {
   });
 
   it('counts laps on a closed circuit and finishes on the last one', async () => {
-    const lv = LEVELS.find((l) => l.id === 'c20')!;
+    // a closed oval: opposite sides are the same length (4 and 5 cells) between four R80 corners
+    const oval: ChainItem[] = [
+      { type: 'lapFinish' }, { type: 'straight2' }, { type: 'straight1' }, { type: 'curve3R' },
+      { type: 'straight1' }, { type: 'slopeUp2' }, { type: 'checkpoint' }, { type: 'straight1' }, { type: 'curve3R' },
+      { type: 'straight2' }, { type: 'straight1' }, { type: 'straight1' }, { type: 'curve3R' },
+      { type: 'slopeDown2' }, { type: 'straight1' }, { type: 'checkpoint' }, { type: 'straight1' }, { type: 'bank3R' },
+    ];
+    const lv = level(oval, 2);
     const track = buildTrack(lv);
     const s = await Simulation.create(track, cloneParams(VOLT), 0);
     const bot = new PathBot(track.centerline, track.centerSurface, true, s.vehicle.params, track.centerFrame);
-    applyBotHints(bot, lv.bot);
     for (let i = 0; i < 12000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
     expect(s.run.state).toBe('finished');
     // 2 laps x (2 checkpoints + 1 line)
@@ -162,7 +150,7 @@ describe('built-in levels', () => {
       for (let i = 0; i < 20000 && s.run.state !== 'finished'; i++) s.step(bot.drive(s.vehicle));
       expect(s.run.state).toBe('finished');
       expect(s.respawnCount).toBe(0);
-      expect(lv.medalTimes.author).toBeGreaterThan(0);
+      expect(lv.target ?? 0).toBeGreaterThan(0);
     });
   }
 });

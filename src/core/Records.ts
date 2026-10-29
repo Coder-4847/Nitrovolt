@@ -1,6 +1,4 @@
-import { Medal, medalFor } from './Medals';
 import { storage } from './Storage';
-import { MedalTimes } from '../tracks/TrackSchema';
 
 export interface PersonalBest {
   /** Best finish time (ms). */
@@ -16,7 +14,7 @@ export const RECORDS_KEY = 'nitrovolt.records.v1';
 type Table = { [id: string]: PersonalBest };
 const read = (): Table => storage.get<Table>(RECORDS_KEY, {});
 
-/** Personal bests per track, kept in localStorage. Medals are derived from the time, so they follow the thresholds. */
+/** Personal bests per track, kept in localStorage. */
 export const Records = {
   get(trackId: string): PersonalBest | undefined {
     return read()[trackId];
@@ -38,12 +36,6 @@ export const Records = {
 
   clear(): void {
     storage.set(RECORDS_KEY, {});
-  },
-
-  /** Best medal earned on a level, from its personal best. */
-  medal(trackId: string, medals: MedalTimes): Medal {
-    const r = read()[trackId];
-    return r ? medalFor(r.best, medals) : 'none';
   },
 };
 

@@ -41,10 +41,18 @@ export interface BotRun {
 export function hintLadder(car: string, base?: BotHints): BotHints[] {
   const soft = car === 'volt' ? { maxSpeed: 75 } : { maxSpeed: car === 'dune' ? 62 : car === 'frost' ? 50 : 55, lookTime: 0.7, steerSlew: 0.05, lateralBudget: 12 };
   const first = { ...soft, ...(base ?? {}) };
+  const scaled = (k: number, extra: BotHints = {}): BotHints => ({
+    ...first,
+    ...extra,
+    maxSpeed: Math.round((first.maxSpeed ?? 70) * k),
+    // every car on the level is driven at its own pace, scaled by the style
+    speedScale: k,
+    lateralBudget: (first.lateralBudget ?? 20) * (k === 1 ? 1 : k === 0.82 ? 0.8 : 0.65),
+  });
   return [
-    first,
-    { ...first, maxSpeed: Math.round((first.maxSpeed ?? 70) * 0.82), lateralBudget: (first.lateralBudget ?? 20) * 0.8 },
-    { ...first, maxSpeed: Math.round((first.maxSpeed ?? 70) * 0.68), lateralBudget: (first.lateralBudget ?? 20) * 0.65, lookTime: Math.max(first.lookTime ?? 0.45, 0.6) },
+    { ...first, speedScale: 1 },
+    scaled(0.82),
+    scaled(0.68, { lookTime: Math.max(first.lookTime ?? 0.45, 0.6) }),
   ];
 }
 

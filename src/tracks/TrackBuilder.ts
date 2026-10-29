@@ -430,7 +430,7 @@ export class TrackBuilder {
     for (const b of this.builders.values()) meshes.push(b.build());
     return {
       id, name, car: 'volt', theme: 'grey', seed: 0, laps: 1, terrain: null,
-      medals: { author: 0, gold: 0, silver: 0, bronze: 0 },
+      targetTime: 0,
       ...meta,
       meshes, start, killY, triggers: this.triggers, centerline: this.centerline, centerSurface: this.centerSurface, centerFrame: this.centerFrame,
     };

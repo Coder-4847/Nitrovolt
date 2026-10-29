@@ -51,7 +51,7 @@ const SEATS = [0x169c9c, 0x13878f, 0x1d6fa8, 0x17908f];
 
 const forest: ThemeDef = {
   id: 'forest',
-  label: 'Forest',
+  label: 'Summer',
   sky: { zenith: 0x2f6fd6, horizon: 0xc4dcf2, nadir: 0x9fb4c6, sunColor: 0xfff6e8, sunDir: [-0.45, 0.62, -0.5], sunSize: 0.5, sunGlow: 0.25, clouds: 0.55, cloudColor: 0xffffff },
   fog: { color: 0xc8dbec, near: 260, far: 1900 },
   light: { hemiSky: 0xcfe0ff, hemiGround: 0x5a7048, hemi: 0.8, sun: 3.0, sunColor: 0xfff4e6, exposure: 1.0, env: 0.9 },
@@ -69,7 +69,7 @@ export const THEMES: Record<ThemeId, ThemeDef> = {
   forest,
   snow: {
     id: 'snow',
-    label: 'Snow',
+    label: 'Winter',
     sky: { zenith: 0x4f82c8, horizon: 0xe6edf4, nadir: 0xd0dae4, sunColor: 0xfffaf2, sunDir: [0.3, 0.5, 0.6], sunSize: 0.5, sunGlow: 0.3, clouds: 0.6, cloudColor: 0xf6f8fb },
     fog: { color: 0xdde6ee, near: 220, far: 1600 },
     light: { hemiSky: 0xdde9ff, hemiGround: 0xa6b0bc, hemi: 0.85, sun: 2.5, sunColor: 0xfff8f0, exposure: 0.95, env: 0.95 },
@@ -97,11 +97,11 @@ export const THEMES: Record<ThemeId, ThemeDef> = {
   },
   sunset: {
     id: 'sunset',
-    label: 'Sunset',
+    label: 'Autumn',
     sky: { zenith: 0x34477e, horizon: 0xffa65c, nadir: 0x6a5060, sunColor: 0xffc27a, sunDir: [0.75, 0.14, -0.5], sunSize: 0.9, sunGlow: 0.7, clouds: 0.5, cloudColor: 0xffb486 },
     fog: { color: 0xe3a77e, near: 240, far: 1700 },
     light: { hemiSky: 0xffc8a4, hemiGround: 0x4a4048, hemi: 0.75, sun: 2.8, sunColor: 0xffb878, exposure: 1.02, env: 0.95 },
-    ground: { kind: 'grass', a: 0x4c7a38, b: 0x5c8a42, verge: 0x7a7444, rock: 0x7a5a44 },
+    ground: { kind: 'grass', a: 0x7a8a3a, b: 0x9a9440, verge: 0x9a7a3c, rock: 0x7a5a44 },
     road: { tint: 0xf4ecf0, line: 0xffffff, kerbA: 0x3d7eff, kerbB: 0xf4f4f6 },
     wall: { base: 0x262a33, band: 0xf2f4f6 },
     gate: { start: 0xffc21f, checkpoint: 0x3d7eff, finish: 0xe8432f },
@@ -129,7 +129,7 @@ export const THEMES: Record<ThemeId, ThemeDef> = {
 /** Older level files used other theme names; map them onto the five environments. */
 const ALIASES: Record<string, ThemeId> = {
   grey: 'stadium', neon: 'forest', summer: 'forest', city: 'forest', metro: 'forest', alpine: 'snow', winter: 'snow',
-  canyon: 'desert', coast: 'sunset', rally: 'sunset', industry: 'sunset',
+  canyon: 'desert', coast: 'sunset', rally: 'sunset', industry: 'sunset', autumn: 'sunset',
 };
 
 export function themeFor(id: string | undefined): ThemeDef {

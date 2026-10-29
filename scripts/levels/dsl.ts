@@ -5,16 +5,13 @@ import { ChainItem, ChainStart } from '../../src/tracks/ChainLayout';
 import { BotHints, Variant } from '../../src/tracks/TrackSchema';
 import { WallSide } from '../../src/tracks/TrackBuilder';
 
-export type Tier = 'training' | 0 | 1 | 2 | 3 | 4;
-
 export interface LevelDef {
   id: string;
   name: string;
-  /** Environment: forest, snow, desert, sunset, night. */
+  /** Environment (the world the level belongs to): forest (summer), sunset (autumn), snow (winter), desert, night. */
   theme: string;
   /** Car at the start (gates switch it on the way). */
   car: string;
-  tier: Tier;
   laps?: number;
   items: ChainItem[];
   start?: ChainStart;

@@ -243,7 +243,7 @@ export class Music {
     this.noiseHit(t, 'highpass', 7500, vol, 0.035);
   }
 
-  /** A short rising sting on a finish or medal. */
+  /** A short rising sting on a finish or a new personal best. */
   sting(rank: number): void {
     const t = this.ctx.currentTime + 0.05;
     const chord = this.style.chords[0]!;

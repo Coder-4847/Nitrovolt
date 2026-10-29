@@ -1,10 +1,9 @@
 import { LevelDef } from './dsl';
-import { TRAINING_DEFS } from './training';
 import { CAMPAIGN_DEFS } from './campaign';
 import { LAB } from './lab';
 
-/** Every hand-made level the game ships, in play order: the campaign, then training. */
-export const LEVEL_DEFS: LevelDef[] = [...CAMPAIGN_DEFS, ...TRAINING_DEFS];
+/** Every hand-made level the game ships, in play order: five worlds of five tracks. */
+export const LEVEL_DEFS: LevelDef[] = CAMPAIGN_DEFS;
 
 /** Test layouts for tools (not shipped). */
 export const DEV_DEFS: LevelDef[] = [LAB];

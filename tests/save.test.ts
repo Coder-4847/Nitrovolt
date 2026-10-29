@@ -33,14 +33,6 @@ describe('records', () => {
     expect(Records.get('t')!.best).toBe(29000);
     expect(Records.get('t')!.splits).toEqual([9000, 29000]);
   });
-
-  it('derives medals from the personal best and current thresholds', () => {
-    Records.submit('t', 21000, []);
-    const m = { author: 20000, gold: 21600, silver: 24000, bronze: 29000 };
-    expect(Records.medal('t', m)).toBe('gold');
-    expect(Records.medal('t', { ...m, gold: 20500 })).toBe('silver'); // thresholds changed, medal follows
-    expect(Records.medal('unplayed', m)).toBe('none');
-  });
 });
 
 describe('save file', () => {

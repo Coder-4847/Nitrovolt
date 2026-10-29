@@ -51,7 +51,7 @@ async function lateral(car: CarId, surface: SurfaceId, speed: number): Promise<s
 async function jump(car: CarId, surface: SurfaceId): Promise<string> {
   const def = getCar(car);
   const items: ChainItem[] = [{ type: 'start', surface }, { type: 'straight4', surface }, { type: 'straight4', surface }, { type: 'jumpRamp', surface }, { type: 'straight4' }, { type: 'straight4' }, { type: 'straight4' }, { type: 'finish' }];
-  const track = buildTrack({ id: 'j', name: 'j', car, theme: 'g', seed: 1, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 }, blocks: layoutChain(items).blocks });
+  const track = buildTrack({ id: 'j', name: 'j', car, theme: 'g', seed: 1, blocks: layoutChain(items).blocks });
   const s = await Simulation.create(track, cloneParams(def.params), 0, G, def.behavior);
   let maxAir = 0, y0 = 0, apex = 0, entry = 0;
   for (let i = 0; i < 2500 && s.respawnCount === 0; i++) {

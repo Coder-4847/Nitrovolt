@@ -1,6 +1,10 @@
 // Top-down maps of the hand-made levels (layout, heights, checkpoints, car gates, overlaps) as one PNG
 // sheet per 6 levels. Usage: npx tsx scripts/track-map.mts <outPrefix> [id,id,...]
 import { chromium } from 'playwright-core';
+import { carParams, getCar } from '../src/data/cars';
+import { Simulation } from '../src/physics/Simulation';
+import { PathBot, applyBotHints } from '../src/tracks/PathBot';
+import { hintLadder } from '../src/tracks/Validate';
 import { buildLevel } from './levels/build';
 import { DEV_DEFS, LEVEL_DEFS } from './levels/index';
 
@@ -10,7 +14,29 @@ const defs = [...LEVEL_DEFS, ...DEV_DEFS].filter((d) => (only ? only.includes(d.
 const GATE_COL: Record<string, string> = { volt: '#2aa8ff', gravel: '#ff8a2a', frost: '#9fe6ff', dune: '#ffd23a' };
 const SURF_COL: Record<string, string> = { dirt: '#b0703c', grass: '#4c9a3a', ice: '#bfeeff', snow: '#f4f8fb', sand: '#e6c27a', wood: '#9a6a3a', plastic: '#e05aa0' };
 
-function svgFor(id: string): string {
+/** Bot trace (TRACE=<style 0..2>): where the car drove, in red when a wheel was off the road, yellow in the air. */
+async function traceSvg(d: (typeof defs)[number], t: ReturnType<typeof buildLevel>['track']): Promise<string> {
+  const car = getCar(d.car);
+  const sim = await Simulation.create(t, carParams(car.id), false, undefined, car.behavior);
+  const bot = new PathBot(t.centerline, t.centerSurface, false, sim.vehicle.params, t.centerFrame);
+  applyBotHints(bot, hintLadder(d.car, d.hints)[Number(process.env.TRACE)]!);
+  const v = sim.vehicle;
+  const out: string[] = [];
+  let prev: [number, number] | null = null;
+  for (let i = 0; i < 25000 && sim.run.state !== 'finished' && sim.respawnCount === 0; i++) {
+    sim.step(bot.drive(v));
+    if (i % 4) continue;
+    const off = v.wheels.some((w) => w.contact && w.offroad);
+    const air = v.wheelsOnGround === 0;
+    const cur: [number, number] = [v.position.x, v.position.z];
+    if (prev) out.push(`<line x1="${prev[0]}" y1="${prev[1]}" x2="${cur[0]}" y2="${cur[1]}" stroke="${off ? '#ff2020' : air ? '#ffe030' : '#ffffff'}" stroke-width="${off || air ? 4 : 1.6}"/>`);
+    prev = cur;
+  }
+  sim.dispose();
+  return out.join('');
+}
+
+async function svgFor(id: string): Promise<string> {
   const d = defs.find((x) => x.id === id)!;
   const b = buildLevel(d);
   const t = b.track;
@@ -41,15 +67,16 @@ function svgFor(id: string): string {
   }
   marks.push(`<circle cx="${t.start.position.x}" cy="${t.start.position.z}" r="9" fill="#20d060" stroke="#000" stroke-width="2"/>`);
   for (const [x, , z] of b.overlaps) marks.push(`<circle cx="${x}" cy="${z}" r="14" fill="none" stroke="#ff0000" stroke-width="4"/>`);
+  const trace = process.env.TRACE !== undefined ? await traceSvg(d, t) : '';
   const label = `${d.id} ${d.name} · ${d.car} · ${d.theme} · ${Math.round(b.length)} m · y ${minY.toFixed(0)}..${maxY.toFixed(0)}${b.overlaps.length ? ` · ${b.overlaps.length} OVERLAPS` : ''}`;
   return `<div class="m"><div class="l">${label}</div><svg viewBox="${minX - pad} ${minZ - pad} ${w} ${h}" preserveAspectRatio="xMidYMid meet">
-    <rect x="${minX - pad}" y="${minZ - pad}" width="${w}" height="${h}" fill="#26331f"/>${segs.map((s) => s.svg).join('')}${marks.join('')}</svg></div>`;
+    <rect x="${minX - pad}" y="${minZ - pad}" width="${w}" height="${h}" fill="#26331f"/>${segs.map((s) => s.svg).join('')}${trace}${marks.join('')}</svg></div>`;
 }
 
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium' });
 const page = await browser.newPage({ viewport: { width: 1500, height: 1000 } });
 for (let k = 0; k < defs.length; k += 6) {
-  const html = `<html><body style="margin:0;background:#111;font:14px sans-serif;color:#eee"><style>.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px}.m{background:#1b1b1b}.l{padding:4px 6px}svg{width:100%;height:560px;display:block}</style><div class="g">${defs.slice(k, k + 6).map((d) => svgFor(d.id)).join('')}</div></body></html>`;
+  const html = `<html><body style="margin:0;background:#111;font:14px sans-serif;color:#eee"><style>.g{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;padding:6px}.m{background:#1b1b1b}.l{padding:4px 6px}svg{width:100%;height:560px;display:block}</style><div class="g">${(await Promise.all(defs.slice(k, k + 6).map((d) => svgFor(d.id)))).join('')}</div></body></html>`;
   await page.setContent(html);
   const file = `${prefix}_${Math.floor(k / 6)}.png`;
   await page.screenshot({ path: file, fullPage: true });

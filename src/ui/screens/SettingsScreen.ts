@@ -115,10 +115,7 @@ export class SettingsScreen implements Screen {
       case 'access':
         b.append(
           row('HUD size', range(0.8, 1.6, 0.1, s.hudScale, (v) => Settings.set('hudScale', v)), 'Scales the speedometer, clock, splits and results'),
-          row('Colour-blind medal colours', check(s.cbMedals, (v) => Settings.set('cbMedals', v)), 'Medals always have a distinct shape too'),
           row('Reduced motion', check(s.reducedMotion, (v) => Settings.set('reducedMotion', v)), 'Less camera shake and FOV kick, no pulsing UI'),
-          row('Unlock every level', check(s.unlockAll, (v) => { Settings.set('unlockAll', v); this.app.toast(v ? 'All levels unlocked' : 'Progression restored'); }), 'Skips the medal gates; records still save'),
-          h('div', { class: 'note' }, `Medal shapes: ${'◆ Author   ★ Gold   ● Silver   ■ Bronze'}`),
         );
         break;
       case 'data':

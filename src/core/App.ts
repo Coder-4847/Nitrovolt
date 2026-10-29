@@ -1,5 +1,5 @@
 import { AudioEngine } from '../audio/AudioEngine';
-import { CampaignState, computeCampaign, nextAvailable } from '../data/campaign';
+import { CAMPAIGN, nextLevel } from '../data/campaign';
 import { CAR_IDS, CarDef, carParams, getCar } from '../data/cars';
 import { DEFAULT_LEVEL_ID, LEVELS, getLevel } from '../data';
 import { VehicleParams } from '../physics/VehicleParams';
@@ -28,8 +28,7 @@ import { GhostData } from './Ghost';
 import { GhostStore, authorGhost } from './GhostStore';
 import { InputManager, MetaActions } from './input/InputManager';
 import { loadLivery } from './Livery';
-import { medalRank } from './Medals';
-import { RaceSession, SessionCtx } from './RaceSession';
+import { RaceSession, SessionCtx, carColor } from './RaceSession';
 import { Records } from './Records';
 import { ReplaySession } from './ReplaySession';
 import { Settings, SettingsData } from './Settings';
@@ -110,7 +109,6 @@ export class App implements AppApi {
       audio: this.audio,
       hud: this.hud,
       debug: this.debug,
-      campaign: () => this.campaign(),
       loopStats: () => ({ stepMs: this.loop.lastStepMs, steps: this.loop.lastStepCount }),
       finishActions: (s) => this.finishActions(s),
     };
@@ -242,19 +240,13 @@ export class App implements AppApi {
     return this.session instanceof RaceSession ? this.session.levelId : null;
   }
 
-  campaign(): CampaignState {
-    return computeCampaign((id) => Records.medal(id, getLevel(id)?.medalTimes ?? { author: 0, gold: 0, silver: 0, bronze: 0 }), {
-      unlockAll: Settings.get().unlockAll,
-    });
-  }
-
+  /** The level the "Continue" button opens: the first campaign track without a time yet, else the last one played. */
   continueLevel(): string {
-    const c = this.campaign();
-    const open = c.levels.find((l) => l.unlocked && l.entry.levelId && medalRank(l.medal) < medalRank('bronze'));
-    if (open?.entry.levelId) return open.entry.levelId;
+    const open = CAMPAIGN.find((l) => !Records.get(l.levelId));
+    if (open) return open.levelId;
     const last = storage.get<string>(LAST_LEVEL, '');
     if (getLevel(last)) return last;
-    return c.levels.find((l) => l.unlocked && l.entry.levelId)?.entry.levelId ?? DEFAULT_LEVEL_ID;
+    return CAMPAIGN[0]?.levelId ?? DEFAULT_LEVEL_ID;
   }
 
   thumbnail(id: string, done: (url: string) => void, stillWanted: () => boolean = () => true): void {
@@ -374,7 +366,6 @@ export class App implements AppApi {
       s.dispose();
       return;
     }
-    s.nameOf = (lid) => getLevel(lid)?.name ?? b.json?.name ?? lid;
     this.session = s;
     this.screens.closeAll();
     this.setActive('race');
@@ -408,7 +399,7 @@ export class App implements AppApi {
 
   openLevelSelect(): void {
     this.toMainMenu();
-    this.screens.push(new LevelSelectScreen(this, 'campaign'));
+    this.screens.push(new LevelSelectScreen(this));
   }
 
   toast(msg: string): void {
@@ -477,7 +468,8 @@ export class App implements AppApi {
       this.hud.awayFinish(false);
       this.gfx.viewCamera = null;
       this.gfx.trackView?.setBroken(race.sim.world.broken);
-      this.hud.setTitle(`${race.track.name} · ${race.def.label}`);
+      this.hud.setTitle(race.track.name);
+      this.hud.setCar(race.def.label, carColor(race.sim.carId));
       this.hud.clearSplits();
       this.setActive('race');
       this.gfx.rig.snap();
@@ -487,8 +479,8 @@ export class App implements AppApi {
   private finishActions(race: RaceSession): FinishAction[] {
     const k = this.input.bindings.keyboard.restart[0];
     const acts: FinishAction[] = [{ label: 'Retry', key: k === 'Enter' ? 'Enter' : undefined, primary: true, onClick: () => race.restart() }];
-    const next = nextAvailable(race.levelId);
-    if (next?.levelId && this.campaign().levels.find((l) => l.entry.levelId === next.levelId)?.unlocked) {
+    const next = nextLevel(race.levelId);
+    if (next) {
       const id = next.levelId;
       acts.push({ label: 'Next level', key: 'N', onClick: () => this.playLevel(id) });
     }
@@ -506,7 +498,6 @@ export class App implements AppApi {
   private applySettings(s: SettingsData): void {
     this.hud.speedFx = s.speedFx;
     this.gfx.rig.reducedMotion = s.reducedMotion;
-    document.body.classList.toggle('cb', s.cbMedals);
     document.body.classList.toggle('rm', s.reducedMotion);
     document.documentElement.style.setProperty('--hud-scale', String(s.hudScale));
     this.fpsEl.style.display = s.showFps ? 'block' : 'none';
@@ -527,8 +518,8 @@ export class App implements AppApi {
     if (e.code === 'KeyG') race.cycleGhosts();
     else if (this.hud.finishVisible && race.phase === 'finished') {
       if (e.code === 'KeyN') {
-        const n = nextAvailable(race.levelId);
-        if (n?.levelId && this.campaign().levels.find((l) => l.entry.levelId === n.levelId)?.unlocked) this.playLevel(n.levelId);
+        const n = nextLevel(race.levelId);
+        if (n) this.playLevel(n.levelId);
       } else if (e.code === 'KeyV') this.watchLastRun(race);
     }
   };

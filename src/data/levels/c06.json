@@ -1,8 +1,8 @@
 {
  "id": "c06",
- "name": "Loop Lane",
- "car": "volt",
- "theme": "night",
+ "name": "Falling Leaves",
+ "car": "gravel",
+ "theme": "sunset",
  "seed": 50384,
  "laps": 1,
  "blocks": [
@@ -13,216 +13,233 @@
     0,
     0
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "straight2",
    "gridPos": [
     0,
     0,
     -1
    ],
    "rot": 0,
-   "surface": "turbo"
+   "surface": "dirt"
   },
   {
-   "type": "straight4",
+   "type": "straight1",
    "gridPos": [
     0,
     0,
-    -2
+    -3
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
-   "type": "loop",
+   "type": "curve2R",
    "gridPos": [
     0,
+    0,
+    -4
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    2,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    3,
+    0,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "chicaneR",
+   "gridPos": [
+    6,
     0,
     -6
    ],
-   "rot": 0
+   "rot": 3,
+   "surface": "dirt"
   },
   {
-   "type": "straight2",
+   "type": "slopeUp1",
    "gridPos": [
-    1,
+    9,
     0,
-    -8
+    -5
    ],
-   "rot": 0
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "slopeDown1",
+   "gridPos": [
+    10,
+    1,
+    -5
+   ],
+   "rot": 3,
+   "surface": "dirt"
   },
   {
    "type": "straight1",
    "gridPos": [
-    1,
+    11,
     0,
-    -10
+    -5
    ],
-   "rot": 0
+   "rot": 3,
+   "surface": "dirt"
   },
   {
-   "type": "wallTurnR",
+   "type": "curve3L",
    "gridPos": [
-    1,
+    12,
     0,
-    -11
+    -5
    ],
-   "rot": 0
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    4,
-    0,
-    -10
-   ],
-   "rot": 2
-  },
-  {
-   "type": "slopeUp2",
-   "gridPos": [
-    4,
-    0,
-    -9
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    4,
-    2,
-    -7
-   ],
-   "rot": 2
+   "rot": 3,
+   "surface": "dirt"
   },
   {
    "type": "checkpoint",
    "gridPos": [
-    4,
-    2,
-    -6
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    4,
-    2,
-    -5
-   ],
-   "rot": 2
-  },
-  {
-   "type": "curve3R",
-   "gridPos": [
-    4,
-    2,
-    -4
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    1,
-    2,
-    -2
-   ],
-   "rot": 1
-  },
-  {
-   "type": "curve3R",
-   "gridPos": [
-    -1,
-    2,
-    -2
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -3,
-    2,
-    -5
-   ],
-   "rot": 0,
-   "surface": "turbo"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -3,
-    2,
-    -6
-   ],
-   "rot": 0
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -3,
-    2,
+    14,
+    0,
     -8
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
-   "type": "loop",
+   "type": "straight1",
    "gridPos": [
-    -3,
-    2,
+    14,
+    0,
     -9
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    14,
+    0,
+    -10
    ],
    "rot": 0
   },
   {
    "type": "straight2",
    "gridPos": [
-    -2,
-    2,
+    14,
+    0,
     -11
    ],
    "rot": 0
   },
   {
-   "type": "straight1",
+   "type": "bank3R",
    "gridPos": [
-    -2,
-    2,
+    14,
+    0,
     -13
    ],
    "rot": 0
   },
   {
-   "type": "finish",
+   "type": "straight1",
    "gridPos": [
-    -2,
-    2,
-    -14
+    17,
+    0,
+    -15
    ],
-   "rot": 0
+   "rot": 3,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    18,
+    0,
+    -15
+   ],
+   "rot": 3
   },
   {
    "type": "straight1",
    "gridPos": [
-    -2,
-    2,
+    20,
+    0,
     -15
    ],
-   "rot": 0
+   "rot": 3
+  },
+  {
+   "type": "bankChicaneL",
+   "gridPos": [
+    21,
+    0,
+    -15
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    24,
+    0,
+    -16
+   ],
+   "rot": 3
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    25,
+    0,
+    -16
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    26,
+    0,
+    -16
+   ],
+   "rot": 3
   }
  ],
  "medalTimes": {
-  "author": 33264,
-  "gold": 35592,
-  "silver": 40582,
-  "bronze": 49896
+  "author": 0,
+  "gold": 0,
+  "silver": 0,
+  "bronze": 0
  },
+ "target": 41699,
  "bot": {
-  "maxSpeed": 75
+  "maxSpeed": 37,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 7.800000000000001,
+  "speedScale": 0.68
  }
 }

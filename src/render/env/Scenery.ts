@@ -111,7 +111,7 @@ function poplarGeometry(): BufferGeometry {
   return mergeGeometries(parts)!;
 }
 
-/** Cherry tree: dark branching trunk, a wide flat crown of blossom and petals on the ground. */
+/** Broad-crowned tree: dark branching trunk, a wide flat crown (blossom pink, or red and gold leaves in autumn) and fallen leaves on the ground. */
 function blossomGeometry(): BufferGeometry {
   const bark = 0x3e2c24;
   const parts = [

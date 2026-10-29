@@ -117,6 +117,20 @@ add('chicaneR', 'Chicane right', 'chicane', chicane(-1, A1));
 add('chicaneWideL', 'Wide chicane left', 'chicane', chicane(1, A2));
 add('chicaneWideR', 'Wide chicane right', 'chicane', chicane(-1, A2));
 
+// banked S-bends: both turns lean into the corner, the road levels out between them
+add('bankChicaneL', 'Banked chicane left', 'chicane', (t, o) => {
+  t.arc(80, A1, 26, ro(o), true, 0.4);
+  t.arc(80, -A1, 26, ro(o), true, 0.4);
+}, { walls: 'both' });
+add('bankChicaneR', 'Banked chicane right', 'chicane', (t, o) => {
+  t.arc(80, -A1, 26, ro(o), true, 0.4);
+  t.arc(80, A1, 26, ro(o), true, 0.4);
+}, { walls: 'both' });
+
+// hairpins: a 180 degree U-turn of radius 32 that ends two cells to the side
+add('hairpinL', 'Hairpin left', 'curve', (t, o) => t.arc(32, 180, 0, ro(o)));
+add('hairpinR', 'Hairpin right', 'curve', (t, o) => t.arc(32, -180, 0, ro(o)));
+
 // ---------------------------------------------------------------- slopes (rise is whole levels of 8 m)
 add('slopeUp1', 'Slope up 1', 'slope', (t, o) => t.slope(CELL, 8, 24, 2, ro(o)));
 add('slopeDown1', 'Slope down 1', 'slope', (t, o) => t.slope(CELL, -8, 24, 2, ro(o)));
@@ -168,6 +182,16 @@ add('spiralDownL', 'Spiral descent left', 'spiral', (t, o) => {
 add('spiralDownR', 'Spiral descent right', 'spiral', (t, o) => {
   const r = ro(o, { walls: 'both' });
   t.spiral(48, -360, 16, 22, { ...r, special: true });
+  t.straight(CELL, r);
+}, { walls: 'both' });
+add('spiralUpL', 'Spiral climb left', 'spiral', (t, o) => {
+  const r = ro(o, { walls: 'both' });
+  t.spiral(48, 360, -16, 22, { ...r, special: true });
+  t.straight(CELL, r);
+}, { walls: 'both' });
+add('spiralUpR', 'Spiral climb right', 'spiral', (t, o) => {
+  const r = ro(o, { walls: 'both' });
+  t.spiral(48, -360, -16, 22, { ...r, special: true });
   t.straight(CELL, r);
 }, { walls: 'both' });
 

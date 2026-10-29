@@ -1,122 +1,51 @@
-import { Medal, medalRank } from '../core/Medals';
 import { LEVELS } from './index';
 import manifest from './levels.json';
 
-/** Campaign difficulty tiers (five tracks each), plus the training tracks. */
-export type Tier = 'training' | 0 | 1 | 2 | 3 | 4;
-
-export interface TierDef {
-  id: 0 | 1 | 2 | 3 | 4;
+/** The five worlds of the campaign, five tracks each. Everything is open from the start: the game is about the time. */
+export interface WorldDef {
+  /** Theme id the levels use (forest, sunset, snow, desert, night). */
+  id: string;
   name: string;
-  /** Badge colour (CSS). */
+  /** Accent colour (CSS). */
   color: string;
   blurb: string;
 }
 
-export const TIERS: readonly TierDef[] = [
-  { id: 0, name: 'White', color: '#f2f4f7', blurb: 'First laps: one car, clean lines.' },
-  { id: 1, name: 'Green', color: '#3fd26f', blurb: 'Wall turns, loops and your first car switch.' },
-  { id: 2, name: 'Blue', color: '#3d8bff', blurb: 'Mixed cars, ice, dirt and big air.' },
-  { id: 3, name: 'Red', color: '#ff4a3d', blurb: 'Fast, technical and unforgiving.' },
-  { id: 4, name: 'Black', color: '#2a2d33', blurb: 'Everything at once. Good luck.' },
+export const WORLDS: readonly WorldDef[] = [
+  { id: 'forest', name: 'Summer', color: '#ffd23a', blurb: 'Sunny valleys, lakeside roads and a run down to the beach.' },
+  { id: 'sunset', name: 'Autumn', color: '#ff7a2f', blurb: 'Red woods, farm tracks and misty gorges.' },
+  { id: 'snow', name: 'Winter', color: '#8fd8ff', blurb: 'Fresh powder, frozen lakes and glacier canyons.' },
+  { id: 'desert', name: 'Desert', color: '#f0a040', blurb: 'Dunes, canyons and big jumps over the mesas.' },
+  { id: 'night', name: 'Night', color: '#8a7dff', blurb: 'Neon streets: loops, wall rides and skyline stunts.' },
 ];
 
-/** Bronze (or better) on this many tracks of a tier opens the next tier. */
-export const TIER_UNLOCK = 4;
+export const worldOf = (theme: string): WorldDef => WORLDS.find((w) => w.id === theme) ?? WORLDS[0]!;
 
 export interface CampaignLevel {
-  /** 1-based number inside its list (campaign 1..25, training 1..n). */
+  /** 1-based position in the campaign (1..25). */
   number: number;
-  tier: Tier;
+  /** Theme id of the world it belongs to. */
+  world: string;
   levelId: string;
   blurb: string;
 }
 
-interface ManifestEntry { id: string; tier: Tier; blurb: string }
+interface ManifestEntry { id: string; world: string; blurb: string }
 
 /** Every built-in level in play order (written by scripts/make-levels.mts). */
-const ENTRIES = (manifest as ManifestEntry[]).filter((e) => LEVELS.some((l) => l.id === e.id));
+export const CAMPAIGN: readonly CampaignLevel[] = (manifest as ManifestEntry[])
+  .filter((e) => LEVELS.some((l) => l.id === e.id))
+  .map((e, i) => ({ number: i + 1, world: e.world, levelId: e.id, blurb: e.blurb }));
 
-export const TRAINING: readonly CampaignLevel[] = ENTRIES.filter((e) => e.tier === 'training').map((e, i) => ({ number: i + 1, tier: e.tier, levelId: e.id, blurb: e.blurb }));
-export const CAMPAIGN: readonly CampaignLevel[] = ENTRIES.filter((e) => e.tier !== 'training').map((e, i) => ({ number: i + 1, tier: e.tier, levelId: e.id, blurb: e.blurb }));
-
-export const MEDAL_POINTS: Record<Medal, number> = { none: 0, bronze: 1, silver: 2, gold: 3, author: 4 };
-/** Medal that counts a track as done for unlocking. */
-export const UNLOCK_MEDAL: Medal = 'bronze';
-
-export interface LevelState {
-  entry: CampaignLevel;
-  available: boolean;
-  unlocked: boolean;
-  medal: Medal;
-  /** Why it is locked (shown on the card), or null. */
-  lockReason: string | null;
+/** How long a track takes, from the target time (ms): a sprint, a standard track or a marathon. */
+export function lengthClass(targetMs: number): 'Sprint' | 'Standard' | 'Marathon' {
+  return targetMs < 50000 ? 'Sprint' : targetMs < 82000 ? 'Standard' : 'Marathon';
 }
 
-export interface TierState {
-  def: TierDef;
-  unlocked: boolean;
-  /** Tracks with at least bronze / tracks in the tier. */
-  done: number;
-  count: number;
-  points: number;
-  maxPoints: number;
-}
-
-export interface CampaignState {
-  /** Campaign tracks then training tracks. */
-  levels: LevelState[];
-  tiers: TierState[];
-  training: LevelState[];
-  totalPoints: number;
-  maxPoints: number;
-}
-
-export interface CampaignOptions {
-  /** Treat everything as unlocked (accessibility option / dev). */
-  unlockAll?: boolean;
-  campaign?: readonly CampaignLevel[];
-  training?: readonly CampaignLevel[];
-}
-
-/**
- * Unlocks: training is always open; the White tier is open; each further tier opens once TIER_UNLOCK tracks
- * of the tier before it have at least Bronze. Inside an open tier every track is playable.
- */
-export function computeCampaign(medalOf: (levelId: string) => Medal, opts: CampaignOptions = {}): CampaignState {
-  const campaign = opts.campaign ?? CAMPAIGN;
-  const training = opts.training ?? TRAINING;
-  const tiers: TierState[] = [];
-  const levels: LevelState[] = [];
-  let open = true;
-  let total = 0, max = 0;
-  for (const def of TIERS) {
-    const inTier = campaign.filter((e) => e.tier === def.id);
-    const medals = inTier.map((e) => medalOf(e.levelId));
-    const done = medals.filter((m) => medalRank(m) >= medalRank(UNLOCK_MEDAL)).length;
-    const points = medals.reduce((a, m) => a + MEDAL_POINTS[m], 0);
-    const unlocked: boolean = !!opts.unlockAll || open;
-    tiers.push({ def, unlocked, done, count: inTier.length, points, maxPoints: inTier.length * MEDAL_POINTS.author });
-    inTier.forEach((e, i) => {
-      const lock = unlocked ? null : `Finish ${TIER_UNLOCK} ${TIERS[def.id - 1]?.name ?? ''} tracks`;
-      levels.push({ entry: e, available: true, unlocked, medal: medals[i]!, lockReason: lock });
-    });
-    total += points;
-    max += inTier.length * MEDAL_POINTS.author;
-    // the next tier opens with enough tracks done here (a short tier needs all of them)
-    open = unlocked && done >= Math.min(TIER_UNLOCK, inTier.length);
-  }
-  const train = training.map((e): LevelState => ({ entry: e, available: true, unlocked: true, medal: medalOf(e.levelId), lockReason: null }));
-  return { levels: [...levels, ...train], tiers, training: train, totalPoints: total, maxPoints: max };
-}
-
-/** The track after `levelId` in its own list (campaign or training), or null at the end. */
-export function nextAvailable(levelId: string): CampaignLevel | null {
-  for (const list of [CAMPAIGN, TRAINING]) {
-    const i = list.findIndex((e) => e.levelId === levelId);
-    if (i >= 0) return list[i + 1] ?? null;
-  }
-  return null;
+/** The track after `levelId`, or null at the end of the campaign. */
+export function nextLevel(levelId: string): CampaignLevel | null {
+  const i = CAMPAIGN.findIndex((e) => e.levelId === levelId);
+  return i >= 0 ? CAMPAIGN[i + 1] ?? null : null;
 }
 
 /** Day number (UTC) for a date: changes at midnight UTC so everyone gets the same track of the day. */

@@ -6,7 +6,7 @@ import { layoutChain } from '../../src/tracks/ChainLayout';
 import { buildTrack } from '../../src/tracks/TrackGenerator';
 const speed = Number(process.argv[2] ?? 30);
 const { blocks } = layoutChain([{ type: 'start' }, { type: 'straight4' }, { type: 'straight4' }, { type: 'wallRide4R' }, { type: 'straight2' }, { type: 'finish' }]);
-const track = buildTrack({ id: 'w', name: 'w', car: 'volt', theme: 'g', seed: 1, blocks, medalTimes: { author: 0, gold: 0, silver: 0, bronze: 0 } });
+const track = buildTrack({ id: 'w', name: 'w', car: 'volt', theme: 'g', seed: 1, blocks });
 console.log('killY', track.killY, 'start', track.start.position.toArray());
 const sim = await Simulation.create(track, cloneParams(VOLT), 0);
 const v = sim.vehicle;

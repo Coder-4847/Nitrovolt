@@ -78,15 +78,15 @@ export class InputManager {
 
     // --- keyboard analog smoothing ---
     const dig = (kb.isDown('right') || this.touch.right ? 1 : 0) - (kb.isDown('left') || this.touch.left ? 1 : 0);
-    const attack = 7.5 - 3.8 * Math.min(1, speed / 80);
-    const flip = 16;
-    const release = 9;
+    const attack = 10 - 4.5 * Math.min(1, speed / 80);
+    const flip = 22;
+    const release = 12;
     if (dig === 0) this.kSteer = move(this.kSteer, 0, release * dt);
     else if (this.kSteer !== 0 && Math.sign(this.kSteer) !== dig) this.kSteer = move(this.kSteer, dig, flip * dt);
     else this.kSteer = move(this.kSteer, dig, attack * dt);
 
-    this.kAccel = move(this.kAccel, kb.isDown('accel') || this.touch.gas ? 1 : 0, (kb.isDown('accel') || this.touch.gas ? 11 : 22) * dt);
-    this.kBrake = move(this.kBrake, kb.isDown('brake') || this.touch.brake ? 1 : 0, (kb.isDown('brake') || this.touch.brake ? 11 : 22) * dt);
+    this.kAccel = move(this.kAccel, kb.isDown('accel') || this.touch.gas ? 1 : 0, (kb.isDown('accel') || this.touch.gas ? 16 : 28) * dt);
+    this.kBrake = move(this.kBrake, kb.isDown('brake') || this.touch.brake ? 1 : 0, (kb.isDown('brake') || this.touch.brake ? 16 : 28) * dt);
 
     // --- merge sources: largest magnitude wins ---
     const pick = (...v: number[]): number => v.reduce((a, b) => (Math.abs(b) > Math.abs(a) ? b : a), 0);

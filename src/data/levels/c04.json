@@ -1,8 +1,8 @@
 {
  "id": "c04",
- "name": "Golden Hour",
- "car": "volt",
- "theme": "sunset",
+ "name": "Canopy Run",
+ "car": "gravel",
+ "theme": "forest",
  "seed": 5622,
  "laps": 1,
  "blocks": [
@@ -13,7 +13,8 @@
     0,
     0
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
    "type": "straight4",
@@ -22,197 +23,310 @@
     0,
     -1
    ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
-   "type": "straight1",
+   "type": "curve3L",
    "gridPos": [
     0,
     0,
     -5
    ],
-   "rot": 0
-  },
-  {
-   "type": "chicaneR",
-   "gridPos": [
-    0,
-    0,
-    -6
-   ],
-   "rot": 0
+   "rot": 0,
+   "surface": "dirt"
   },
   {
    "type": "straight2",
    "gridPos": [
-    1,
-    0,
-    -9
-   ],
-   "rot": 0
-  },
-  {
-   "type": "wallTurnL",
-   "gridPos": [
-    1,
-    0,
-    -11
-   ],
-   "rot": 0
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -2,
-    0,
-    -10
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -2,
-    0,
-    -8
-   ],
-   "rot": 2
-  },
-  {
-   "type": "checkpoint",
-   "gridPos": [
-    -2,
+    -3,
     0,
     -7
    ],
-   "rot": 2
+   "rot": 1,
+   "surface": "dirt"
   },
   {
    "type": "straight1",
    "gridPos": [
-    -2,
+    -5,
     0,
-    -6
+    -7
    ],
-   "rot": 2
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "kicker",
+   "gridPos": [
+    -6,
+    0,
+    -7
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -9,
+    0,
+    -7
+   ],
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -12,
+    -2,
+    -7
+   ],
+   "rot": 1,
+   "surface": "dirt"
   },
   {
    "type": "curve2R",
    "gridPos": [
+    -14,
     -2,
-    0,
-    -5
+    -7
    ],
-   "rot": 2
+   "rot": 1,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -15,
+    -2,
+    -9
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "chicaneWideL",
+   "gridPos": [
+    -15,
+    -2,
+    -10
+   ],
+   "rot": 0,
+   "surface": "dirt"
   },
   {
    "type": "straight2",
    "gridPos": [
-    -4,
-    0,
-    -4
+    -17,
+    -2,
+    -14
    ],
-   "rot": 1
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -17,
+    -2,
+    -16
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "jumpRamp",
+   "gridPos": [
+    -17,
+    -2,
+    -17
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "landingXL",
+   "gridPos": [
+    -17,
+    -2,
+    -19
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -17,
+    -4,
+    -22
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "checkpoint",
+   "gridPos": [
+    -17,
+    -4,
+    -24
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -17,
+    -4,
+    -25
+   ],
+   "rot": 0,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -14,
+    -4,
+    -27
+   ],
+   "rot": 3,
+   "surface": "dirt"
   },
   {
    "type": "curve2L",
    "gridPos": [
-    -6,
-    0,
-    -4
-   ],
-   "rot": 1
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -7,
-    0,
-    -2
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -7,
-    0,
-    0
-   ],
-   "rot": 2,
-   "surface": "turbo"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    -7,
-    0,
-    1
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    -7,
-    0,
-    3
-   ],
-   "rot": 2
-  },
-  {
-   "type": "bank3L",
-   "gridPos": [
-    -7,
-    0,
-    4
-   ],
-   "rot": 2
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
+    -12,
     -4,
-    0,
-    6
+    -27
    ],
-   "rot": 3
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "gateVolt",
+   "gridPos": [
+    -11,
+    -4,
+    -29
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -11,
+    -4,
+    -30
+   ],
+   "rot": 0
+  },
+  {
+   "type": "loop",
+   "gridPos": [
+    -11,
+    -4,
+    -32
+   ],
+   "rot": 0
   },
   {
    "type": "straight1",
    "gridPos": [
-    -2,
-    0,
-    6
+    -10,
+    -4,
+    -34
+   ],
+   "rot": 0
+  },
+  {
+   "type": "wallRide4L",
+   "gridPos": [
+    -10,
+    -4,
+    -35
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    -10,
+    -4,
+    -39
+   ],
+   "rot": 0
+  },
+  {
+   "type": "curve3R",
+   "gridPos": [
+    -10,
+    -4,
+    -40
+   ],
+   "rot": 0
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -7,
+    -4,
+    -42
    ],
    "rot": 3
+  },
+  {
+   "type": "wallTurn90L",
+   "gridPos": [
+    -5,
+    -4,
+    -42
+   ],
+   "rot": 3
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    -3,
+    -4,
+    -45
+   ],
+   "rot": 0
   },
   {
    "type": "finish",
    "gridPos": [
-    -1,
-    0,
-    6
+    -3,
+    -4,
+    -47
    ],
-   "rot": 3
+   "rot": 0
   },
   {
    "type": "straight1",
    "gridPos": [
-    0,
-    0,
-    6
+    -3,
+    -4,
+    -48
    ],
-   "rot": 3
+   "rot": 0
   }
  ],
  "medalTimes": {
-  "author": 32068,
-  "gold": 34633,
-  "silver": 40085,
-  "bronze": 49705
+  "author": 0,
+  "gold": 0,
+  "silver": 0,
+  "bronze": 0
  },
+ "target": 67295,
  "bot": {
-  "maxSpeed": 75
+  "maxSpeed": 55,
+  "lookTime": 0.7,
+  "steerSlew": 0.05,
+  "lateralBudget": 12,
+  "speedScale": 1
  }
 }

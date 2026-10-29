@@ -64,12 +64,13 @@ export function planScenery(t: TerrainData, kit: SceneryKit, density: number, se
   const place = (kind: PropKind, x: number, z: number, h: number, w: number, color: number, nd: number, sink = 0.25): void => {
     out.push({ kind, x, y: groundAt(x, z) - sink, z, rot: rng.range(0, Math.PI * 2), sx: w, sy: h, sz: w * rng.range(0.85, 1.15), color, near: nd });
   };
-  const greens = kit === 'sunset' ? [0x5d7a34, 0x6a8a3a, 0x4f6e30, 0x7a8a3c] : kit === 'night' ? [0x2f5a2c, 0x35602f, 0x2a502a] : [0x4f8a3a, 0x5b9441, 0x467a36, 0x68984a];
+  // autumn: oranges, reds and golds instead of greens
+  const greens = kit === 'sunset' ? [0xd9791f, 0xe0902a, 0xc0521c, 0xb8431a, 0xe8b030, 0xa86a22] : kit === 'night' ? [0x2f5a2c, 0x35602f, 0x2a502a] : [0x4f8a3a, 0x5b9441, 0x467a36, 0x68984a];
   const pines = kit === 'snow' ? [0x2e5a44, 0x335f48, 0x294f3e] : [0x2b5a3a, 0x30623f, 0x264f34];
-  const blossoms = [0xf2b6c8, 0xeaa2b8, 0xf6c6d4, 0xe896b0];
+  const blossoms = [0xd9541e, 0xe8a030, 0xc23a1c, 0xf0c040];
   const rocks = kit === 'desert' ? [0xa86a44, 0xbf8656, 0x9a5e3c] : kit === 'snow' ? [0x7b8594, 0x6b7280, 0x8a93a0] : [0x8a8478, 0x7a7468, 0x969084];
-  const tuftCol = kit === 'desert' ? [0xb8a060, 0xa8905a, 0xc4ae70] : kit === 'snow' ? [0x8a9a7a] : kit === 'sunset' ? [0x6a8a3c, 0x7a9440] : [0x5c9a3c, 0x6aa844, 0x4e8a36];
-  const flowerCol = [0xffd23a, 0xffffff, 0xf26a8c, 0x9a7aff, 0xff8a3a];
+  const tuftCol = kit === 'desert' ? [0xb8a060, 0xa8905a, 0xc4ae70] : kit === 'snow' ? [0x8a9a7a] : kit === 'sunset' ? [0xb8a050, 0xc08a3a, 0x9a7a34] : [0x5c9a3c, 0x6aa844, 0x4e8a36];
+  const flowerCol = kit === 'sunset' ? [0xd9541e, 0xe8a030, 0xb8431a, 0xf0c040] : [0xffd23a, 0xffffff, 0xf26a8c, 0x9a7aff, 0xff8a3a];
 
   // ---- the band inside the stadium: a jittered grid, denser near the road
   const step = 7 / Math.sqrt(Math.max(0.2, density));
@@ -92,7 +93,7 @@ export function planScenery(t: TerrainData, kit: SceneryKit, density: number, se
           const treeP = (wood > 0.55 ? 0.55 : wood > 0.45 ? 0.2 : 0.04) * framing;
           if (!pit && nd >= CLEARANCE.tree && roll < treeP) {
             const hgt = rng.range(9, 16);
-            if (kit === 'sunset' && rng.next() < 0.45) place('blossom', px, pz, hgt * 0.75, hgt * 0.85, pick(rng, blossoms), nd);
+            if (kit === 'sunset' && rng.next() < 0.5) place('blossom', px, pz, hgt * 0.75, hgt * 0.85, pick(rng, blossoms), nd);
             else if (rng.next() < 0.18) place('poplar', px, pz, hgt * 1.3, hgt * 0.32, pick(rng, greens), nd);
             else if (kit !== 'sunset' && rng.next() < 0.22) place('pine', px, pz, hgt * 1.1, hgt * 0.42, pick(rng, pines), nd);
             else place('tree', px, pz, hgt, hgt * 0.75, pick(rng, greens), nd);

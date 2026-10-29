@@ -15,7 +15,7 @@ export class AboutScreen implements Screen {
       header('About', () => this.app.screens.back()),
       h('div', { class: 'ls-body help-body' },
         h('div', { class: 'logo about-logo', html: 'NITRO<span>VOLT</span>' }),
-        h('p', {}, `Version ${typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev'}. An original browser time-attack racer: instant restarts, ghosts, medals, car gates, wall rides, loops and jumps through forest, snow and desert. Not affiliated with any other racing game.`),
+        h('p', {}, `Version ${typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : 'dev'}. An original browser time-attack racer: instant restarts, ghosts, car gates, wall rides, loops and jumps through summer, autumn, winter, desert and night. Not affiliated with any other racing game.`),
         h('p', {}, 'Everything you see and hear is generated in code: car models and liveries, tracks, terrain, trees, stadiums, signage, sky, textures, engine sounds and music. The menu pictures are screenshots of the game itself. No external art or audio assets; only the two fonts are bundled.'),
         h('h4', {}, 'Built with'),
         h('ul', {},

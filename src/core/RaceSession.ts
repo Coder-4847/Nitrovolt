@@ -1,7 +1,7 @@
 import { Quaternion, Vector3 } from 'three';
 import { AudioEngine } from '../audio/AudioEngine';
 import { CarDef, carParams, getCar } from '../data/cars';
-import { CampaignState } from '../data/campaign';
+import { worldOf } from '../data/campaign';
 import { PHYSICS_DT } from './FixedLoop';
 import { Simulation, SimulationEvent } from '../physics/Simulation';
 import { RenderPose } from '../physics/Vehicle';
@@ -13,12 +13,12 @@ import { PathBot, applyBotHints } from '../tracks/PathBot';
 import { BotHints, TrackJson } from '../tracks/TrackSchema';
 import { TrackData } from '../tracks/TrackTypes';
 import { DebugOverlay } from '../ui/DebugOverlay';
-import { FinishAction, Hud } from '../ui/Hud';
+import { FinishAction, FinishSplit, Hud, MapData, formatTime } from '../ui/Hud';
+import { GATE_TINT } from '../tracks/BlockLibrary';
 import { GhostData, GhostPlayer, GhostRecorder, levelFingerprint } from './Ghost';
 import { GhostStore, authorGhost } from './GhostStore';
 import { InputFrame, makeFrame } from './InputFrame';
 import { InputManager, MetaActions } from './input/InputManager';
-import { medalFor, medalRank } from './Medals';
 import { PersonalBest, Records } from './Records';
 import { COUNTDOWN_SECONDS, GhostShow, Settings } from './Settings';
 
@@ -26,6 +26,35 @@ const CAMERA_LABEL: { [K in CameraMode]: string } = { chase: 'Chase cam', far: '
 export const GHOST_CYCLE: GhostShow[] = ['pb', 'author', 'both', 'off'];
 const GHOST_LABEL: Record<GhostShow, string> = { pb: 'Ghost: personal best', author: 'Ghost: author', both: 'Ghosts: PB + author', off: 'Ghosts off' };
 const GHOST_COLOR = { pb: 0xa9d6ff, author: 0xb4f0c8 };
+const cssColor = (n: number): string => `#${n.toString(16).padStart(6, '0')}`;
+/** Colour of a car (its gate colour) for the HUD and the minimap. */
+export const carColor = (car: string): string => cssColor(GATE_TINT[car] ?? 0xffffff);
+
+/** Nearest-point progress along the driving line: a moving window search, with a full search after a teleport. */
+class PathProgress {
+  idx = 0;
+  constructor(private readonly path: Vector3[]) {}
+  reset(): void {
+    this.idx = 0;
+  }
+  update(p: Vector3): number {
+    const path = this.path;
+    let best = this.idx, bestD = Infinity;
+    const lo = Math.max(0, this.idx - 12), hi = Math.min(path.length, this.idx + 90);
+    for (let i = lo; i < hi; i++) {
+      const d = path[i]!.distanceToSquared(p);
+      if (d < bestD) { bestD = d; best = i; }
+    }
+    if (bestD > 60 * 60) {
+      for (let i = 0; i < path.length; i++) {
+        const d = path[i]!.distanceToSquared(p);
+        if (d < bestD) { bestD = d; best = i; }
+      }
+    }
+    this.idx = best;
+    return best;
+  }
+}
 
 export interface SessionCtx {
   gfx: GameRenderer;
@@ -33,8 +62,6 @@ export interface SessionCtx {
   audio: AudioEngine;
   hud: Hud;
   debug: DebugOverlay;
-  /** Campaign progress right now (read before and after a finish to see what it unlocked). */
-  campaign(): CampaignState;
   /** Physics loop timings for the debug overlay. */
   loopStats(): { stepMs: number; steps: number };
   /** Buttons for the finish panel. */
@@ -103,6 +130,12 @@ export class RaceSession {
   private pendingRun: GhostData | null = null;
   private finishRespawns = 0;
   private pb: PersonalBest | undefined;
+  /** Distance along the driving line at every sample, for the live gap to a ghost and the next car gate. */
+  private readonly pathS: Float32Array;
+  private readonly progress: PathProgress;
+  private readonly ghostProgress = new Map<GhostSlot, PathProgress>();
+  private readonly gates: Array<{ s: number; car: string }> = [];
+  private gap = 0;
   private prevBoost = false;
   private cdTick = 0;
   private cdTotal = 0;
@@ -117,6 +150,20 @@ export class RaceSession {
     this.track = source.track;
     this.def = source.def;
     this.pose = sim.vehicle.curr;
+    const line = source.track.centerline;
+    this.pathS = new Float32Array(line.length);
+    for (let i = 1; i < line.length; i++) this.pathS[i] = this.pathS[i - 1]! + line[i]!.distanceTo(line[i - 1]!);
+    this.progress = new PathProgress(line);
+    for (const t of source.track.triggers) {
+      if (t.kind !== 'car' || !t.car) continue;
+      let bi = 0, bd = Infinity;
+      for (let i = 0; i < line.length; i++) {
+        const d = line[i]!.distanceToSquared(t.position);
+        if (d < bd) { bd = d; bi = i; }
+      }
+      this.gates.push({ s: this.pathS[bi]!, car: t.car });
+    }
+    this.gates.sort((a, b) => a.s - b.s);
     this.instant = !!opts.instant;
     this.levelHash = source.json ? levelFingerprint(source.json.blocks, source.json.car, source.json.laps ?? 1) : '';
     this.recordId = source.recordId ?? source.track.id;
@@ -131,7 +178,28 @@ export class RaceSession {
     const s = new RaceSession(ctx, source, sim, opts);
     await s.loadGhosts();
     s.restart(false);
+    ctx.hud.setMap(s.mapData());
     return s;
+  }
+
+  /** The minimap: the driving line coloured by the car used on each stretch, with every line marked. */
+  private mapData(): MapData {
+    const t = this.track;
+    const gateIdx = this.gates.map((g) => g.s);
+    let car: string = this.def.id, next = 0;
+    const line: MapData['line'] = [];
+    for (let i = 0; i < t.centerline.length; i += 3) {
+      while (next < gateIdx.length && this.pathS[i]! >= gateIdx[next]!) car = this.gates[next++]!.car;
+      const p = t.centerline[i]!;
+      line.push({ x: p.x, z: p.z, color: carColor(car), gap: t.centerFrame[i]!.kind === 'gap' });
+    }
+    const marks: MapData['marks'] = [{ x: t.start.position.x, z: t.start.position.z, kind: 'start', color: '#3fe07a' }];
+    for (const tr of t.triggers) {
+      if (tr.kind === 'checkpoint') marks.push({ x: tr.position.x, z: tr.position.z, kind: 'checkpoint', color: '#ffffff' });
+      else if (tr.kind === 'finish') marks.push({ x: tr.position.x, z: tr.position.z, kind: 'finish', color: '#ff3b2f' });
+      else if (tr.kind === 'car' && tr.car) marks.push({ x: tr.position.x, z: tr.position.z, kind: 'gate', color: carColor(tr.car) });
+    }
+    return { line, marks };
   }
 
   // ---- dev / test hooks ----
@@ -177,9 +245,15 @@ export class RaceSession {
     hud.hideFinish();
     hud.setCountdown(null);
     hud.setProgress(0, this.sim.run.checkpointCount, 0, this.track.laps);
-    hud.setTitle(`${this.track.name} · ${this.def.label}`);
+    hud.setTitle(this.track.name);
+    hud.setSub(`${worldOf(this.track.theme).name}${this.track.targetTime > 0 ? ` · target ${formatTime(this.track.targetTime)}` : ''}`);
+    hud.setCar(this.def.label, carColor(this.def.id));
     this.pb = Records.get(this.recordId);
-    hud.setTargets(this.pb?.best ?? null, this.track.medals);
+    hud.setTargets(this.pb?.best ?? null, this.track.targetTime > 0 ? this.track.targetTime : null);
+    hud.setNext(null);
+    this.progress.reset();
+    for (const p of this.ghostProgress.values()) p.reset();
+    this.gap = 0;
     this.prevBoost = false;
     this.sim.events.length = 0;
     if (this.phase === 'grid') this.beat(3);
@@ -331,6 +405,10 @@ export class RaceSession {
           gfx.trackView?.gates.flash('finish');
           this.finish(e.time);
           break;
+        case 'car':
+          hud.showCarBanner(`${getCar(e.car).label} car`, carColor(e.car));
+          audio.blip(880, 70);
+          break;
         case 'break':
           gfx.trackView?.setBroken(this.sim.world.broken);
           audio.shatter();
@@ -361,16 +439,10 @@ export class RaceSession {
   private finish(time: number): void {
     const { hud, audio, input } = this.ctx;
     const id = this.recordId;
-    const before = this.ctx.campaign();
-    const prevMedal = Records.medal(id, this.track.medals);
-    const delta = this.pb ? time - this.pb.best : null;
+    const prev = this.pb;
+    const delta = prev ? time - prev.best : null;
     const newBest = Records.submit(id, time, this.sim.run.splits);
-    const medal = medalFor(time, this.track.medals);
-    const medalEarned = medalRank(medal) > medalRank(prevMedal);
-    const after = this.ctx.campaign();
-    const unlocked = after.levels
-      .filter((l, i) => l.unlocked && !before.levels[i]!.unlocked && l.entry.levelId)
-      .map((l) => this.nameOf(l.entry.levelId!));
+    const target = this.track.targetTime > 0 ? this.track.targetTime : null;
     if (this.pendingRun) {
       this.lastRun = this.pendingRun;
       if (newBest && this.source.json) {
@@ -378,15 +450,53 @@ export class RaceSession {
         void GhostStore.save(run).then(() => (Settings.get().ghosts === 'pb' || Settings.get().ghosts === 'both' ? this.loadGhosts() : undefined));
       }
     }
-    hud.showFinish({ time, delta, newBest, medal, medalEarned, respawns: this.finishRespawns, unlocked }, this.ctx.finishActions(this));
+    const splits: FinishSplit[] = this.sim.run.splits.map((t, i) => ({
+      label: i < this.sim.run.splits.length - 1 || this.track.laps > 1 ? (this.track.laps > 1 ? `LAP ${i + 1}` : `CP ${i + 1}`) : 'FINISH',
+      time: t,
+      delta: prev?.splits[i] === undefined ? null : t - prev.splits[i]!,
+    }));
+    hud.setGap(null);
+    hud.setNext(null);
+    hud.showFinish({ time, delta, newBest, target, vsTarget: target === null ? null : time - target, respawns: this.finishRespawns, splits }, this.ctx.finishActions(this));
     audio.fanfare();
-    audio.musicSting(medalRank(medal));
-    if (medalEarned) setTimeout(() => audio.medalJingle(medalRank(medal)), 500);
+    audio.musicSting(newBest ? 3 : 1);
+    if (newBest) setTimeout(() => audio.recordJingle(3), 500);
     input.rumble(0.6, 0.8, 300);
   }
 
-  /** Display name for the "unlocked" notice (set by the app). */
-  nameOf: (id: string) => string = (id) => id;
+  /** Live gap to the ghost, the next car gate and the minimap dots. */
+  private updateRaceHud(pos: Vector3, speed: number, alpha: number): void {
+    const { hud } = this.ctx;
+    const ps = this.pathS[this.progress.update(pos)]!;
+    let pbPos: { x: number; z: number } | null = null, authorPos: { x: number; z: number } | null = null;
+    let lead: GhostSlot | null = null;
+    for (const g of this.ghosts) {
+      if (g.kind === 'pb') {
+        pbPos = g.pose.position;
+        lead = g;
+      } else {
+        authorPos = g.pose.position;
+        lead ??= g;
+      }
+    }
+    hud.setDots({ x: pos.x, z: pos.z }, pbPos, authorPos);
+    if (this.phase !== 'running') {
+      if (this.phase === 'grid') hud.setGap(null);
+      return;
+    }
+    if (lead) {
+      let gp = this.ghostProgress.get(lead);
+      if (!gp) this.ghostProgress.set(lead, (gp = new PathProgress(this.track.centerline)));
+      const gs = this.pathS[gp.update(lead.pose.position)]!;
+      const raw = (gs - ps) / Math.max(12, speed);
+      this.gap += (raw - this.gap) * 0.25;
+      hud.setGap(this.gap, lead.kind === 'pb' ? 'PB' : 'TARGET');
+    } else hud.setGap(null);
+    const ahead = this.gates.find((g) => g.s > ps + 6);
+    if (ahead && ahead.s - ps < 280) hud.setNext(`${getCar(ahead.car).label} car`, carColor(ahead.car), ahead.s - ps);
+    else hud.setNext(null);
+    void alpha;
+  }
 
   // ---- per-frame ----
   render(alpha: number, dt: number, meta: MetaActions): void {
@@ -432,7 +542,7 @@ export class RaceSession {
     // the player's own car gate swaps
     if (gfx.ensureCar(this.sim.carId, v.params)) {
       audio.setVoice(gfx.def.voice);
-      hud.setTitle(`${this.track.name} · ${gfx.def.label}`);
+      hud.setCar(gfx.def.label, carColor(this.sim.carId));
     }
     if (!this.paused) gfx.updateFx(dt, v);
     gfx.setDrive(this.phase === 'grid' ? 0 : v.appliedInput.brake, mods.boostLevel);
@@ -451,6 +561,7 @@ export class RaceSession {
     const runMs = run.state === 'running' ? Math.max(0, (run.tick - 1 + a) * PHYSICS_DT * 1000) : run.state === 'finished' ? (run.finishTime ?? run.timeMs) : 0;
     hud.update(v.speed, v.params.topSpeed, runMs, mods.boostLevel);
     hud.setEffects(mods.active);
+    this.updateRaceHud(v.position, v.speed, a);
     const ls = this.ctx.loopStats();
     const fs = gfx.frameStats;
     debug.update(dt, v, this.lastFrame, ls.stepMs, ls.steps, this.sim.tick, `gfx ${gfx.qualityLevel} x${fs.scale.toFixed(2)}  ${fs.calls} calls  ${(fs.triangles / 1000).toFixed(0)}k tris`);
