@@ -5,8 +5,8 @@ import { chromium } from 'playwright-core';
 
 const OUT = 'public/art';
 mkdirSync(OUT, { recursive: true });
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const POSTCARDS = [['forest', 'c01', 14], ['snow', 'c11', 14], ['desert', 'c03', 16], ['sunset', 'c04', 14], ['night', 'c06', 17.4]];
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const POSTCARDS = [['forest', 'c01', 14], ['snow', 'c11', 14], ['desert', 'c16', 12], ['sunset', 'c06', 12], ['night', 'c21', 3.4]];
 for (const [env, level, t] of POSTCARDS) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   await page.goto(`http://127.0.0.1:5173/?debug=1&autodrive=1&level=${level}&quality=high`);
@@ -18,7 +18,7 @@ for (const [env, level, t] of POSTCARDS) {
   console.log('postcard', env);
   await page.close();
 }
-for (const car of ['volt', 'gravel', 'frost', 'dune']) {
+for (const car of process.env.CARS === '0' ? [] : ['volt', 'gravel', 'frost', 'dune']) {
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
   await page.goto(`http://127.0.0.1:5173/dev/car-solo.html?car=${car}`);
   await page.waitForFunction(() => document.title === 'ready', null, { timeout: 60000 });

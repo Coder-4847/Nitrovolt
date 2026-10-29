@@ -1,7 +1,7 @@
 // Phone flow: landing, main menu, play hub, campaign, race with touch controls, pause. Needs the dev server.
 import { chromium } from 'playwright-core';
 const out = process.env.OUT ?? '/tmp/m';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await browser.newContext({ viewport: { width: 844, height: 390 }, hasTouch: true, isMobile: true });
 const page = await ctx.newPage();
 const errs = []; page.on('pageerror', (e) => errs.push(e.message));
@@ -18,7 +18,7 @@ await page.screenshot({ path: `${out}2_play.png` });
 await page.locator('.play-tile.big').tap();
 await page.waitForTimeout(1500);
 await page.screenshot({ path: `${out}3_campaign.png` });
-await page.locator('.tile:not(.locked)').first().tap();
+await page.locator('.tile').first().tap();
 await page.waitForFunction(() => document.querySelector('.hud'), null, { timeout: 15000 });
 await page.waitForTimeout(3000);
 await page.screenshot({ path: `${out}4_race.png` });

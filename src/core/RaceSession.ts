@@ -25,7 +25,8 @@ import { COUNTDOWN_SECONDS, GhostShow, Settings } from './Settings';
 const CAMERA_LABEL: { [K in CameraMode]: string } = { chase: 'Chase cam', far: 'Far cam', hood: 'Hood cam' };
 export const GHOST_CYCLE: GhostShow[] = ['pb', 'author', 'both', 'off'];
 const GHOST_LABEL: Record<GhostShow, string> = { pb: 'Ghost: personal best', author: 'Ghost: author', both: 'Ghosts: PB + author', off: 'Ghosts off' };
-const GHOST_COLOR = { pb: 0xa9d6ff, author: 0xb4f0c8 };
+const GHOST_COLOR = { pb: 0x6fb8ff, author: 0x7af0a8 };
+const GHOST_LABEL_TAG = { pb: 'PB', author: 'TARGET' };
 const cssColor = (n: number): string => `#${n.toString(16).padStart(6, '0')}`;
 /** Colour of a car (its gate colour) for the HUD and the minimap. */
 export const carColor = (car: string): string => cssColor(GATE_TINT[car] ?? 0xffffff);
@@ -321,7 +322,7 @@ export class RaceSession {
         // a ghost of another layout (an edited player level) would drive through thin air
         if (!data || data.carId !== this.def.id || data.levelHash !== this.levelHash) continue;
         const player = await GhostPlayer.create(this.track, cloneParams(this.source.params), this.def.behavior, data, this.levelHash);
-        slots.push({ kind, player, view: this.ctx.gfx.addGhost(this.source.params, this.def.id, GHOST_COLOR[kind]), pose: blankPose(), car: this.def.id });
+        slots.push({ kind, player, view: this.ctx.gfx.addGhost(this.source.params, this.def.id, GHOST_COLOR[kind], undefined, GHOST_LABEL_TAG[kind]), pose: blankPose(), car: this.def.id });
       }
     }
     if (this.disposed || gen !== this.ghostGen) {
@@ -532,7 +533,7 @@ export class RaceSession {
         // the ghost drove through a car gate: swap its model
         const shown = g.view.root.visible;
         this.ctx.gfx.removeGhost(g.view);
-        g.view = this.ctx.gfx.addGhost(carParams(car), getCar(car).id, GHOST_COLOR[g.kind]);
+        g.view = this.ctx.gfx.addGhost(carParams(car), getCar(car).id, GHOST_COLOR[g.kind], undefined, GHOST_LABEL_TAG[g.kind]);
         g.view.ghostShown = shown;
         g.car = car;
       }

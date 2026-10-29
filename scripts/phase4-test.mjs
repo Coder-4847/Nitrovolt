@@ -1,9 +1,9 @@
-// Phase 4 end-to-end: menus, campaign, race, finish + medal, replay, ghost. Needs `npx vite --port 5173 --host 127.0.0.1`.
+// End-to-end: menus, campaign, race, finish, replay, ghost, records. Needs `npx vite --port 5173 --host 127.0.0.1`.
 import { chromium } from 'playwright-core';
 
 const out = process.env.OUT ?? '/tmp/p4';
 const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  executablePath: '/opt/pw-browsers/chromium',
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
@@ -23,15 +23,15 @@ ok(await page.locator('.main-menu').count() === 1, 'main menu shown');
 
 await page.locator('.mm-item.primary').click();
 await shot('02_play', 1000);
-ok(await page.locator('.play-tile').count() === 4, 'play hub shows 4 tiles');
+ok(await page.locator('.play-tile').count() === 3, 'play hub shows 3 tiles');
 await page.locator('.play-tile.big').click();
 await shot('03_campaign', 1500);
-ok(await page.locator('.tier-row').count() === 5, '5 tier rows');
+ok(await page.locator('.tier-row').count() === 5, '5 world rows');
 ok(await page.locator('.tile').count() === 25, '25 campaign tiles');
-ok(await page.locator('.tile.locked').count() === 20, 'only the White tier is open');
+ok(await page.locator('.tile.locked').count() === 0, 'every track is open');
 
 // start the first track via its tile
-await page.locator('.tile:not(.locked)').first().click();
+await page.locator('.tile').first().click();
 await page.waitForFunction(() => window.__nv?.race, null, { timeout: 15000 });
 await shot('04_countdown', 400);
 const phase1 = await page.evaluate(() => window.__nv.race.phase);
@@ -64,13 +64,14 @@ await page.keyboard.press('Escape');
 // bot run for finish / medal / replay / ghost
 await page.goto('http://127.0.0.1:5173/?debug=1&level=c01&autodrive=1');
 await page.waitForFunction(() => window.__nv?.race, null, { timeout: 30000 });
-await page.evaluate(() => { localStorage.removeItem('nitrovolt.records.v1'); });
+await page.evaluate(() => { localStorage.removeItem('nitrovolt.records.v2'); });
 await page.evaluate(() => window.__nv.fastForward(90));
 await shot('10_finish', 1800);
 const fin = await page.evaluate(() => ({ phase: window.__nv.race.phase, time: window.__nv.simulation.run.finishTime, last: !!window.__nv.race.lastRun }));
 ok(fin.phase === 'finished' && fin.time > 0, `finished in ${fin.time} ms`);
 ok(fin.last, 'run recorded for replay');
-ok(await page.locator('.hud-finish .medal').count() >= 1, 'medal badge on finish panel');
+ok(await page.locator('.hud-finish .pbflag').count() === 1, 'first time set flag on the finish panel');
+ok(await page.locator('.hud-finish .cmp').count() >= 1, 'finish panel compares with the target');
 
 await page.keyboard.press('KeyV');
 await page.waitForFunction(() => document.querySelector('.replay-bar'), null, { timeout: 15000 });
@@ -113,18 +114,13 @@ await page.keyboard.press('Escape');
 await page.keyboard.press('Escape');
 await page.waitForSelector('.screen.top', { timeout: 30000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
 ok(true, 'Enter opens Play then Campaign, Esc returns');
-const medalsAfter = await page.locator('.mm-medals span').allTextContents();
-ok(medalsAfter.some((t) => /[1-9]/.test(t)), `main menu shows earned medals (${medalsAfter.join('|').replace(/\s+/g, ' ')})`);
+const timedCard = (await page.locator('.mm-progress-card b').textContent()) ?? '';
+ok(/^1 \/ 25/.test(timedCard.trim()), `main menu shows tracks timed (${timedCard})`);
 await page.locator('.mm-item', { hasText: 'Records' }).click();
 await shot('16_leaderboard', 800);
 ok(await page.locator('table.lb tbody tr').count() >= 1, 'leaderboard lists the PB');
 await page.keyboard.press('Escape');
-await page.locator('.mm-item.primary').click();
-await page.locator('.play-tile').nth(1).click();
-await shot('17_training', 1500);
-ok(await page.locator('.tile').count() >= 6 && await page.locator('.tile.locked').count() === 0, 'training tracks all open');
-await page.keyboard.press('Escape');
-await page.keyboard.press('Escape');
+
 await page.locator('.mm-item', { hasText: 'Settings' }).click();
 await page.getByRole('button', { name: 'Data' }).click();
 const [dl] = await Promise.all([page.waitForEvent('download'), page.getByRole('button', { name: 'Export save file' }).click()]);
@@ -137,7 +133,7 @@ await page.setInputFiles('input[type=file]', path);
 await page.waitForFunction(() => performance.now() > 0 && true);
 await page.waitForTimeout(1500);
 await page.waitForSelector('.screen.top', { timeout: 20000 }); if (await page.locator('.landing').count()) { await page.keyboard.press('Escape'); await page.waitForTimeout(300); } await page.waitForSelector('.main-menu');
-const recs = await page.evaluate(() => localStorage.getItem('nitrovolt.records.v1'));
+const recs = await page.evaluate(() => localStorage.getItem('nitrovolt.records.v2'));
 ok(!!recs && recs.includes('c01'), 'import restored the records after reload');
 
 console.log(errors.length ? errors.join('\n') : 'no console errors');

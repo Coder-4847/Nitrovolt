@@ -1,4 +1,4 @@
-// Screenshots of the menu flow: landing, main menu, play hub, campaign, training. Usage: node scripts/menu-shots.mjs <outPrefix>
+// Screenshots of the menu flow: landing, main menu, play hub, campaign. Usage: node scripts/menu-shots.mjs <outPrefix>
 import { chromium } from 'playwright-core';
 const prefix = process.argv[2] ?? '/tmp/menu';
 const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });

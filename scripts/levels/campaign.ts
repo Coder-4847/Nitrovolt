@@ -119,8 +119,8 @@ export const CAMPAIGN_DEFS: LevelDef[] = [
     id: 'c11', name: 'Powder Sprint', theme: 'snow', car: 'frost',
     blurb: 'A quick run over fresh powder, then the rally car for the dirt road home.',
     items: [
-      start(SN), ...road(3, SN), B('chicaneR', SN), B('slopeUp2', SN), B('curve3R', SN), ...road(3, SN),
-      ...jump('kicker', 1, SN), ...road(1, SN), B('bank3L', SN), cp(SN),
+      start(SN), ...road(2, SN), B('chicaneR', SN), B('slopeUp2', SN), B('curve3R', SN), ...road(3, SN),
+      ...jump('kicker', 1, SN), ...road(1, SN), cp(SN), B('curve2L', SN),
       gate('gravel', D), ...road(1, D), B('curve2L', D), ...road(1, D), B('chicaneR', D), B('curve1L', D), B('curve1R', D), ...road(1, D), finish(D), ...road(1, D),
     ],
   },
@@ -165,7 +165,7 @@ export const CAMPAIGN_DEFS: LevelDef[] = [
     id: 'c16', name: 'Dune Dash', theme: 'desert', car: 'dune',
     blurb: 'Fly over the dunes, then pull on the stadium car for the walls at the end.',
     items: [
-      start(SA), ...road(4, SA), B('curve3L', SA), ...road(3, SA), ...jump('jumpRamp', 1, SA), ...road(2, SA), B('slopeUp2', SA), ...road(1, SA), cp(SA), B('curve2R', SA), ...road(1, SA),
+      start(SA), ...road(4, SA), B('curve3L', SA), ...road(1, SA), B('slopeUp1', SA), B('slopeDown1', SA), ...road(3, SA), ...jump('jumpRamp', 1, SA), ...road(2, SA), B('slopeUp2', SA), ...road(1, SA), cp(SA), B('curve2R', SA), ...road(1, SA),
       gate('volt'), ...road(2), B('wallTurn90L'), ...turbo(2), finish(), ...road(1),
     ],
   },
@@ -212,7 +212,7 @@ export const CAMPAIGN_DEFS: LevelDef[] = [
     id: 'c21', name: 'Neon Sprint', theme: 'night', car: 'volt',
     blurb: 'A flat-out lap under the floodlights: loop, wall, then a dirt alley to the line.',
     items: [
-      start(), ...turbo(3), B('loop'), ...road(2), B('curve3R'), ...road(2), ...zig(2), ...road(1), B('wallTurnL'), ...road(2), cp(),
+      start(), ...turbo(3), B('loop'), ...road(2), B('curve3R'), ...road(2), ...zig(2), ...road(1), B('wallTurnL'), ...road(2), cp(), B('curve2R'), ...turbo(2),
       gate('gravel', D), ...road(1, D), B('curve2R', D), ...road(1, D), B('chicaneL', D), ...road(2, D), finish(D), ...road(1, D),
     ],
   },

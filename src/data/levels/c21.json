@@ -134,13 +134,41 @@
    "rot": 1
   },
   {
-   "type": "gateGravel",
+   "type": "curve2R",
    "gridPos": [
     9,
     0,
     -14
    ],
-   "rot": 1,
+   "rot": 1
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    8,
+    0,
+    -16
+   ],
+   "rot": 0,
+   "surface": "turbo"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    8,
+    0,
+    -17
+   ],
+   "rot": 0
+  },
+  {
+   "type": "gateGravel",
+   "gridPos": [
+    8,
+    0,
+    -19
+   ],
+   "rot": 0,
    "surface": "dirt"
   },
   {
@@ -148,57 +176,17 @@
    "gridPos": [
     8,
     0,
-    -14
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "curve2R",
-   "gridPos": [
-    7,
-    0,
-    -14
-   ],
-   "rot": 1,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight1",
-   "gridPos": [
-    6,
-    0,
-    -16
-   ],
-   "rot": 0,
-   "surface": "dirt"
-  },
-  {
-   "type": "chicaneL",
-   "gridPos": [
-    6,
-    0,
-    -17
-   ],
-   "rot": 0,
-   "surface": "dirt"
-  },
-  {
-   "type": "straight2",
-   "gridPos": [
-    5,
-    0,
     -20
    ],
    "rot": 0,
    "surface": "dirt"
   },
   {
-   "type": "finish",
+   "type": "curve2R",
    "gridPos": [
-    5,
+    8,
     0,
-    -22
+    -21
    ],
    "rot": 0,
    "surface": "dirt"
@@ -206,11 +194,51 @@
   {
    "type": "straight1",
    "gridPos": [
-    5,
+    10,
+    0,
+    -22
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "chicaneL",
+   "gridPos": [
+    11,
+    0,
+    -22
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight2",
+   "gridPos": [
+    14,
     0,
     -23
    ],
-   "rot": 0,
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "finish",
+   "gridPos": [
+    16,
+    0,
+    -23
+   ],
+   "rot": 3,
+   "surface": "dirt"
+  },
+  {
+   "type": "straight1",
+   "gridPos": [
+    17,
+    0,
+    -23
+   ],
+   "rot": 3,
    "surface": "dirt"
   }
  ],
@@ -220,7 +248,7 @@
   "silver": 0,
   "bronze": 0
  },
- "target": 34567,
+ "target": 38029,
  "bot": {
   "maxSpeed": 75,
   "speedScale": 1

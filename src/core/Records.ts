@@ -9,7 +9,8 @@ export interface PersonalBest {
   at: number;
 }
 
-export const RECORDS_KEY = 'nitrovolt.records.v1';
+/** v2: the 1.4 campaign reuses the ids c01..c25 for new tracks, so times from the 1.3 campaign (v1) are not read. */
+export const RECORDS_KEY = 'nitrovolt.records.v2';
 
 type Table = { [id: string]: PersonalBest };
 const read = (): Table => storage.get<Table>(RECORDS_KEY, {});

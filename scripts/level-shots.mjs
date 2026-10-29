@@ -9,7 +9,7 @@ for (const { id, secs } of jobs) {
   const page = await browser.newPage({ viewport: { width: Number(process.env.W ?? 1280), height: Number(process.env.H ?? 720) } });
   await page.addInitScript(() => { try { localStorage.setItem('nitrovolt.settings.v1', JSON.stringify({ ghosts: 'both', countdown: 'instant' })); } catch { /* ignore */ } });
   page.on('pageerror', (e) => errs.push(`${id}: ${e.message}`));
-  await page.goto(`http://127.0.0.1:5173/?level=${id}&debug=1&autodrive=1&quality=${process.env.Q ?? 'low'}`);
+  await page.goto(`http://127.0.0.1:5173/?level=${id}&debug=1${process.env.NOBOT ? '' : '&autodrive=1'}&quality=${process.env.Q ?? 'low'}`);
   await page.waitForSelector('#boot', { state: 'detached', timeout: 90000 });
   await page.waitForFunction(() => window.__nv?.race, null, { timeout: 90000 });
   if (!process.env.DEBUGUI) await page.addStyleTag({ content: '.tuning, .debug { display: none !important; }' });

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 const browser = await chromium.launch({
-  executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome',
+  executablePath: '/opt/pw-browsers/chromium',
   args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'],
 });
 const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
@@ -21,6 +21,6 @@ for (const n of [1, 2]) {
   console.log(`run ${n}:`, await page.evaluate(() => { const r = window.__nv.simulation.run; return JSON.stringify({ state: r.state, time: r.finishTime, splits: r.splits }); }));
   await page.screenshot({ path: `/tmp/claude-0/shots/finish_${n}.png` });
 }
-console.log('records:', await page.evaluate(() => localStorage.getItem('nitrovolt.records.v1')));
+console.log('records:', await page.evaluate(() => localStorage.getItem('nitrovolt.records.v2')));
 console.log(errors.length ? errors.join('\n') : 'no console errors');
 await browser.close();

@@ -157,9 +157,9 @@ export class GameRenderer {
   }
 
   /** A translucent ghost car in the scene; call `view.update(pose)` each frame. */
-  addGhost(params: VehicleParams, carId: CarDef['id'], color: number, opacity = 0.42): CarView {
+  addGhost(params: VehicleParams, carId: CarDef['id'], color: number, opacity = 0.5, label?: string): CarView {
     const view = new CarView(carId, params, color, color);
-    view.makeGhost(color, opacity);
+    view.makeGhost(color, opacity, label);
     this.scene.add(view.root);
     this.ghosts.add(view);
     return view;

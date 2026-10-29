@@ -1,23 +1,23 @@
 # NITROVOLT
 
-A browser time-attack racer: big hand-built tracks through forest, snow and desert, car switches mid-run, wall turns,
-loops and jumps, instant restarts, exact ghosts and medals. Everything is generated in code (cars, tracks, terrain,
+A browser time-attack racer: 25 hand-built tracks through summer, autumn, winter, desert and night, car switches mid-run,
+wall turns, loops and jumps, instant restarts and exact ghosts. Everything is open from the start: it is all about the clock. Everything is generated in code (cars, tracks, terrain,
 scenery, sky, textures, engine sounds and music), with no external assets.
 It is an original game and not affiliated with any other racing title.
 
-**Status: 1.3.0.** Handover notes for new sessions: [`MEMORY.md`](MEMORY.md). Installable and playable offline (PWA), deployable as a static site.
+**Status: 1.4.0.** Handover notes for new sessions: [`MEMORY.md`](MEMORY.md). Installable and playable offline (PWA), deployable as a static site.
 
 ## Features
 
 - **Four cars, one physics core**: a custom 100 Hz raycast-suspension vehicle with a per-surface tyre model; Volt (stadium), Gravel (rally), Frost (snow / ice), Dune (sand). Rapier handles only collision queries.
-- **Hand-built campaign**: 25 tracks in five tiers (White to Black) plus 8 training tracks, every one validated by a bot that also records its author ghost ([`docs/LEVEL_REPORT.md`](docs/LEVEL_REPORT.md)). Bronze on 4 tracks of a tier opens the next. A track of the day for everyone.
-- **Car gates**: drive through a portal and finish the section in another car; ghosts stay exact through every switch.
+- **Hand-built campaign**: 25 tracks in five worlds (Summer, Autumn, Winter, Desert, Night), five each: a sprint (30-45 s), three standard tracks (1:00-1:15) and a marathon (1:30-2:00) per world. Every track is validated by a bot that also records its target ghost ([`docs/LEVEL_REPORT.md`](docs/LEVEL_REPORT.md)). Nothing is locked, no medals or stars: you race your personal best and the target time. A track of the day for everyone.
+- **Car gates**: drive through a portal and finish the section in another car. Every track switches at least once; five are three-car tracks and one uses all four; some switch and switch back. Ghosts stay exact through every switch.
 - **Real terrain**: a heightfield under and around every track (embankments, pits under jumps, hills), the same one for physics and rendering; off-road costs grip.
-- **Medals and exact ghosts**: Author / Gold / Silver / Bronze; ghosts are the recorded input stream re-simulated bit-exactly (PB and author ghosts, replay viewer with free camera).
+- **Times and exact ghosts**: personal best and target time per track, a live gap to your ghost, a split at every checkpoint; ghosts are the recorded input stream re-simulated bit-exactly (PB and target ghosts, replay viewer with free camera).
 - **Stunts and special blocks**: wall turns, loops, half-pipes, wall-rides, spirals and jumps; turbo, turbo 2, reactor, no-steer, no-brake, cruise, engine off, slow motion, low gravity, fragile.
-- **Look and sound**: five worlds (forest, snow, desert, sunset, night) with woods, pines, cacti and mesas beside the road and a stadium on the horizon; painted roads; four cars (open-wheel stadium car, rally hatch, snow pickup, desert muscle coupe) with liveries and a rear speed plate; a showroom main menu; a generative soundtrack and a synthesised engine per car.
+- **Look and sound**: five worlds (summer, autumn, winter, desert, night) with woods, pines, cacti and mesas beside the road and a stadium on the horizon; painted roads; four cars (open-wheel stadium car, rally hatch, snow pickup, desert muscle coupe) with liveries and a rear speed plate; a showroom main menu; a generative soundtrack and a synthesised engine per car.
 - **Every input**: keyboard (remappable), mouse steering, gamepad (analog, rumble), touch with tilt steering; full keyboard / gamepad menu navigation.
-- **Accessibility**: HUD size, colour-blind medal palette (medals also differ by shape), reduced motion, unlock everything, countdown length.
+- **Accessibility**: HUD size, reduced motion, countdown length.
 - **Performance**: quality presets with an automatic benchmark and dynamic resolution; physics loads on demand; distant scenery uses lighter geometry.
 
 ## Run
@@ -25,7 +25,7 @@ It is an original game and not affiliated with any other racing title.
 ```bash
 npm install
 npm run dev        # dev server at http://localhost:5173
-npm test           # 118 unit / integration tests (FULL=1 runs the per-level checks on every level)
+npm test           # 114 unit / integration tests (FULL=1 runs the per-level checks on every level)
 npm run build      # typecheck + static build in dist/ (BASE_PATH=/sub/path/ for a sub-path)
 npm run preview    # serve dist/
 npm run levels     # build + validate every level from scripts/levels/, record author ghosts, write docs/LEVEL_REPORT.md
@@ -65,13 +65,13 @@ precaches the game for offline play, so no server is needed. See
 | `src/render` | Renderer, themes, scenery, cars, effects |
 | `src/ui` | HUD and screens |
 | `src/audio` | Engine, effects and music synthesis |
-| `src/data` | Cars, campaign tiers, the levels and their author ghosts |
+| `src/data` | Cars, the campaign (worlds and tracks), the levels and their target ghosts |
 | `scripts` | Level definitions and builder, labs, headless browser tests |
 | `docs` | Phase notes 1-8, level report, release checklist |
 
 Phase notes: [`1`](docs/PHASE_1.md) physics & input · [`2`](docs/PHASE_2.md) tracks & timing · [`3`](docs/PHASE_3.md) cars & surfaces ·
 [`4`](docs/PHASE_4.md) menus, medals, ghosts · [`5`](docs/PHASE_5.md) visuals · [`6`](docs/PHASE_6.md) campaign · [`7`](docs/PHASE_7.md) editor ·
-[`8`](docs/PHASE_8.md) polish & release. · [`1.1`](docs/VISUAL_OVERHAUL.md) visual overhaul & rendering fixes · [`1.2`](docs/STADIUM_UPDATE.md) stadium arenas, new cars, accurate jumps, landing page · [`1.3`](docs/UPDATE_1_3.md) terrain and worlds, car gates, hand-built campaign, physics fixes, new menus (editor removed).
+[`8`](docs/PHASE_8.md) polish & release. · [`1.1`](docs/VISUAL_OVERHAUL.md) visual overhaul & rendering fixes · [`1.2`](docs/STADIUM_UPDATE.md) stadium arenas, new cars, accurate jumps, landing page · [`1.3`](docs/UPDATE_1_3.md) terrain and worlds, car gates, hand-built campaign, physics fixes, new menus (editor removed) · [`1.4`](docs/UPDATE_1_4.md) the time-attack campaign: 25 new tracks in five worlds, no medals, new HUD and ghosts, quicker cars.
 
 NITROVOLT is its own game: names, logos, cars and menus are original designs, not copies of any other title's branding.
 

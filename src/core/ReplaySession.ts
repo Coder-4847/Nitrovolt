@@ -9,7 +9,7 @@ import { formatTime } from '../ui/Hud';
 import { GhostData, GhostPlayer, levelFingerprint } from './Ghost';
 import { PHYSICS_DT } from './FixedLoop';
 import { MetaActions } from './input/InputManager';
-import { SessionCtx } from './RaceSession';
+import { SessionCtx, carColor } from './RaceSession';
 import { TrackJson } from '../tracks/TrackSchema';
 
 type ReplayCam = 'chase' | 'far' | 'hood' | 'orbit' | 'free';
@@ -105,6 +105,9 @@ export class ReplaySession {
       h('div', { class: 'rp-row' }, speeds, this.camBtn, h('button', { class: 'btn primary', type: 'button', onclick: () => this.onExit() }, 'Exit replay')),
     );
     ctx.hud.setVisible(true);
+    ctx.hud.setNext(null);
+    ctx.hud.setGap(null);
+    ctx.hud.setDots(null, null, null);
     (ctx.gfx.renderer.domElement.parentElement!.parentElement ?? document.body).appendChild(this.bar);
 
     this.slider.addEventListener('input', () => {
@@ -280,7 +283,11 @@ export class ReplaySession {
     gfx.setDrive(this.scrubbing ? 0 : v.appliedInput.brake, mods.boostLevel);
     gfx.sightProbe = this.sight;
     const car = p.carAt(p.currentTick);
-    if (gfx.ensureCar(car, p.mode === 'exact' ? v.params : carParams(car))) audio.setVoice(gfx.def.voice);
+    if (gfx.ensureCar(car, p.mode === 'exact' ? v.params : carParams(car))) {
+      audio.setVoice(gfx.def.voice);
+      hud.setCar(gfx.def.label, carColor(car));
+    }
+    hud.setDots({ x: this.pose.position.x, z: this.pose.position.z }, null, null);
     gfx.render(dt, this.pose, v.linvel, v.speed, mods.boostLevel);
     audio.update({ speed: this.playing ? v.speed : 0, throttle: 0.4, slip: 0, grounded: v.wheelsOnGround > 0, topSpeed: v.params.topSpeed, surface: v.dominantSurface(), boost: v.effects.mods.boostLevel }, dt);
     hud.update(v.speed, v.params.topSpeed, Math.min(ms, total), mods.boostLevel);

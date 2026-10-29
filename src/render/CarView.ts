@@ -1,4 +1,4 @@
-import { AdditiveBlending, CanvasTexture, Color, ConeGeometry, Group, InstancedMesh, Material, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace } from 'three';
+import { AdditiveBlending, CanvasTexture, Color, ConeGeometry, Group, InstancedMesh, Material, Mesh, MeshBasicMaterial, PlaneGeometry, SRGBColorSpace, Sprite, SpriteMaterial } from 'three';
 import { CarId } from '../data/cars';
 import { RenderPose } from '../physics/Vehicle';
 import { VehicleParams } from '../physics/VehicleParams';
@@ -149,10 +149,42 @@ export class CarView {
   private ghostMats: MeshBasicMaterial[] = [];
   private ghostOpacity = 1;
 
-  /** Turn this car into a translucent, unlit, shadowless ghost of one flat colour. */
-  makeGhost(color: number, opacity: number): void {
+  private ghostTag: Sprite | null = null;
+
+  /**
+   * Turn this car into a translucent, unlit, shadowless ghost tinted one colour. Each part keeps its own
+   * brightness (body light, tyres and glass dark), so the ghost still reads as a car, and a small tag floats
+   * above it when `label` is given.
+   */
+  makeGhost(color: number, opacity: number, label?: string): void {
     const cache = new Map<Material, MeshBasicMaterial>();
     this.ghostOpacity = opacity;
+    if (label) {
+      const c = document.createElement('canvas');
+      c.width = 192;
+      c.height = 64;
+      const g = c.getContext('2d')!;
+      const css = `#${color.toString(16).padStart(6, '0')}`;
+      g.fillStyle = 'rgba(8,11,16,.82)';
+      g.beginPath();
+      g.roundRect(4, 8, 184, 48, 10);
+      g.fill();
+      g.strokeStyle = css;
+      g.lineWidth = 4;
+      g.stroke();
+      g.fillStyle = css;
+      g.font = '800 30px "Barlow Condensed", system-ui, sans-serif';
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(label, 96, 33);
+      const tex = new CanvasTexture(c);
+      tex.colorSpace = SRGBColorSpace;
+      this.ghostTag = new Sprite(new SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false, fog: false }));
+      this.ghostTag.scale.set(1.8, 0.6, 1);
+      this.ghostTag.position.set(0, 2.3, 0);
+      this.ghostTag.renderOrder = 10;
+      this.root.add(this.ghostTag);
+    }
     this.root.traverse((o) => {
       if (!(o instanceof Mesh || o instanceof InstancedMesh)) return;
       o.castShadow = false;
@@ -160,7 +192,10 @@ export class CarView {
       const src = o.material as Material;
       let g = cache.get(src);
       if (!g) {
-        g = new MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, fog: false });
+        const base = (src as { color?: Color }).color;
+        // perceived brightness of the part keeps the ghost's shape readable
+        const lum = base ? 0.2126 * base.r + 0.7152 * base.g + 0.0722 * base.b : 0.5;
+        g = new MeshBasicMaterial({ color: new Color(color).multiplyScalar(0.35 + 1.1 * Math.min(1, lum * 1.6)), transparent: true, opacity, depthWrite: false, fog: false });
         cache.set(src, g);
         this.ghostMats.push(g);
       }
@@ -171,6 +206,7 @@ export class CarView {
   /** Ghost visibility 0..1 (fades a ghost out as it passes close to the camera). */
   setGhostFade(f: number): void {
     for (const m of this.ghostMats) m.opacity = this.ghostOpacity * f;
+    if (this.ghostTag) this.ghostTag.material.opacity = f;
     this.root.visible = f > 0.02 && this.ghostShown;
   }
 

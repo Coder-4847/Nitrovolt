@@ -8,30 +8,28 @@ device. "Pass" = works as described with no console errors.
 | Check | Command | Pass when |
 | --- | --- | --- |
 | Types | `npm run typecheck` | no errors |
-| Unit + integration tests | `npm test` (`FULL=1 npm test` before a release: drives all 100 levels) | all green |
+| Unit + integration tests | `npm test` (`FULL=1 npm test` before a release: drives all 25 levels) | all green |
 | Production build | `npm run build` | builds; no chunk over 800 kB except `rapier-*.wasm` |
-| Campaign still valid | `npm run campaign` (only if physics, blocks or levels changed) | 100 levels, all ghosts exact; review `docs/LEVEL_REPORT.md` diff |
-| Sub-path build + PWA + offline + determinism | `BASE_PATH=/Nitrovolt/ npm run build && BASE_PATH=/Nitrovolt/ npx vite preview --port 4173 --host 127.0.0.1 &` then `node scripts/deploy-test.mjs` | all PASS (menu, manifest + icons, service worker in control, race online and offline, bot reproduces the Sprint 01 author time to the millisecond) |
+| Campaign still valid | `npm run levels` (only if physics, blocks, the level bot or levels changed) | 25 levels, all ghosts exact, durations still in their bands; review `docs/LEVEL_REPORT.md` diff |
+| Sub-path build + PWA + offline + determinism | `BASE_PATH=/Nitrovolt/ npm run build && BASE_PATH=/Nitrovolt/ npx vite preview --port 4173 --host 127.0.0.1 &` then `node scripts/deploy-test.mjs` | all PASS (menu, manifest + icons, service worker in control, race online and offline, bot reproduces the c18 target time to the millisecond) |
 | Menus / ghosts / replays | dev server + `node scripts/phase4-test.mjs` | all PASS |
-| Editor | dev server + `node scripts/p7-editor.mjs`, `node scripts/p7-mobile.mjs` | all PASS |
 | Input + touch | dev server + `node scripts/input-test.mjs`, `node scripts/mobile-test.mjs` | as printed |
 | Visual spot check | dev server + `node scripts/p5-shots.mjs high` | screenshots look right for all four themes |
 
-If physics changed: bump `PHYSICS_VERSION` in `src/physics/Simulation.ts`, run `npm run campaign`, and
+If physics changed: bump `PHYSICS_VERSION` in `src/physics/Simulation.ts`, run `npm run levels`, and
 note in the release notes that personal-best ghosts from older versions play back in snapshot mode.
 
 ## 2. Manual: desktop
 
-- [ ] Chrome, Firefox, Safari (latest): menu -> campaign -> play Sprint 01 -> finish -> medal -> replay -> exit.
+- [ ] Chrome, Firefox, Safari (latest): menu -> campaign -> play Green Valley -> finish -> replay -> exit.
 - [ ] Keyboard only: navigate every menu with arrows / Enter / Esc; remap a key and use it.
 - [ ] Gamepad (Xbox and PlayStation layouts): drive, Start restarts, Y respawns, D-pad / A / B in menus, remap a button, rumble on a landing.
 - [ ] Mouse steering (M).
 - [ ] 60 fps on a mid-range laptop at the Auto preset (F3 shows fps, preset, render scale, draw calls).
 - [ ] Audio: music in menus and races per theme, music / engine / effects sliders, pause muffles the music, turbo whistle, gear clicks.
 - [ ] Ghosts: PB ghost appears after a PB; G cycles PB / author / both / off.
-- [ ] Editor: build, test drive, keep author time, bot validate, share link opened in another browser.
 - [ ] Settings > Data: export, clear site data, import: records, settings, ghosts and player tracks come back.
-- [ ] Settings > Accessibility: HUD size, colour-blind medals, reduced motion, unlock all.
+- [ ] Settings > Accessibility: HUD size, reduced motion.
 
 ## 3. Manual: mobile
 
@@ -41,7 +39,7 @@ note in the release notes that personal-best ghosts from older versions play bac
 - [ ] Fullscreen from the pause menu; the screen stays awake during a race.
 - [ ] Switching apps pauses the race; coming back resumes from the pause menu.
 - [ ] Install: "Add to Home Screen" / install prompt; the icon looks right (maskable on Android); it opens fullscreen in landscape.
-- [ ] Offline: open the installed app in airplane mode, play a campaign level and a player track.
+- [ ] Offline: open the installed app in airplane mode, play a campaign level.
 - [ ] Auto quality picks Low or Medium and holds a playable frame rate.
 
 ## 4. Deploy (GitHub Pages)
@@ -63,5 +61,3 @@ Custom domain / root deploy: set `BASE_PATH=/` in the workflow.
 - Gamepad, tilt and haptics were implemented to spec but not verified on physical hardware during development (only in headless browsers).
 - Frame rate was not profiled on real GPUs; the Auto preset and dynamic resolution may need tuning per device class.
 - Ghosts recorded in one browser engine can play back in snapshot mode in another (last-bit maths differences).
-- Generated campaign layouts lean straight-heavy (see `docs/PHASE_6.md`); the editor makes remixing easy.
-- The editor has no multi-select / copy-paste of block groups, and no gamepad control.

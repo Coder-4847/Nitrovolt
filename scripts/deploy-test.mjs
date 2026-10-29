@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs';
 import { chromium } from 'playwright-core';
 
 const base = process.env.URL ?? 'http://127.0.0.1:4173/Nitrovolt/';
-const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium', args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
 const ctx = await browser.newContext({ viewport: { width: 1280, height: 720 } });
 const page = await ctx.newPage();
 const errors = [];
@@ -66,7 +66,7 @@ const res = await p3.evaluate(async () => {
   for (let i = 0; i < 90 && g.simulation.run.state !== 'finished'; i++) g.fastForward(1);
   return { time: g.simulation.run.finishTime };
 });
-const author = JSON.parse(readFileSync(new URL('../src/data/levels/c18.json', import.meta.url), 'utf8')).medalTimes.author;
+const author = JSON.parse(readFileSync(new URL('../src/data/levels/c18.json', import.meta.url), 'utf8')).target;
 ok(res.time === author, `production physics is bit-identical: bot finishes c18 (two cars) in ${res.time} ms (author ${author})`);
 console.log(errors.length ? errors.join('\n') : 'no console errors');
 await browser.close();
